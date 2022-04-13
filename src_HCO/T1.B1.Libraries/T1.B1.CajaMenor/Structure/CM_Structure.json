@@ -1,0 +1,92 @@
+﻿//tipos de dato: 0: Alfa, 2:Int , 3: Date, 4:Decimal
+
+{
+  "UserTables": [
+    {
+      "TableCode": "HCO_CM0100",
+      "Description": "HCO Conceptos CM",
+      "Type": 1
+    }
+  ],
+  "UserFields": [
+    {
+      "TableCode": "HCO_CM0100",
+      "FieldCode": "Active",
+      "FieldName": "Activo",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "Y",
+      "ValidValues": [
+        {
+          "ValidValue": "Y",
+          "Description": "Yes"
+        },
+        {
+          "ValidValue": "N",
+          "Description": "No"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_CM0100",
+      "FieldCode": "AcctCode",
+      "FieldName": "Cuenta contable",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CM0100",
+      "FieldCode": "AcctName",
+      "FieldName": "Nombre cuenta",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 100,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_CM0100",
+      "FieldCode": "TaxCode",
+      "FieldName": "Impuesto",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 10,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_CM0100",
+      "FieldCode": "WTCode",
+      "FieldName": "Retención",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 10,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    }
+  ],
+  "UDO": [
+    {
+      "Code": "HCO_FCM0100",
+      "Description": "Conceptos caja menor",
+      "TableCode": "HCO_CM0100",
+      "Type": 1,
+      "DefaultForm": 0,
+      "CanDelete":  "Y"
+    }
+  ]
+}

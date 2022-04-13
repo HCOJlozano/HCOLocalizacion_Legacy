@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30104.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRVisor", "CRVisor\T1.CrystalReport.csproj", "{AF056846-E927-49D5-8635-AC0C457E963D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Debug|x64.ActiveCfg = Debug|x64
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Debug|x64.Build.0 = Debug|x64
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Debug|x86.ActiveCfg = Debug|x86
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Debug|x86.Build.0 = Debug|x86
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Release|x64.ActiveCfg = Release|x64
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Release|x64.Build.0 = Release|x64
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Release|x86.ActiveCfg = Release|x86
+		{AF056846-E927-49D5-8635-AC0C457E963D}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E3A2CA0E-1926-40E4-AE71-DA23FD2ED900}
+	EndGlobalSection
+EndGlobal

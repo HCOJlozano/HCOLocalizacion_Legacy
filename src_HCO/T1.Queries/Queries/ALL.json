@@ -1,0 +1,176 @@
+﻿{
+  "Queries": [
+    {
+      "QueryName": "CheckRelThird",
+      "Query": "SELECT \"Code\" AS \"Cant\"  FROM \"@HCO_RP1101\"  T0 WHERE \"U_CardCode\" = '{0}'"
+    },
+    {
+      "QueryName": "GetValueToJournal",
+      "Query": "SELECT T4.\"SalesTax\", T5.\"U_HCO_CtaIva\", T3.\"Credit\" FROM INV1 T0 INNER JOIN OINV T1 ON T0.\"DocEntry\" = T1.\"DocEntry\" INNER JOIN OJDT T2 ON T1.\"TransId\" = T2.\"TransId\" INNER JOIN JDT1 T3 ON T2.\"TransId\" = T3.\"TransId\" INNER JOIN OSTA T4 ON T3.\"Account\" = T4.\"SalesTax\" AND T0.\"TaxCode\" = T4.\"Code\" INNER JOIN OSTC T5 ON T4.\"Code\" = T5.\"Code\" WHERE T1.\"TransId\" = {0} AND AND T5.\"U_HCO_CtaIva\" IS NOT NULL GROUP BY T4.\"SalesTax\", T5.\"U_HCO_CtaIva\", T3.\"Credit\""
+    },
+    {
+      "QueryName": "CheckContainsAsset",
+      "Query": "SELECT T1.\"ItemCode\" FROM {0} T0 INNER JOIN OITM T1 ON T0.\"ItemCode\" = T1.\"ItemCode\" WHERE T0.\"DocEntry\" = {1} AND T1.\"ItemType\" = 'F'"
+    },
+    {
+      "QueryName": "GetJournalPaymentNumber",
+      "Query": "SELECT \"TransId\" FROM {0} WHERE \"DocEntry\" = {1}"
+    },
+    {
+      "QueryName": "CheckPaymentAccount",
+      "Query": "SELECT T0.\"TransId\", T1.\"Account\", T1.\"Line_ID\", (CASE WHEN T1.\"Debit\" > 0 THEN T2.\"U_HCO_RELPAR\" WHEN T1.\"Credit\" > 0 THEN T3.\"U_HCO_RELPAR\" END) AS \"Tercero\" FROM OJDT T0 INNER JOIN (SELECT \"TransId\",\"Line_ID\",\"Account\",\"Debit\",\"Credit\", ROW_NUMBER() OVER (Partition BY \"TransId\", \"DebCred\")-1 AS \"LineBase\" FROM JDT1) T1 ON T0.\"TransId\" = T1.\"TransId\" INNER JOIN OVPM {0} ON T0.\"TransType\" = T3.\"ObjType\" AND T0.\"TransId\" = T3.\"TransId\" FULL OUTER JOIN {1} T2 ON T1.\"Account\" = T2.\"AcctCode\" AND T3.\"DocEntry\" = T2.\"DocNum\" AND T1.\"Account\" = T2.\"AcctCode\" AND  T2.\"SumApplied\" = (CASE WHEN T1.\"Debit\" = 0 THEN T1.\"Credit\" ELSE T1.\"Debit\" END) AND T2.\"LineId\" = T1.\"LineBase\" WHERE T1.\"TransId\" = {2}"
+    },
+    {
+      "QueryName": "UpdateRecordTaskScheduler",
+      "Query": "UPDATE \"@HCO_TS0001\" SET \"U_HCO_LastDateExec\"=CURRENT_DATE, \"U_HCO_LastUser\"='{1}', \"U_HCO_StateExec\" = '{2}', \"U_HCO_LastErrorExec\" = '{3}', \"U_HCO_LastTimeExec\" = TO_INT(TO_CHAR(CURRENT_TIME, 'HHMI')) WHERE \"Code\" = '{0}'"
+    },
+    {
+      "QueryName": "InsertInitialRecordTaskScheduler",
+      "Query": "INSERT INTO \"@HCO_TS0001\"(\"Code\",\"Name\",\"U_HCO_TimeExec\") VALUES('{0}','{0}','{1}')"
+    },
+    {
+      "QueryName": "CheckTaskScheduler",
+      "Query": "SELECT \"Code\" FROM \"@HCO_TS0001\" WHERE \"Code\" = '{0}'"
+    },
+    {
+      "QueryName": "GetCheckItemAF",
+      "Query": "SELECT \"U_DesmCompAF\" FROM \"@HCO_RP0001\" WHERE \"Code\"='1'"
+    },
+    {
+      "QueryName": "CheckCapitalization",
+      "Query": "SELECT \"DocEntry\" FROM OACQ WHERE \"TransType\"='{0}' AND \"CreatedBy\"='{1}'"
+    },
+    {
+      "QueryName": "GetValueDep",
+      "Query": "SELECT (CASE WHEN \"U_ValLocal\" = '{0}' THEN 'L' WHEN \"U_ValIFRS\" = '{0}' THEN 'I' ELSE 'C' END) AS \"ValueDep\" FROM \"@HCO_RP0001\""
+    },
+    {
+      "QueryName": "GetDataBaseValues",
+      "Query": "SELECT \"U_UserNameDB\", \"U_PassWordDB\" FROM \"@HCO_RP0001\" WHERE \"Code\"='1'"
+    },
+    {
+      "QueryName": "GetValorizationValueJournal",
+      "Query": "SELECT T0.\"TransId\", T1.\"DprArea\" FROM OJDT T0 INNER JOIN ACQ2 T1 ON T0.\"TransId\" = T1.\"TransNum\" WHERE T0.\"U_HCO_ValAre\" = 'C'"
+    },
+    {
+      "QueryName": "GetValorizationValue",
+      "Query": "SELECT T2.\"DocNum\", T0.\"TransId\", T1.\"TransNum\", T1.\"DprArea\", T3.\"U_ValLocal\", T3.\"U_ValIFRS\", T0.\"U_HCO_ValAre\" FROM OJDT T0 INNER JOIN ACQ2 T1 ON T0.\"TransId\" = T1.\"TransNum\" INNER JOIN OACQ T2 ON T1.\"DocEntry\" = T2.\"DocEntry\" LEFT JOIN ( SELECT \"U_ValLocal\", \"U_ValIFRS\" FROM \"@HCO_RP0001\" WHERE \"Code\" = '1' ) T3 ON T1.\"DprArea\" = T3.\"U_ValLocal\" OR T1.\"DprArea\" = T3.\"U_ValIFRS\" WHERE T0.\"U_HCO_ValAre\" = 'C'"
+    },
+    {
+      "QueryName": "GetDefaultSN",
+      "Query": "SELECT TOP 1 \"U_DefaultSN\" FROM \"@HCO_RP0001\""
+    },
+    {
+      "QueryName": "GetRelPartyName",
+      "Query": "SELECT \"Name\" FROM \"@HCO_RP0001\" WHERE \"Code\" = '{0}'"
+    },
+    {
+      "QueryName": "GetTransId",
+      "Query": "SELECT TOP 1 TA.\"TransId\", TB.\"ShortName\" AS \"CardCode\" FROM OJDT TA INNER JOIN JDT1 TB ON TA.\"TransId\" = TB.\"TransId\" WHERE TA.\"TransType\" = '{0}' AND TA.\"CreatedBy\" = '{1}'"
+    },
+    {
+      "QueryName": "GetRelPartyConfig",
+      "Query": "SELECT * FROM \"@HCO_RP0001\" WHERE \"Code\" = '1'"
+    },
+    {
+      "QueryName": "GetThird",
+      "Query": "SELECT TOP 1 \"Code\" FROM \"@HCO_RP1101\" WHERE \"U_CardCode\" = '{0}' GROUP BY \"Code\""
+    },
+    {
+      "QueryName": "GetThirdRelated",
+      "Query": "SELECT \"Code\" FROM \"@HCO_RP1101\" WHERE \"U_CardCode\" = '{0}'"
+    },
+    {
+      "QueryName": "CheckBPCant",
+      "Query": "SELECT COUNT(\"CardCode\") AS \"Sec\" FROM \"OCRD\" WHERE \"LicTradNum\" = '{0}' AND \"CardType\" = '{1}'"
+    },
+    {
+      "QueryName": "GetBPBy_licTradNum",
+      "Query": "SELECT \"CardCode\", \"CardName\", \"CardType\"  FROM \"OCRD\" WHERE \"LicTradNum\" = '{0}' AND \"CardType\" <> 'L'"
+    },
+    {
+      "QueryName": "CheckBPThirdCant",
+      "Query": "SELECT COUNT(1) AS \"Cant\" FROM \"@HCO_RP1101\" WHERE \"U_CardCode\" = '{0}' AND \"U_CardType\" = '{1}'"
+    },
+    {
+      "QueryName": "GetBPCount",
+      "Query": "SELECT COUNT(1) AS \"Cant\" FROM \"@HCO_RP1101\" WHERE \"U_CardCode\" = '{0}'"
+    },
+    {
+      "QueryName": "GetLinesBP",
+      "Query": "SELECT \"U_CardCode\" AS \"BP\" FROM \"@HCO_RP1101\" WHERE \"Code\" = '{0}'"
+    },
+    {
+      "QueryName": "GetConfig",
+      "Query": "SELECT TOP 1 \"U_ClientPrefix\", \"U_VendorPrefix\", \"U_CSeries\", \"U_VSeries\" FROM \"@HCO_RP0001\""
+    },
+    {
+      "QueryName": "GetHCO_Tables",
+      "Query": "SELECT \"TableName\" FROM OUTB WHERE \"TableName\" LIKE 'HCO_%'"
+    },
+    {
+      "QueryName": "GetUserFields",
+      "Query": "SELECT REPLACE(\"TableID\",'@','') AS \"TableID\", \"AliasID\" FROM CUFD WHERE \"TableID\" LIKE '@HCO_%' OR \"AliasID\" LIKE 'HCO_%'"
+    },
+    {
+      "QueryName": "GetUDOs",
+      "Query": "SELECT \"Code\" FROM OUDO WHERE \"Code\" LIKE 'HCO_%'"
+    },
+    {
+      "QueryName": "GetMissingRP",
+      "Query": "SELECT \"CardCode\" as \"Código\", \"CardName\" as \"Nombre\", \"LicTradNum\" as \"Identificador\" FROM OCRD where \"CardCode\" not in ( select distinct \"U_CARDCODE\" from \"@HCO_RP1100\")"
+    },
+    {
+      "QueryName": "GetPrefixFromConfiguration",
+      "Query": "SELECT \"U_ClientPrefix\", \"U_VendorPrefix\" FROM \"@HCO_RP0001\" WHERE \"Code\" = '01'"
+    },
+    {
+      "QueryName": "GetCustomerSeries",
+      "Query": "SELECT \"Series\",\"SeriesName\" FROM NNM1 WHERE \"ObjectCode\" = '2'AND \"DocSubType\" = 'C'"
+    },
+    {
+      "QueryName": "GetSupplierSeries",
+      "Query": "SELECT \"Series\",\"SeriesName\" FROM NNM1 WHERE \"ObjectCode\" = '2'AND \"DocSubType\" = 'S'"
+    },
+    {
+      "QueryName": "GetThirdType",
+      "Query": "SELECT \"Code\",\"Name\" FROM \"@HCO_RP0002\""
+    },
+    {
+      "QueryName": "GetDocumentType",
+      "Query": "SELECT \"Code\",\"Name\" FROM \"@HCO_RP0003\""
+    },
+    {
+      "QueryName": "GetCountryList",
+      "Query": "SELECT \"Code\",\"Name\" FROM \"OCRY\""
+    },
+    {
+      "QueryName": "GetContribType",
+      "Query": "SELECT \"Code\",\"Name\" FROM \"@HCO_RP0006\""
+    },
+    {
+      "QueryName": "GetDepartamentType",
+      "Query": "SELECT \"Code\",\"Name\" FROM \"@HCO_RP0004\""
+    },
+    {
+      "QueryName": "GetTributaryType",
+      "Query": "SELECT \"Code\",\"Name\" FROM \"@HCO_RP0008\""
+    },
+    {
+      "QueryName": "GetMunicipality",
+      "Query": "SELECT \"Code\",\"Name\" FROM \"@HCO_RP0005\""
+    },
+    {
+      "QueryName": "GetEconomicActivity",
+      "Query": "SELECT \"Code\",\"Name\" FROM \"@HCO_RP0007\""
+    },
+    {
+      "QueryName": "HasIVACosto",
+      "Query": "SELECT COUNT(TA.\"LineNum\") FROM \"{0}\" TA INNER JOIN \"OSTC\" TB ON TA.\"TaxCode\" = TB.\"Code\" WHERE TB.\"U_HCO_IvaCosto\" = 'Y' AND TA.\"DocEntry\" = '{1}'"
+    },
+    {
+      "QueryName": "GetCountyName",
+      "Query": "SELECT \"Name\" FROM \"@HCO_RP0005\" WHERE \"Code\" = '{0}'"
+    }
+  ]
+}

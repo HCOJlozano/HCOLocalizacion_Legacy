@@ -1,0 +1,41 @@
+﻿//tipos de dato: 0: Alfa, 2:Int , 3: Date, 4:Decimal
+
+{
+  "UserTables": [],
+  "UserFields": [
+    {
+      "TableCode": "OSTC",
+      "FieldCode": "HCO_IvaCosto",
+      "FieldName": "Iva costo",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "N",
+      "ValidValues": [
+        {
+          "ValidValue": "Y",
+          "Description": "Yes"
+        },
+        {
+          "ValidValue": "N",
+          "Description": "No"
+        }
+      ]
+    },
+    {
+      "TableCode": "OSTC",
+      "FieldCode": "HCO_CtaIva",
+      "FieldName": "Cuenta Prueba",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "OACT",
+      "DefaultValue": "",
+      "ValidValues": []
+    }
+  ],
+  "UDO": []
+}

@@ -1,0 +1,17 @@
+﻿{
+  "ConnectionId": "{CC694062-5D0E-47B1-8CD1-F0C09E86D9A7}",
+  "ConnectionName": "VtexCol",
+  "Server": "sap-hana-t01:30015",
+  "LicenseServer": "sap-lic-01:40000",
+  "DBServerType": "dst_HANADB",
+  "CompanyDB": "SBO_VTEXCO_TEST",
+  "DBUserName": "System",
+  "DBUserPassword": "SUtdb2018!",
+  "B1UserName": "admlz",
+  "B1Password": "8sz&xZrr",
+  "Instance": "sap-hana-t01:30015",
+  "DefaultSchema": "SBO_VTEXCO_TEST",
+  "UserName": "System",
+  "Password": "SUtdb2018!",
+  "Type": ["ODBC","B1"]
+}

@@ -1,0 +1,10 @@
+﻿{
+  "ConnectionId": "{BC694062-5D0E-47B1-8CD1-F0C09E86D9A8}",
+  "ConnectionName": "T1",
+  "DBServerType": "dst_HANADB",
+  "Instance": "sap-hana-t01:30015",
+  "DefaultSchema": "T1",
+  "UserName": "System",
+  "Password": "SUtdb2018!",
+  "Type": [ "ODBC" ]
+}

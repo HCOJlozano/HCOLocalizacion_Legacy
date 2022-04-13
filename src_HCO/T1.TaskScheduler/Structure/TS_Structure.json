@@ -1,0 +1,84 @@
+﻿{
+  "UserTables": [
+    {
+      "TableCode": "HCO_TS0001",
+      "Description": "Ejecucion de Tareas",
+      "Type": 0
+    }
+  ],
+  "UserFields": [
+    {
+      "TableCode": "HCO_TS0001",
+      "FieldCode": "HCO_LastDateExec",
+      "FieldName": "Fecha Ultima Ejecucion",
+      "Type": 3,
+      "SubType": 0,
+      "Length": 0,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_TS0001",
+      "FieldCode": "HCO_LastUser",
+      "FieldName": "Ultimo Usuario",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 80,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_TS0001",
+      "FieldCode": "HCO_TimeExec",
+      "FieldName": "Rutina de Ejecucion",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_TS0001",
+      "FieldCode": "HCO_StateExec",
+      "FieldName": "Estado de Ejecucion",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 10,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_TS0001",
+      "FieldCode": "HCO_LastErrorExec",
+      "FieldName": "Ultimo Error",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 254,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_TS0001",
+      "FieldCode": "HCO_LastTimeExec",
+      "FieldName": "Hora Ultima Ejecucion",
+      "Type": 3,
+      "SubType": 84,
+      "Length": 0,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    }
+  ],
+  "UDO": []
+}

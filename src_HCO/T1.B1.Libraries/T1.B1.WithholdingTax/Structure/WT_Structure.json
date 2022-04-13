@@ -1,0 +1,397 @@
+﻿//tipos de dato: 0: Alfa, 2:Int , 3: Date, 4:Decimal
+
+{
+  "UserTables": [
+    {
+      "TableCode": "HCO_WT0100",
+      "Description": "Grupos de municipios H",
+      "Type": 1
+    },
+    {
+      "TableCode": "HCO_WT0101",
+      "Description": "Grupos de municipios L",
+      "Type": 2
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "Description": "Registro de retenciones H",
+      "Type": 3
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "Description": "Registro de retenciones L",
+      "Type": 4
+    }
+  ],
+  "UserFields": [
+    {
+      "TableCode": "OWHT",
+      "FieldCode": "HCO_WTType",
+      "FieldName": "Tipo de retención",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 2,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "2",
+      "ValidValues": [
+        {
+          "ValidValue": 1,
+          "Description": "IVA"
+        },
+        {
+          "ValidValue": 2,
+          "Description": "FUENTE"
+        },
+        {
+          "ValidValue": 3,
+          "Description": "ICA"
+        }
+      ]
+    },
+    {
+      "TableCode": "OWHT",
+      "FieldCode": "HCO_Area",
+      "FieldName": "Afectación",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": [
+        {
+          "ValidValue": "V",
+          "Description": "Ventas"
+        },
+        {
+          "ValidValue": "C",
+          "Description": "Compras"
+        },
+        {
+          "ValidValue": "A",
+          "Description": "Ventas y compras"
+        }
+      ]
+    },
+    {
+      "TableCode": "OWHT",
+      "FieldCode": "HCO_MinBase",
+      "FieldName": "Base mínima",
+      "Type": 4,
+      "SubType": 80,
+      "Length": 0,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "OWHT",
+      "FieldCode": "HCO_MMCode",
+      "FieldName": "Código medios magnéticos",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "OWHT",
+      "FieldCode": "HCO_MunGroup",
+      "FieldName": "Municipios",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "HCO_WT0100",
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT0101",
+      "FieldCode": "MunCode",
+      "FieldName": "Código de municipio",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50
+    },
+    {
+      "TableCode": "HCO_WT0101",
+      "FieldCode": "MunName",
+      "FieldName": "Nombre de municipio",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "DocType",
+      "FieldName": "Tipo de documento",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 3,
+      "DefaultValue": 13,
+      "ValidValues": [
+        {
+          "ValidValue": 13,
+          "Description": "Factura de clientes"
+        },
+        {
+          "ValidValue": 14,
+          "Description": "Nota crédito de clientes"
+        },
+        {
+          "ValidValue": 18,
+          "Description": "Factura de proveedores"
+        },
+        {
+          "ValidValue": 19,
+          "Description": "Nota crédito de proveedores"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "RlPyCode",
+      "FieldName": "Tercero relacionado",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+        {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "DocDate",
+      "FieldName": "Fecha documento",
+      "Type": 3,
+      "SubType": 0,
+      "Length": 0,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "RlPyName",
+      "FieldName": "Nombre tercero relacionado",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 100,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "CardCode",
+      "FieldName": "Socio de negocio",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "DocEntry",
+      "FieldName": "Código documento",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 11,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "DocNum",
+      "FieldName": "Número de documento",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 11,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "TransId",
+      "FieldName": "Entrada en el diario",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 11,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "DocTotal",
+      "FieldName": "Total de documento",
+      "Type": 4,
+      "SubType": 80,
+      "Length": 0,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "Comments",
+      "FieldName": "Comentarios",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 254,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "WTType",
+      "FieldName": "Tipo de retención",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 2,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": [
+        {
+          "ValidValue": 1,
+          "Description": "IVA"
+        },
+        {
+          "ValidValue": 2,
+          "Description": "FUENTE"
+        },
+        {
+          "ValidValue": 3,
+          "Description": "ICA"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "WTCode",
+      "FieldName": "Código de retención",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 4,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "WTRate",
+      "FieldName": "Porcentaje",
+      "Type": 4,
+      "SubType": 80,
+      "Length": 0,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "WTBase",
+      "FieldName": "Base de retención",
+      "Type": 4,
+      "SubType": 80,
+      "Length": 0,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "WTAmnt",
+      "FieldName": "Valor",
+      "Type": 4,
+      "SubType": 80,
+      "Length": 0,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "OpType",
+      "FieldName": "Tipo de operación",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 0,
+      "DefaultValue": "",
+      "ValidValues": [
+        {
+          "ValidValue": 1,
+          "Description": "Contabilización"
+        },
+        {
+          "ValidValue": 2,
+          "Description": "Reclasificación"
+        },
+        {
+          "ValidValue": 3,
+          "Description": "Cancelación"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "BaseLine",
+      "FieldName": "Línea base",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 0,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "Account",
+      "FieldName": "Cuenta",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 15,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "MunCode",
+      "FieldName": "MunCode",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 10,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "MunName",
+      "FieldName": "Municipio",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    }
+  ],
+  "UDO": [
+    {
+      "Code": "HCO_FWT0100",
+      "Description": "Grupos de municipios",
+      "TableCode": "HCO_WT0100",
+      "Type": 1,
+      "DefaultForm": 0,
+      "ChildTables": [
+        {
+          "ChildTableCode": "HCO_WT0101"
+        }
+      ]
+    },
+    {
+      "Code": "HCO_FWT1100",
+      "Description": "Registro de retenciones",
+      "TableCode": "HCO_WT1100",
+      "Type": 3,
+      "DefaultForm": 0,
+      "ChildTables": [
+        {
+          "ChildTableCode": "HCO_WT1101"
+        }
+      ]
+    }
+  ]
+}

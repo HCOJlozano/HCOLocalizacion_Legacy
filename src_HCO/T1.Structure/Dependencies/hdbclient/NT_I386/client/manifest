@@ -1,0 +1,28 @@
+compversion-id: 01200615320200017866
+comptype: HDB_CLIENT
+keyname: HDB_CLIENT
+keycaption: SAP HANA CLIENT
+keyvendor: sap.com
+release: 1.00
+rev-number: 120
+rev-patchlevel: 114
+rev-changelist: 1542121741
+sp-number: 120
+sp-patchlevel: 114
+makeid: 59487
+date: 2018-11-13 17:10:01
+platform: NTintel
+fullversion: 1.00.120.114.1542121741
+compiletype: rel
+compilebranch: unknown
+git-hash: 10e5444c2166b65a24aa93857ff35b09e405cd77
+git-headcount: 59487
+git-mergetime: 2018-11-13 10:09:01 -0500
+git-mergeepoch: 1542121741
+compiler-version-full: Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 16.00.40219.01 for 80x86
+compiler-version: Microsoft 80x86
+artifact-id: 1.12.114
+lcmsdk-artifact-id: 1.2.34
+ngdbc-version: 
+version-note: Please see SAP Note https://launchpad.support.sap.com/#/notes/2339267 for further details about HANA client versions
+compatibility-note: Please see SAP Note https://launchpad.support.sap.com/#/notes/1906576 for further details about HANA client and server compatibility

@@ -1,0 +1,1047 @@
+﻿//tipos de dato: 0: Alfa, 2:Int , 3: Date, 4:Decimal
+
+{
+  "UserTables": [
+    {
+      "TableCode": "HCO_LG0100",
+      "Description": "HCO Legal. Concepto",
+      "Type": 1
+    },
+    {
+      "TableCode": "HCO_LG0101",
+      "Description": "HCO LG Concpt RelPrty",
+      "Type": 1
+    },
+    {
+      "TableCode": "HCO_LG0102",
+      "Description": "HCO LG Concpt WT",
+      "Type": 1
+    },
+    {
+      "TableCode": "HCO_LG0103",
+      "Description": "HCO LG Concpt Tax",
+      "Type": 1
+    },
+    {
+      "TableCode": "HCO_LG0104",
+      "Description": "HCO LG Concpt Typ",
+      "Type": 1
+    },
+    {
+      "TableCode": "HCO_LG0200",
+      "Description": "HCO Legal. Tipos",
+      "Type": 1
+    },
+    {
+      "TableCode": "HCO_RP0007",
+      "Description": "Actividades económicas",
+      "Type": 1
+    },
+    {
+      "TableCode": "HCO_RP0008",
+      "Description": "Regímenes tributarios",
+      "Type": 1
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "Description": "Encabezado terceros relacionad",
+      "Type": 1
+    },
+    {
+      "TableCode": "HCO_RP1101",
+      "Description": "Lineas terceros relacionados",
+      "Type": 2
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "Description": "Parametros Reporte Mov Terc",
+      "Type": 5
+    }
+  ],
+  "UserFields": [
+    {
+      "TableCode": "HCO_RP0005",
+      "FieldCode": "Departamento",
+      "FieldName": "Departamento",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "HCO_RP0004",
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_RP0005",
+      "FieldCode": "HCO_MUNI",
+      "FieldName": "Municipio (Retención)",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "HCO_RP0005",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "CardCode",
+      "FieldName": "Código",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 15,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "CardType",
+      "FieldName": "Tipo tercero",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "CardTypeID",
+      "FieldName": "Código tipo tercero",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 10,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "Active",
+      "FieldName": "Activo",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "Y",
+      "ValidValues": [
+        {
+          "ValidValue": "Y",
+          "Description": "Si"
+        },
+        {
+          "ValidValue": "N",
+          "Description": "No"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "DocType",
+      "FieldName": "Tipo de documento",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "DocTypeID",
+      "FieldName": "Código tipo de documento",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 10,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": ""
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "LicTradNum",
+      "FieldName": "Número de identificación",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 11,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "AuthDig",
+      "FieldName": "Dígito de verificación",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "FirstName",
+      "FieldName": "Primer nombre",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "MiddleName",
+      "FieldName": "Segundo nombre",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "LastName",
+      "FieldName": "Primer apellido",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "ScndSrName",
+      "FieldName": "Segundo apellido",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "AddNames",
+      "FieldName": "Otros nombres",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "Country",
+      "FieldName": "País",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 100,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "CountryCode",
+      "FieldName": "Código País",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 3,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "TaxCardType",
+      "FieldName": "Tipo de contribuyente",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 100,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "TaxCardTypeID",
+      "FieldName": "Código tipo de contribuyente",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "DeptCode",
+      "FieldName": "Código de departamento",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "TaxRegim",
+      "FieldName": "Régimen tributario",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 100,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "TaxRegimID",
+      "FieldName": "Código régimen tributario",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "CountyCode",
+      "FieldName": "Código de municipio",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": [ ]
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "CountyName",
+      "FieldName": "Nombre de municipio",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "EconActvty",
+      "FieldName": "Actividad económica",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "MainAddress",
+      "FieldName": "Dirección principal",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 254,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "Phone1",
+      "FieldName": "Teléfono 1",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 20,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "Phone2",
+      "FieldName": "Teléfono 2",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 20,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "Email",
+      "FieldName": "E-Mail",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 254,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1100",
+      "FieldCode": "ZipCode",
+      "FieldName": "ZipCode",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1101",
+      "FieldCode": "CardType",
+      "FieldName": "Tipo de socio de negocio",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": [
+        {
+          "ValidValue": "C",
+          "Description": "Cliente"
+        },
+        {
+          "ValidValue": "S",
+          "Description": "Proveedor"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_RP1101",
+      "FieldCode": "CardCode",
+      "FieldName": "Código",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 15,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP1101",
+      "FieldCode": "CardName",
+      "FieldName": "Nombre",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 100,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "DefaultSN",
+      "FieldName": "DefaultSN",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "ClientPrefix",
+      "FieldName": "ClientPrefix",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "VendorPrefix",
+      "FieldName": "VendorPrefix",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "CSeries",
+      "FieldName": "ClientSeries",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 30,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "VSeries",
+      "FieldName": "VendorSeries",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 30,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "UseBPSeries",
+      "FieldName": "UseBPSeries",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "N",
+      "ValidValues": [
+        {
+          "ValidValue": "Y",
+          "Description": "Yes"
+        },
+        {
+          "ValidValue": "N",
+          "Description": "No"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "ManyBPs",
+      "FieldName": "ManyBPs",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "N",
+      "ValidValues": [
+        {
+          "ValidValue": "Y",
+          "Description": "Yes"
+        },
+        {
+          "ValidValue": "N",
+          "Description": "No"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "UseTSerial",
+      "FieldName": "UseTSerial",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "N",
+      "ValidValues": [
+        {
+          "ValidValue": "Y",
+          "Description": "Yes"
+        },
+        {
+          "ValidValue": "N",
+          "Description": "No"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "UseTPref",
+      "FieldName": "Prefijo",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "N",
+      "ValidValues": [
+        {
+          "ValidValue": "Y",
+          "Description": "Yes"
+        },
+        {
+          "ValidValue": "N",
+          "Description": "No"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "CharNum",
+      "FieldName": "CharNum",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 11,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "StartNum",
+      "FieldName": "StartNum",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 11,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "JDT1",
+      "FieldCode": "HCO_RELPAR",
+      "FieldName": "Tercero relacionado",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "CodUsr",
+      "FieldName": "Codigo Usuario",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 10,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "FechaDesde",
+      "FieldName": "Fecha Desde",
+      "Type": 3,
+      "SubType": 0,
+      "Length": 10,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "FechaHasta",
+      "FieldName": "Fecha Hasta",
+      "Type": 3,
+      "SubType": 0,
+      "Length": 10,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "SNDesde",
+      "FieldName": "SN Desde",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 40,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "SNHasta",
+      "FieldName": "SN Hasta",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 40,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "CtaDesde",
+      "FieldName": "Cta Desde",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 100,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "CtaHasta",
+      "FieldName": "Cta Hasta",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 100,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "NITDesde",
+      "FieldName": "NIT Desde",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 60,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "NITHasta",
+      "FieldName": "NIT Hasta",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 60,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "Proyecto",
+      "FieldName": "Proyecto",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 40,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "DIM1",
+      "FieldName": "DIM 1",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 60,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "DIM2",
+      "FieldName": "DIM 2",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 60,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "DIM3",
+      "FieldName": "DIM 3",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 60,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "DIM4",
+      "FieldName": "DIM 4",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 60,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "DIM5",
+      "FieldName": "DIM 5",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 60,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "NIVEL1",
+      "FieldName": "Nivel 1",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 30,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_CRMRP0010",
+      "FieldCode": "NIVEL2",
+      "FieldName": "Nivel 2",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 30,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    }
+  ],
+  "UDO": [
+    {
+      "Code": "HCO_FRP0001",
+      "Description": "Configuración de terceros",
+      "TableCode": "HCO_RP0001",
+      "Type": 1,
+      "DefaultForm": 0
+    },
+    {
+      "Code": "HCO_FRP0002",
+      "Description": "Tipos de terceros",
+      "TableCode": "HCO_RP0002",
+      "Type": 1,
+      "DefaultForm": 1,
+      "CanNewForm": "N",
+      "MenuID": "HCO_FRP0002",
+      "MenuCaption": "Tipos de terceros",
+      "FatherMenuID": "43528",
+      "Position": 12,
+      "CanDelete": "Y",
+      "FormColumns": [
+        {
+          "Column": "Code",
+          "Description": "Codigo"
+        },
+        {
+          "Column": "Name",
+          "Description": "Descripción"
+        }
+      ]
+    },
+    {
+      "Code": "HCO_FRP0003",
+      "Description": "Tipos de documentos",
+      "TableCode": "HCO_RP0003",
+      "Type": 1,
+      "DefaultForm": 1,
+      "CanNewForm": "N",
+      "MenuID": "HCO_FRP0003",
+      "MenuCaption": "Tipos de documentos",
+      "FatherMenuID": "43528",
+      "Position": 13,
+      "CanDelete": "Y",
+      "FormColumns": [
+        {
+          "Column": "Code",
+          "Description": "Codigo"
+        },
+        {
+          "Column": "Name",
+          "Description": "Descripción"
+        }
+      ]
+    },
+    {
+      "Code": "HCO_FRP0004",
+      "Description": "Departamento",
+      "TableCode": "HCO_RP0004",
+      "Type": 1,
+      "DefaultForm": 1,
+      "CanNewForm": "N",
+      "MenuID": "HCO_FRP0004",
+      "MenuCaption": "Departamento",
+      "FatherMenuID": "43528",
+      "Position": 14,
+      "CanDelete": "Y",
+      "FormColumns": [
+        {
+          "Column": "Code",
+          "Description": "Código"
+        },
+        {
+          "Column": "Name",
+          "Description": "Descripción"
+        }
+      ]
+    },
+    {
+      "Code": "HCO_FRP0005",
+      "Description": "Municipios",
+      "TableCode": "HCO_RP0005",
+      "Type": 1,
+      "DefaultForm": 1,
+      "CanNewForm": "N",
+      "MenuID": "HCO_FRP0005",
+      "MenuCaption": "Municipios",
+      "FatherMenuID": "43528",
+      "Position": 15,
+      "CanDelete": "Y",
+      "FormColumns": [
+        {
+          "Column": "Code",
+          "Description": "Código"
+        },
+        {
+          "Column": "Name",
+          "Description": "Descripción"
+        },
+        {
+          "Column": "U_Departamento",
+          "Description": "Departamento"
+        }
+      ]
+    },
+    {
+      "Code": "HCO_FRP0006",
+      "Description": "Tipos de contribuyentes",
+      "TableCode": "HCO_RP0006",
+      "Type": 1,
+      "DefaultForm": 1,
+      "CanNewForm": "N",
+      "MenuID": "HCO_FRP0006",
+      "MenuCaption": "Tipos de contribuyentes",
+      "FatherMenuID": "43528",
+      "Position": 16,
+      "CanDelete": "Y",
+      "FormColumns": [
+        {
+          "Column": "Code",
+          "Description": "Código"
+        },
+        {
+          "Column": "Name",
+          "Description": "Descripción"
+        }
+      ]
+    },
+    {
+      "Code": "HCO_FRP0007",
+      "Description": "Actividades económicas",
+      "TableCode": "HCO_RP0007",
+      "Type": 1,
+      "DefaultForm": 1,
+      "CanNewForm": "N",
+      "MenuID": "HCO_FRP0007",
+      "MenuCaption": "Actividades económicas",
+      "FatherMenuID": "43528",
+      "Position": 17,
+      "CanDelete": "Y",
+      "FormColumns": [
+        {
+          "Column": "Code",
+          "Description": "Código"
+        },
+        {
+          "Column": "Name",
+          "Description": "Descripción"
+        }
+      ]
+    },
+    {
+      "Code": "HCO_FRP0008",
+      "Description": "Regímenes tributarios",
+      "TableCode": "HCO_RP0008",
+      "Type": 1,
+      "DefaultForm": 1,
+      "CanNewForm": "N",
+      "MenuID": "HCO_FRP0008",
+      "MenuCaption": "Regímenes tributarios",
+      "FatherMenuID": "43528",
+      "Position": 18,
+      "CanDelete": "Y",
+      "FormColumns": [
+        {
+          "Column": "Code",
+          "Description": "Código"
+        },
+        {
+          "Column": "Name",
+          "Description": "Descripción"
+        }
+      ]
+    },
+    {
+      "Code": "HCO_FRP1100",
+      "Description": "Terceros relacionados",
+      "TableCode": "HCO_RP1100",
+      "Type": 1,
+      "DefaultForm": 0,
+      "CanDelete": "Y",
+      "ChildTables": [
+        {
+          "ChildTableCode": "HCO_RP1101"
+        }
+      ]
+    }
+  ]
+}
