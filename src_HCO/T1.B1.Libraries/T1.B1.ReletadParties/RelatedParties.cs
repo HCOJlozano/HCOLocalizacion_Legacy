@@ -1610,7 +1610,7 @@ namespace T1.B1.RelatedParties
                                 if( paym.GetByKey(int.Parse(recordPayment.Fields.Item("Receipt").Value.ToString())) )
                                 {
                                     var journalPay = (JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
-                                    if (journalPay.GetByKey(int.Parse(recordPayment.Fields.Item("Receipt").Value.ToString()))) 
+                                    if (journalPay.GetByKey(int.Parse(recordPayment.Fields.Item("PaymentJournal").Value.ToString()))) 
                                     {
                                         for (int i = 0; i < journalPay.Lines.Count; i++)
                                         {

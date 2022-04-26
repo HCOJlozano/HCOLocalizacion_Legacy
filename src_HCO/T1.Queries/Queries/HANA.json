@@ -15,7 +15,7 @@
     },
     {
       "QueryName": "GetReceiptFromInvoice",
-      "Query": "SELECT (CASE '{0}' WHEN 13 THEN (SELECT \"ReceiptNum\" FROM OINV WHERE \"DocEntry\" = '{1}') WHEN 18 THEN (SELECT \"ReceiptNum\" FROM OPCH WHERE \"DocEntry\" = '{1}') WHEN 203 THEN (SELECT \"ReceiptNum\" FROM ODPI WHERE \"DocEntry\" = '{1}') WHEN 204 THEN (SELECT \"ReceiptNum\" FROM ODPO WHERE \"DocEntry\" = '{1}') END) AS \"Receipt\", (CASE WHEN '{0}' IN ('13','203') THEN '24' WHEN '{0}' IN ('18','204') THEN '46' END) AS \"ObjType\" FROM DUMMY"
+      "Query": "SELECT (CASE '{0}' WHEN 13 THEN (SELECT \"ReceiptNum\" FROM OINV WHERE \"DocEntry\" = '{1}') WHEN 18 THEN (SELECT \"ReceiptNum\" FROM OPCH WHERE \"DocEntry\" = '{1}') WHEN 203 THEN (SELECT \"ReceiptNum\" FROM ODPI WHERE \"DocEntry\" = '{1}') WHEN 204 THEN (SELECT \"ReceiptNum\" FROM ODPO WHERE \"DocEntry\" = '{1}') END) AS \"Receipt\", (CASE WHEN '{0}' IN ('13','203') THEN '24' WHEN '{0}' IN ('18','204') THEN '46' END) AS \"ObjType\", (CASE '{0}' WHEN 13 THEN (SELECT \"TransId\" FROM ORCT WHERE \"DocEntry\" = (SELECT \"ReceiptNum\" FROM OINV WHERE \"DocEntry\" = '{1}')) WHEN 18 THEN (SELECT \"TransId\" FROM OVPM WHERE \"DocEntry\" = (SELECT \"ReceiptNum\" FROM OPCH WHERE \"DocEntry\" = '{1}')) WHEN 203 THEN (SELECT \"TransId\" FROM ORCT WHERE \"DocEntry\" = (SELECT \"ReceiptNum\" FROM ODPI WHERE \"DocEntry\" = '{1}')) WHEN 204 THEN (SELECT \"TransId\" FROM OVPM WHERE \"DocEntry\" = (SELECT \"ReceiptNum\" FROM ODPO WHERE \"DocEntry\" = '{1}')) END) AS \"PaymentJournal\" FROM DUMMY"
     }
   ]
 }
