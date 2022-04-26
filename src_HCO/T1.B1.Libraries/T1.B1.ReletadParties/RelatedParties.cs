@@ -2051,7 +2051,7 @@ namespace T1.B1.RelatedParties
                 BusinessPartners oBP = (BusinessPartners)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
                 oBP.GetByKey(cardCode);
 
-                return LicTradNumRP.Equals(oBP.FederalTaxID);
+                return LicTradNumRP.Replace("-","").ToString().Equals(oBP.FederalTaxID.Replace("-",""));
             }
             catch (COMException comEx)
             {
