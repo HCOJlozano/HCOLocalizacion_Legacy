@@ -1572,7 +1572,6 @@ namespace T1.B1.RelatedParties
         {
             SAPbobsCOM.Documents oDoc = (SAPbobsCOM.Documents)MainObject.Instance.B1Company.GetBusinessObject((SAPbobsCOM.BoObjectTypes)Enum.Parse(typeof(SAPbobsCOM.BoObjectTypes), objType));
 
-
             try
             {
                 var RelPartyCode = string.Empty;
@@ -1597,6 +1596,38 @@ namespace T1.B1.RelatedParties
                 else
                 {
                     RelPartyCode = GetValueThird(cardCodeDoc);
+                    var queryPayment = string.Format(Queries.Instance.Queries().Get("GetReceiptFromInvoice"), objType, xml.InnerText);
+                    var recordPayment = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                        recordPayment.DoQuery(queryPayment);
+
+                    if( recordPayment.RecordCount > 0 )
+                    {
+                        if (!recordPayment.Fields.Item("Receipt").Value.ToString().Equals(string.Empty))                                                                    
+                        {
+                            try 
+                            {
+                                var paym = (Payments)MainObject.Instance.B1Company.GetBusinessObject((BoObjectTypes)Enum.Parse(typeof(BoObjectTypes), recordPayment.Fields.Item("ObjType").Value.ToString()));
+                                if( paym.GetByKey(int.Parse(recordPayment.Fields.Item("Receipt").Value.ToString())) )
+                                {
+                                    var journalPay = (JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+                                    if (journalPay.GetByKey(int.Parse(recordPayment.Fields.Item("Receipt").Value.ToString()))) 
+                                    {
+                                        for (int i = 0; i < journalPay.Lines.Count; i++)
+                                        {
+                                            journalPay.Lines.SetCurrentLine(i);
+                                            journalPay.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = RelPartyCode;
+                                        }
+
+                                        var resp = journalPay.Update();
+                                    }
+                                }
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
                 }
 
                 if (transId.Equals(string.Empty) || RelPartyCode.Equals(string.Empty))

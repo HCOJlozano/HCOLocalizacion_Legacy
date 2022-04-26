@@ -44,15 +44,6 @@ namespace T1
                     //if (blMD)
                     //{
 
-                    var oCampaignService = (SAPbobsCOM.AssetDepreciationGroupsService) MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.AssetDepreciationGroupsService);
-                    var oCampaign = oCampaignService.GetDataInterface(SAPbobsCOM.AssetDepreciationGroupsServiceDataInterfaces.adgsAssetDepreciationGroupParams);
-                    var oCampaignParams = (SAPbobsCOM.AssetDepreciationGroupParams)oCampaignService.GetDataInterface(SAPbobsCOM.AssetDepreciationGroupsServiceDataInterfaces.adgsAssetDepreciationGroupParams);
-                    oCampaignParams.Code = "1";
-
-                    var dep = (SAPbobsCOM.AssetClassesService)MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.AssetClassesService);
-                    var asda = oCampaignService.Get(oCampaignParams);
-
-
                     #region loadFirstTimeData
                     //if (Settings._Main.loadInitialData)
                     //{
