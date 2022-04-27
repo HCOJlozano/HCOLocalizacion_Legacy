@@ -333,6 +333,7 @@ namespace T1.B1.IvaCosto
 
             try
             {
+                var thirdToUse = GetValueThird(oDoc.CardCode);
                 oJE.ReferenceDate = oDoc.DocDate;
                 oJE.Memo = "Contabilización IVA Costo Doc: " + +oDoc.DocNum;
 
@@ -355,6 +356,7 @@ namespace T1.B1.IvaCosto
                             oJE.Lines.CostingCode3 = oDoc.Lines.CostingCode3;
                             oJE.Lines.CostingCode4 = oDoc.Lines.CostingCode4;
                             oJE.Lines.CostingCode5 = oDoc.Lines.CostingCode5;
+                            oJE.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
                             oJE.Lines.Add();
                             oJE.Lines.AccountCode = oDoc.Lines.AccountCode;
                             if (Debit) oJE.Lines.Debit = oDoc.Lines.TaxTotal;
@@ -364,6 +366,7 @@ namespace T1.B1.IvaCosto
                             oJE.Lines.CostingCode3 = oDoc.Lines.CostingCode3;
                             oJE.Lines.CostingCode4 = oDoc.Lines.CostingCode4;
                             oJE.Lines.CostingCode5 = oDoc.Lines.CostingCode5;
+                            oJE.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
                             oJE.Lines.Add();
                         }
                     }
@@ -387,6 +390,7 @@ namespace T1.B1.IvaCosto
                             oJE.Lines.CostingCode3 = oDoc.Lines.CostingCode3;
                             oJE.Lines.CostingCode4 = oDoc.Lines.CostingCode4;
                             oJE.Lines.CostingCode5 = oDoc.Lines.CostingCode5;
+                            oJE.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
                             oJE.Lines.Add();
                             oJE.Lines.AccountCode = oDoc.Lines.AccountCode;
                             if (Debit) oJE.Lines.Debit = oDoc.Lines.TaxTotal;
@@ -396,6 +400,7 @@ namespace T1.B1.IvaCosto
                             oJE.Lines.CostingCode3 = oDoc.Lines.CostingCode3;
                             oJE.Lines.CostingCode4 = oDoc.Lines.CostingCode4;
                             oJE.Lines.CostingCode5 = oDoc.Lines.CostingCode5;
+                            oJE.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
                             oJE.Lines.Add();
 
                         }
@@ -428,6 +433,22 @@ namespace T1.B1.IvaCosto
                 GC.Collect();
             }
 
+        }
+
+        static public string GetValueThird(string cardCode)
+        {
+            var thrid = string.Empty;
+            var strSQL = string.Format(Queries.Instance.Queries().Get("GetThirdRelated"), cardCode);
+            var objRecordSet = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+            objRecordSet.DoQuery(strSQL);
+            objRecordSet.MoveFirst();
+
+            if (objRecordSet.RecordCount > 0)
+            {
+                thrid = objRecordSet.Fields.Item("Code").Value.ToString();
+            }
+
+            return thrid;
         }
 
         public static void CreateRevaluation(bool Debit, Documents oDoc)
