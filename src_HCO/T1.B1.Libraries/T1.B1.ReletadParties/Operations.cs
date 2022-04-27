@@ -392,13 +392,13 @@ namespace T1.B1.RelatedParties
                                 }
                             }
 
-                            if (BusinessObjectInfo.FormTypeEx == "14700000037")
+                            if (BusinessObjectInfo.FormTypeEx == "1470000037")
                             {
                                 if (BusinessObjectInfo.ActionSuccess)
                                 {
                                     var formActive = MainObject.Instance.B1Application.Forms.Item(BusinessObjectInfo.FormUID);
                                     var docEntry = formActive.DataSources.DBDataSources.Item(0).GetValue("DocEntry", 0);
-                                    Instance.ActualizarInfoCapitalizacion(docEntry);
+                                    Instance.ValorizationExecution(docEntry);
                                 }
                             }
 
