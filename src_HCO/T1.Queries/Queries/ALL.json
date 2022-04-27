@@ -1,6 +1,10 @@
 ﻿{
   "Queries": [
     {
+      "QueryName": "GetRevaluationJournal",
+      "Query": "SELECT \"TransId\" FROM OMRV WHERE \"DocEntry\" =  '{0}'"
+    },
+    {
       "QueryName": "GetValorizationExecution",
       "Query": "SELECT \"TransId\" FROM DRN1 WHERE \"DocEntry\" = '{0}'"
     },
