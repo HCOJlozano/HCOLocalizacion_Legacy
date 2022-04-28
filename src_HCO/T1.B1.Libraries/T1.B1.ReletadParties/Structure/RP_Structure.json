@@ -964,6 +964,43 @@
       "LinkCode": "",
       "DefaultValue": "",
       "ValidValues": []
+    },
+    {
+      "TableCode": "OACT",
+      "FieldCode": "HCO_TipAcct",
+      "FieldName": "Tipo de cuenta",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 3,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "C",
+      "ValidValues": [
+        {
+          "ValidValue": "AC",
+          "Description": "Activo Corriente"
+        },
+        {
+          "ValidValue": "ANC",
+          "Description": "Activo No Corriente"
+        },
+        {
+          "ValidValue": "PC",
+          "Description": "Pasivo Corriente"
+        },
+        {
+          "ValidValue": "PNC",
+          "Description": "Pasivo No Corriente"
+        },
+        {
+          "ValidValue": "IG",
+          "Description": "Impuesto a las Ganancias"
+        },
+        {
+          "ValidValue": "ID",
+          "Description": "Impuesto Diferido"
+        }
+      ]
     }
   ],
   "UDO": [

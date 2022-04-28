@@ -50,7 +50,7 @@ namespace T1
                     oCampaignParams.Code = "1";
 
                     var dep = (SAPbobsCOM.AssetClassesService)MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.AssetClassesService);
-                    var asda = oCampaignService.Get(oCampaignParams);
+                    //var asda = oCampaignService.Get(oCampaignParams);
 
 
                     #region loadFirstTimeData

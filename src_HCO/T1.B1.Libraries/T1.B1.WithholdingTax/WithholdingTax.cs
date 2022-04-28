@@ -729,23 +729,18 @@ namespace T1.B1.WithholdingTax
             }
             return blResult;
         }
-        private static double getBaseAmount(SAPbobsCOM.Documents objDoc)
+        private static double getWTDocBaseAmount(SAPbobsCOM.Documents objDoc)
         {
             double dbBase = 0;
             try
             {
-                //dbBase = objDoc.BaseAmount;
-                if (dbBase == 0)
+                for(int i = 0; i < objDoc.Lines.Count; i++)
                 {
-                    //double dbExpenses = 0;
-                    //SAPbobsCOM.DocumentsAdditionalExpenses objExp = objDoc.Expenses;
-                    //for(int i=0; i < objExp.Count; i++)
-                    //{
-                    //  objExp.SetCurrentLine(i);
-                    //dbExpenses += objExp.LineTotal;
-                    //}
-                    double dbTest = objDoc.RoundingDiffAmount > 0.5 ? objDoc.RoundingDiffAmount : objDoc.RoundingDiffAmount * -1;
-                    dbBase = objDoc.DocTotal - objDoc.VatSum + objDoc.WTAmount + dbTest;
+                    objDoc.Lines.SetCurrentLine(i);
+                    if(objDoc.Lines.WTLiable == BoYesNoEnum.tYES && objDoc.Lines.TaxTotal > 0)
+                    {
+                        dbBase += objDoc.Lines.LineTotal;
+                    }
                 }
             }
             catch (Exception er)
@@ -874,7 +869,7 @@ namespace T1.B1.WithholdingTax
                         }
                     }                    
 
-                    dbBaseAmnt = getBaseAmount(objDoc);
+                    dbBaseAmnt = getWTDocBaseAmount(objDoc);
                     objRelatedPartyObject = objCompanyService.GetGeneralService("HCO_FRP1100");
                     oFilter = (GeneralDataParams)objRelatedPartyObject.GetDataInterface(GeneralServiceDataInterfaces.gsGeneralDataParams);
                     oFilter.SetProperty("Code", GetRelPartyCodeFromCardCode(objDoc.CardCode));
@@ -921,12 +916,12 @@ namespace T1.B1.WithholdingTax
                             }
                             if (oWT.BaseType == WithholdingTaxCodeBaseTypeEnum.wtcbt_VAT)
                             {
-                                objEntryLinesInfo.SetProperty("U_WTBase", objDoc.VatSum);
+                                objEntryLinesInfo.SetProperty("U_WTDocAmnt", dbBaseAmnt);
                             }
-                            else
-                            {
-                                objEntryLinesInfo.SetProperty("U_WTBase", dbBaseAmnt);
-                            }
+                            //else
+                            //{
+                            //    objEntryLinesInfo.SetProperty("U_WTBase", dbBaseAmnt);
+                            //}
                         }
                     }
 
@@ -1016,7 +1011,7 @@ namespace T1.B1.WithholdingTax
                     oDoc.GetByKey(Int32.Parse(doc.DocEntry));
                     objCompanyService = MainObject.Instance.B1Company.GetCompanyService();
                     oBP.GetByKey(oDoc.CardCode);
-                    dbBaseAmnt = getBaseAmount(oDoc);
+                    dbBaseAmnt = getWTDocBaseAmount(oDoc);
                     objRelatedPartyObject = objCompanyService.GetGeneralService("HCO_FRP1100");
                     objResult = (GeneralDataParams)objRelatedPartyObject.GetDataInterface(GeneralServiceDataInterfaces.gsGeneralDataParams);
                     RelPartyCode = GetRelPartyCodeFromCardCode(oDoc.CardCode);
@@ -1086,12 +1081,12 @@ namespace T1.B1.WithholdingTax
                                 }
                                 if (oWT.BaseType == WithholdingTaxCodeBaseTypeEnum.wtcbt_VAT)
                                 {
-                                    objEntryLinesInfo.SetProperty("U_WTBase", oDoc.VatSum);
+                                    objEntryLinesInfo.SetProperty("U_WTDocAmnt", dbBaseAmnt);
                                 }
-                                else
-                                {
-                                    objEntryLinesInfo.SetProperty("U_WTBase", dbBaseAmnt);
-                                }
+                                //else
+                                //{
+                                //    objEntryLinesInfo.SetProperty("U_WTBase", dbBaseAmnt);
+                                //}
                             }
                         }
 
