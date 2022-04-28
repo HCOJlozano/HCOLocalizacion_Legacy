@@ -1370,6 +1370,32 @@ namespace T1.B1.RelatedParties
                 UpdateItemsCapitalization(docEntry);
         }
 
+        static public void ValorizationExecution(string docEntry)
+        {
+            var journal = (JournalEntries) MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+            var querySN = Queries.Instance.Queries().Get("GetDefaultSN");
+            var record = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                record.DoQuery(querySN);
+            var RelPartyCode = record.Fields.Item("U_DefaultSN").Value.ToString();
+            var queryThird = string.Format(Queries.Instance.Queries().Get("GetValorizationExecution"), docEntry);
+            record.DoQuery(queryThird);
+            while(!record.EoF)
+            {
+                if( journal.GetByKey(int.Parse(record.Fields.Item("TransId").Value.ToString())) )
+                {
+                    for(int i=0; i<journal.Lines.Count; i++)
+                    {
+                        journal.Lines.SetCurrentLine(i);
+                        journal.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = RelPartyCode;
+                    }
+
+                    var resp = journal.Update();
+                }
+
+                record.MoveNext();
+            }
+        }
+
         static private string IsCheckItemCapitalizationMarked()
         {
             var strSQL = Queries.Instance.Queries().Get("GetCheckItemAF");
@@ -1572,7 +1598,6 @@ namespace T1.B1.RelatedParties
         {
             SAPbobsCOM.Documents oDoc = (SAPbobsCOM.Documents)MainObject.Instance.B1Company.GetBusinessObject((SAPbobsCOM.BoObjectTypes)Enum.Parse(typeof(SAPbobsCOM.BoObjectTypes), objType));
 
-
             try
             {
                 var RelPartyCode = string.Empty;
@@ -1597,6 +1622,38 @@ namespace T1.B1.RelatedParties
                 else
                 {
                     RelPartyCode = GetValueThird(cardCodeDoc);
+                    var queryPayment = string.Format(Queries.Instance.Queries().Get("GetReceiptFromInvoice"), objType, xml.InnerText);
+                    var recordPayment = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                        recordPayment.DoQuery(queryPayment);
+
+                    if( recordPayment.RecordCount > 0 )
+                    {
+                        if (!recordPayment.Fields.Item("Receipt").Value.ToString().Equals(string.Empty))                                                                    
+                        {
+                            try 
+                            {
+                                var paym = (Payments)MainObject.Instance.B1Company.GetBusinessObject((BoObjectTypes)Enum.Parse(typeof(BoObjectTypes), recordPayment.Fields.Item("ObjType").Value.ToString()));
+                                if( paym.GetByKey(int.Parse(recordPayment.Fields.Item("Receipt").Value.ToString())) )
+                                {
+                                    var journalPay = (JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+                                    if (journalPay.GetByKey(int.Parse(recordPayment.Fields.Item("PaymentJournal").Value.ToString()))) 
+                                    {
+                                        for (int i = 0; i < journalPay.Lines.Count; i++)
+                                        {
+                                            journalPay.Lines.SetCurrentLine(i);
+                                            journalPay.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = RelPartyCode;
+                                        }
+
+                                        var resp = journalPay.Update();
+                                    }
+                                }
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
                 }
 
                 if (transId.Equals(string.Empty) || RelPartyCode.Equals(string.Empty))
@@ -2020,7 +2077,7 @@ namespace T1.B1.RelatedParties
                 BusinessPartners oBP = (BusinessPartners)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
                 oBP.GetByKey(cardCode);
 
-                return LicTradNumRP.Equals(oBP.FederalTaxID);
+                return LicTradNumRP.Replace("-","").ToString().Equals(oBP.FederalTaxID.Replace("-",""));
             }
             catch (COMException comEx)
             {

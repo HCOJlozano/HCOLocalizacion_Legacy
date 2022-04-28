@@ -39,20 +39,21 @@ namespace T1
                 {
                     _Logger.Debug("Starting Meta data creation.");
 
-                    bool blMD = T1.B1.MetaData.Operations.blCreateMD(Settings._Main.createMD);
+                   // bool blMD = T1.B1.MetaData.Operations.blCreateMD(Settings._Main.createMD);
                     _Logger.Debug("Meta data creation ended.");
                     //if (blMD)
                     //{
+                    //var oCampaignService = (SAPbobsCOM.AssetDepreciationGroupsService) MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.AssetDepreciationGroupsService);
+                    //var oCampaign = oCampaignService.GetDataInterface(SAPbobsCOM.AssetDepreciationGroupsServiceDataInterfaces.adgsAssetDepreciationGroupParams);
+                    //var oCampaignParams = (SAPbobsCOM.AssetDepreciationGroupParams)oCampaignService.GetDataInterface(SAPbobsCOM.AssetDepreciationGroupsServiceDataInterfaces.adgsAssetDepreciationGroupParams);
+                    //oCampaignParams.Code = "1";
 
-                    var oCampaignService = (SAPbobsCOM.AssetDepreciationGroupsService) MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.AssetDepreciationGroupsService);
-                    var oCampaign = oCampaignService.GetDataInterface(SAPbobsCOM.AssetDepreciationGroupsServiceDataInterfaces.adgsAssetDepreciationGroupParams);
-                    var oCampaignParams = (SAPbobsCOM.AssetDepreciationGroupParams)oCampaignService.GetDataInterface(SAPbobsCOM.AssetDepreciationGroupsServiceDataInterfaces.adgsAssetDepreciationGroupParams);
-                    oCampaignParams.Code = "1";
-
-                    var dep = (SAPbobsCOM.AssetClassesService)MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.AssetClassesService);
+                    //var dep = (SAPbobsCOM.AssetClassesService)MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.AssetClassesService);
                     //var asda = oCampaignService.Get(oCampaignParams);
 
 
+
+ main
                     #region loadFirstTimeData
                     //if (Settings._Main.loadInitialData)
                     //{

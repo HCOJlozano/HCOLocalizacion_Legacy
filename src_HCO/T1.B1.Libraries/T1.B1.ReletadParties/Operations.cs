@@ -392,13 +392,13 @@ namespace T1.B1.RelatedParties
                                 }
                             }
 
-                            if (BusinessObjectInfo.FormTypeEx == "14700000037")
+                            if (BusinessObjectInfo.FormTypeEx == "1470000037")
                             {
                                 if (BusinessObjectInfo.ActionSuccess)
                                 {
                                     var formActive = MainObject.Instance.B1Application.Forms.Item(BusinessObjectInfo.FormUID);
                                     var docEntry = formActive.DataSources.DBDataSources.Item(0).GetValue("DocEntry", 0);
-                                    Instance.ActualizarInfoCapitalizacion(docEntry);
+                                    Instance.ValorizationExecution(docEntry);
                                 }
                             }
 
@@ -431,6 +431,17 @@ namespace T1.B1.RelatedParties
                             break;
                         case SAPbouiCOM.BoEventTypes.et_FORM_DATA_UPDATE:
                             if (BusinessObjectInfo.FormTypeEx == "HCO_FRP1100") Instance.FrozenForRelParty(BusinessObjectInfo);
+
+                            if (BusinessObjectInfo.FormTypeEx == "1472000036")
+                            {
+                                if (BusinessObjectInfo.ActionSuccess)
+                                {
+                                    var formActive = MainObject.Instance.B1Application.Forms.Item(BusinessObjectInfo.FormUID);
+                                    var docEntry = formActive.DataSources.DBDataSources.Item(0).GetValue("DocEntry", 0);
+                                    Instance.ValorizationExecution(docEntry);
+                                }
+                            }
+
                             break;
                     }
                 }

@@ -1,6 +1,14 @@
 ﻿{
   "Queries": [
     {
+      "QueryName": "GetRevaluationJournal",
+      "Query": "SELECT \"TransId\" FROM OMRV WHERE \"DocEntry\" =  '{0}'"
+    },
+    {
+      "QueryName": "GetValorizationExecution",
+      "Query": "SELECT \"TransId\" FROM DRN1 WHERE \"DocEntry\" = '{0}'"
+    },
+    {
       "QueryName": "CheckRelThird",
       "Query": "SELECT \"Code\" AS \"Cant\"  FROM \"@HCO_RP1101\"  T0 WHERE \"U_CardCode\" = '{0}'"
     },
