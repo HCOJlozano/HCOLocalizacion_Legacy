@@ -20,8 +20,6 @@ namespace T1.B1.IvaCosto
     {
         private static IvaCosto objIvaCosto;
         private static readonly ILog _Logger = Log.Instance.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, Settings._Main.logLevel);
-
-
         private IvaCosto()
         {
             if (objIvaCosto == null) objIvaCosto = new IvaCosto();
