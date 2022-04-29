@@ -5,6 +5,10 @@
       "Query": "SELECT T0.\"DocEntry\" FROM OACQ T0 WHERE T0.\"CreatedBy\" = '{0}'"
     },
     {
+      "QueryName": "GetRevaluationJournal",
+      "Query": "SELECT \"TransId\" FROM OMRV WHERE \"DocEntry\" =  '{0}'"
+    },
+    {
       "QueryName": "GetValorizationExecution",
       "Query": "SELECT \"TransId\" FROM DRN1 WHERE \"DocEntry\" = '{0}'"
     },

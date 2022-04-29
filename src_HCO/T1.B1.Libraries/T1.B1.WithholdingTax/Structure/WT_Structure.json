@@ -82,7 +82,7 @@
       "SubType": 80,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "OWHT",
@@ -92,7 +92,7 @@
       "SubType": 0,
       "Length": 50,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "OWHT",
@@ -104,7 +104,7 @@
       "LinkType": 0,
       "LinkCode": "HCO_WT0100",
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT0101",
@@ -157,9 +157,9 @@
       "SubType": 0,
       "Length": 50,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
-        {
+    {
       "TableCode": "HCO_WT1100",
       "FieldCode": "DocDate",
       "FieldName": "Fecha documento",
@@ -167,7 +167,7 @@
       "SubType": 0,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1100",
@@ -177,7 +177,7 @@
       "SubType": 0,
       "Length": 100,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1100",
@@ -187,7 +187,7 @@
       "SubType": 0,
       "Length": 50,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1100",
@@ -197,7 +197,7 @@
       "SubType": 0,
       "Length": 11,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1100",
@@ -207,7 +207,7 @@
       "SubType": 0,
       "Length": 11,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1100",
@@ -217,7 +217,7 @@
       "SubType": 0,
       "Length": 11,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1100",
@@ -227,7 +227,7 @@
       "SubType": 80,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1100",
@@ -237,7 +237,7 @@
       "SubType": 0,
       "Length": 254,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1101",
@@ -272,7 +272,7 @@
       "SubType": 0,
       "Length": 4,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1101",
@@ -282,7 +282,17 @@
       "SubType": 80,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "WTDocAmnt",
+      "FieldName": "Base de impuesto",
+      "Type": 4,
+      "SubType": 80,
+      "Length": 0,
+      "DefaultValue": "",
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1101",
@@ -292,7 +302,7 @@
       "SubType": 80,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1101",
@@ -302,7 +312,7 @@
       "SubType": 80,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1100",
@@ -335,7 +345,7 @@
       "SubType": 0,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1101",
@@ -345,7 +355,7 @@
       "SubType": 0,
       "Length": 15,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1101",
@@ -355,7 +365,7 @@
       "SubType": 0,
       "Length": 10,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_WT1101",
@@ -365,7 +375,7 @@
       "SubType": 0,
       "Length": 50,
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     }
   ],
   "UDO": [
