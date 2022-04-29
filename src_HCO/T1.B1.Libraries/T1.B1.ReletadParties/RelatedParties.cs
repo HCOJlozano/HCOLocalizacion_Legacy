@@ -213,6 +213,39 @@ namespace T1.B1.RelatedParties
                 cond.CondVal = i.ToString(); ;
                 form.ChooseFromLists.Item($"CFL_Dim{i}").SetConditions(conds);
             }
+
+            var condsAcct = form.ChooseFromLists.Item("CFL_CtaD").GetConditions();
+            var condAcct = condsAcct.Add();
+                condAcct.BracketOpenNum = 2;
+                condAcct.Alias = "Frozen";
+                condAcct.Operation = BoConditionOperation.co_EQUAL;
+                condAcct.CondVal = "N";
+                condAcct.BracketCloseNum = 1;
+                condAcct.Relationship = BoConditionRelationship.cr_AND;
+                condAcct = condsAcct.Add();
+                condAcct.BracketOpenNum = 1;
+                condAcct.Alias = "Postable";
+                condAcct.Operation = BoConditionOperation.co_EQUAL;
+                condAcct.CondVal = "Y";
+                condAcct.BracketCloseNum = 2;
+
+            form.ChooseFromLists.Item("CFL_CtaD").SetConditions(condsAcct);
+
+            condsAcct = form.ChooseFromLists.Item("CFL_CtaH").GetConditions();
+            condAcct = condsAcct.Add();
+            condAcct.BracketOpenNum = 2;
+            condAcct.Alias = "Frozen";
+            condAcct.Operation = BoConditionOperation.co_EQUAL;
+            condAcct.CondVal = "N";
+            condAcct.BracketCloseNum = 1;
+            condAcct.Relationship = BoConditionRelationship.cr_AND;
+            condAcct = condsAcct.Add();
+            condAcct.BracketOpenNum = 1;
+            condAcct.Alias = "Postable";
+            condAcct.Operation = BoConditionOperation.co_EQUAL;
+            condAcct.CondVal = "Y";
+            condAcct.BracketCloseNum = 2;
+            form.ChooseFromLists.Item("CFL_CtaH").SetConditions(condsAcct);
         }
 
         public static void CheckLevelCondition(ItemEvent pVal)
