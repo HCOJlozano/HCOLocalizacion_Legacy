@@ -1,6 +1,10 @@
 ﻿{
   "Queries": [
     {
+      "QueryName": "GetCapitalizationValue",
+      "Query": "SELECT T0.\"DocEntry\" FROM OACQ T0 WHERE T0.\"CreatedBy\" = '{0}'"
+    },
+    {
       "QueryName": "GetRevaluationJournal",
       "Query": "SELECT \"TransId\" FROM OMRV WHERE \"DocEntry\" =  '{0}'"
     },
