@@ -19,15 +19,24 @@ namespace T1.B1.RelatedParties
             try
             {
                 SAPbouiCOM.MenuCreationParams objMenu = (MenuCreationParams)MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
-                int count = MainObject.Instance.B1Application.Menus.Item("43528").SubMenus.Count + 1;
+                objMenu.String = "H&CO Localización";
+                objMenu.UniqueID = "HCO_RPT0001";
+                objMenu.Type = SAPbouiCOM.BoMenuType.mt_POPUP;
+                int count = MainObject.Instance.B1Application.Menus.Item("8448").SubMenus.Count + 1;
+                objMenu.Position = count;
+                if (!MainObject.Instance.B1Application.Menus.Exists("HCO_RPT0000"))
+                    MainObject.Instance.B1Application.Menus.Item("8448").SubMenus.AddEx(objMenu);
+
                 objMenu = (MenuCreationParams)MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
-                objMenu.String = "Configuración de terceros";
+                count = MainObject.Instance.B1Application.Menus.Item("43528").SubMenus.Count + 1;
+                objMenu = (MenuCreationParams)MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
+                objMenu.String = "Configuración Localización H&CO";
                 objMenu.UniqueID = "HCO_MRP0001";
                 objMenu.Type = SAPbouiCOM.BoMenuType.mt_STRING;
-                count = MainObject.Instance.B1Application.Menus.Item("43528").SubMenus.Count + 1;
+                count = MainObject.Instance.B1Application.Menus.Item("HCO_RPT0001").SubMenus.Count + 1;
                 objMenu.Position = count;
                 if (!MainObject.Instance.B1Application.Menus.Exists("HCO_MRP0001"))
-                    MainObject.Instance.B1Application.Menus.Item("43528").SubMenus.AddEx(objMenu);
+                    MainObject.Instance.B1Application.Menus.Item("HCO_RPT0001").SubMenus.AddEx(objMenu);
 
                 objMenu = (MenuCreationParams)MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
                 objMenu.String = "Terceros relacionados";

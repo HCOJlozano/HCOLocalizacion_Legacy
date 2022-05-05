@@ -52,8 +52,6 @@ namespace T1
                     //var asda = oCampaignService.Get(oCampaignParams);
 
 
-
- main
                     #region loadFirstTimeData
                     //if (Settings._Main.loadInitialData)
                     //{
