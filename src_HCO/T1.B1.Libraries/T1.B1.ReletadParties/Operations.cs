@@ -364,7 +364,7 @@ namespace T1.B1.RelatedParties
                 {
                     switch (BusinessObjectInfo.EventType)
                     {
-                        case SAPbouiCOM.BoEventTypes.et_FORM_DATA_LOAD:
+                        case BoEventTypes.et_FORM_DATA_LOAD:
                             if (BusinessObjectInfo.FormTypeEx == "134") Instance.LoadDataThird(BusinessObjectInfo);
                             if (BusinessObjectInfo.FormTypeEx == "HCO_FRP1100")
                             {

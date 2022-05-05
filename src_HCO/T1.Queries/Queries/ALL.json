@@ -5,6 +5,10 @@
       "Query": "SELECT T0.\"DocEntry\" FROM OACQ T0 WHERE T0.\"CreatedBy\" = '{0}'"
     },
     {
+      "QueryName": "GetCapitalizationNCValue",
+      "Query": "SELECT T0.\"DocEntry\" FROM OACD T0 WHERE T0.\"CreatedBy\" = '{0}' AND T0.\"TransType\" = 19 UNION SELECT T0.\"DocEntry\" FROM OACD T0 WHERE T0.\"Reference\" = '{0}'"
+    },
+    {
       "QueryName": "GetRevaluationJournal",
       "Query": "SELECT \"TransId\" FROM OMRV WHERE \"DocEntry\" =  '{0}'"
     },

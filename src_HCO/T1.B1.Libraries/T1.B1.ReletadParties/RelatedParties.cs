@@ -1386,16 +1386,6 @@ namespace T1.B1.RelatedParties
             }
         }
 
-        static public void UpdateDepretiationJournal()
-        {
-            var assetParams = new AssetClassParams();
-                assetParams.Code = "1";
-   
-            var dep = (AssetClassesService) MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(ServiceTypes.AssetClassesService);
-            var asda = dep.Get(assetParams);
-          
-        }
-
         static public void ActualizarInfoCapitalizacion(string docEntry)
         {
             UpdateJournalCapitalization(docEntry);
@@ -1459,14 +1449,21 @@ namespace T1.B1.RelatedParties
 
         static public void SetCapitalizationNC(string formUid, string docEntry, string type)
         {
-            var form = MainObject.Instance.B1Application.Forms.Item(formUid);
-            var strSQL = string.Format(Queries.Instance.Queries().Get("CheckContainsAsset"), "RPC1", docEntry);
-            var objRecordSet = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+            try
+            {
+                var form = MainObject.Instance.B1Application.Forms.Item(formUid);
+                var strSQL = string.Format(Queries.Instance.Queries().Get("CheckContainsAsset"), "RPC1", docEntry);
+                var objRecordSet = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
                 objRecordSet.DoQuery(strSQL);
                 objRecordSet.MoveFirst();
-            if (objRecordSet.RecordCount > 0)
+                if (objRecordSet.RecordCount > 0)
+                {
+                    CreateCapitalizationNC(docEntry);
+                }
+            }
+            catch(Exception ex)
             {
-                CreateCapitalizationNC(docEntry);
+
             }
         }
 
