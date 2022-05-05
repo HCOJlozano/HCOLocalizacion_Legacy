@@ -115,54 +115,51 @@
     <Content Include="Structure\RP_Structure.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Report\Balance de prueba.rpt">
+    <None Include="Report\Auxiliar de cuenta.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\ERI %28Perdidas y ganancias%29.rpt">
+    </None>
+    <None Include="Report\Balance de prueba por tercero.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\ESFA%28BALANCE%29.rpt">
+    </None>
+    <None Include="Report\Balance de prueba.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\Movimiento Diario.rpt">
+    </None>
+    <None Include="Report\CertificadoRetencionCompras.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\Movimiento terceros.rpt">
+    </None>
+    <None Include="Report\CertificadoRetencionComprasIVA.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\informe_movimiento_tercero_hana.rpt">
+    </None>
+    <None Include="Report\ERI %28Perdidas y ganancias%29.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\informe_movimiento_tercero_sql.rpt">
+    </None>
+    <None Include="Report\ESFA%28BALANCE%29.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\Auxiliar de cuenta.rpt">
+    </None>
+    <None Include="Report\IVA_ComprasPorCodigo.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\CertificadoRetencionCompras.rpt">
+    </None>
+    <None Include="Report\IVA_VentasPorCodigo.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\IVA_VentasPorCodigo.rpt">
+    </None>
+    <None Include="Report\Movimiento Diario.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\RetencionesComprasPorCodigo.rpt">
+    </None>
+    <None Include="Report\Movimiento terceros.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\RetencionesComprasPorProveedor.rpt">
+    </None>
+    <None Include="Report\RetencionesComprasPorCodigo.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\RetencionesPorCodigo.rpt">
+    </None>
+    <None Include="Report\RetencionesComprasPorProveedor.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\RetencionesVentasPorCliente.rpt">
+    </None>
+    <None Include="Report\RetencionesVentasPorCliente.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\RetencionesVentasPorCodigO.rpt">
+    </None>
+    <None Include="Report\RetencionesVentasPorCodigO.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Report\IVA_ComprasPorCodigo.rpt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Admin Service\B1 General Libraries\Connection\T1.B1.Connection.csproj">
