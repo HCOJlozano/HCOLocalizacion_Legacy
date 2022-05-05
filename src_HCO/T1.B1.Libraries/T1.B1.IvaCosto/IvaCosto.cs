@@ -128,6 +128,7 @@ namespace T1.B1.IvaCosto
                                 CreateCapitalization(objDoc);
                                 break;
                             case BoObjectTypes.oPurchaseCreditNotes:
+                                CheckCapitalizationNCGenerated(objDoc.DocEntry.ToString(), objDoc);
                                 CreateRevaluation(false, objDoc);
                                 CreateJournal(false, objDoc);
                                 CreateCreditCapitalization(objDoc);
@@ -195,7 +196,7 @@ namespace T1.B1.IvaCosto
                     }
                 }
                 var response = oAssetService.Add(oAssetDocument);
-                ActualizarInfoCapitalizacion(response.Code.ToString(), thirdToUse);
+                ActualizarInfoCapitalizacion(response.Code.ToString(), thirdToUse, "FC");
             }
             catch (COMException comEx)
             {
@@ -273,7 +274,7 @@ namespace T1.B1.IvaCosto
 
             try
             {
-
+                var thirdToUse = GetValueThird(oDoc.CardCode);
                 oAssetDocument.AssetValueDate = oDoc.DocDate;
                 oAssetDocument.Remarks = "Depreciación crédito por IVA Costo Doc: " + oDoc.DocNum;
                 oAssetDocument.DepreciationArea = "*";
@@ -307,7 +308,9 @@ namespace T1.B1.IvaCosto
                         }
                     }
                 }
-                oAssetService.Add(oAssetDocument);
+
+                var response = oAssetService.Add(oAssetDocument);
+                ActualizarInfoCapitalizacion(response.Code.ToString(), thirdToUse, "NC");
             }
             catch (COMException comEx)
             {
@@ -453,20 +456,37 @@ namespace T1.B1.IvaCosto
             {
                 while(!objRSJournal.EoF)
                 {
-                    ActualizarInfoCapitalizacion(objRSJournal.Fields.Item("DocEntry").Value.ToString(), thirdToUse);
+                    ActualizarInfoCapitalizacion(objRSJournal.Fields.Item("DocEntry").Value.ToString(), thirdToUse, "FC");
                     objRSJournal.MoveNext();
                 }
             }
         }
 
-        static public void ActualizarInfoCapitalizacion(string docEntry, string thirdToUse)
+        static public void CheckCapitalizationNCGenerated(string docEntry, Documents oDoc)
         {
-            UpdateJournalCapitalization(docEntry, thirdToUse);
+            var thirdToUse = GetValueThird(oDoc.CardCode);
+            var queryJournal = string.Format(Queries.Instance.Queries().Get("GetCapitalizationNCValue"), docEntry);
+            var objRSJournal = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+            objRSJournal.DoQuery(queryJournal);
+
+            if (objRSJournal.RecordCount > 0)
+            {
+                while (!objRSJournal.EoF)
+                {
+                    ActualizarInfoCapitalizacion(objRSJournal.Fields.Item("DocEntry").Value.ToString(), thirdToUse, "NC");
+                    objRSJournal.MoveNext();
+                }
+            }
         }
 
-        static private void UpdateJournalCapitalization(string docEntry, string thirdToUse)
+        static public void ActualizarInfoCapitalizacion(string docEntry, string thirdToUse, string type)
         {
-            var assetServices = (AssetDocumentService)MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(ServiceTypes.AssetCapitalizationService);
+            UpdateJournalCapitalization(docEntry, thirdToUse, type);
+        }
+
+        static private void UpdateJournalCapitalization(string docEntry, string thirdToUse, string type = "FC")
+        {
+            var assetServices = (AssetDocumentService)MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(type.Equals("FC") ? ServiceTypes.AssetCapitalizationService : ServiceTypes.AssetCapitalizationCreditMemoService);
             var faDocumentParams = (AssetDocumentParams)assetServices.GetDataInterface(AssetDocumentServiceDataInterfaces.adsAssetDocumentParams);
             faDocumentParams.Code = int.Parse(docEntry);
             var AssetDocument = assetServices.Get(faDocumentParams);
