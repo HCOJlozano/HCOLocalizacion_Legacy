@@ -20,8 +20,6 @@ namespace T1.B1.IvaCosto
     {
         private static IvaCosto objIvaCosto;
         private static readonly ILog _Logger = Log.Instance.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, Settings._Main.logLevel);
-
-
         private IvaCosto()
         {
             if (objIvaCosto == null) objIvaCosto = new IvaCosto();
@@ -124,11 +122,13 @@ namespace T1.B1.IvaCosto
                                 CreateRevaluation(false, objDoc);
                                 break;
                             case BoObjectTypes.oPurchaseInvoices:
+                                CheckCapitalizationGenerated(objDoc.DocEntry.ToString(), objDoc);
                                 CreateRevaluation(true, objDoc);
                                 CreateJournal(true, objDoc);
                                 CreateCapitalization(objDoc);
                                 break;
                             case BoObjectTypes.oPurchaseCreditNotes:
+                                CheckCapitalizationNCGenerated(objDoc.DocEntry.ToString(), objDoc);
                                 CreateRevaluation(false, objDoc);
                                 CreateJournal(false, objDoc);
                                 CreateCreditCapitalization(objDoc);
@@ -151,7 +151,7 @@ namespace T1.B1.IvaCosto
 
         #region Métodos de negocio
         private static void CreateCapitalization(Documents oDoc)
-        {
+         {
             AssetDocumentService oAssetService = (AssetDocumentService)MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(ServiceTypes.AssetCapitalizationService);
             AssetDocumentParams faDocumentParams = (AssetDocumentParams)oAssetService.GetDataInterface(AssetDocumentServiceDataInterfaces.adsAssetDocumentParams);
             AssetDocument oAssetDocument = (SAPbobsCOM.AssetDocument)oAssetService.GetDataInterface(SAPbobsCOM.AssetDocumentServiceDataInterfaces.adsAssetDocument);
@@ -161,6 +161,7 @@ namespace T1.B1.IvaCosto
 
             try
             {
+                var thirdToUse = GetValueThird(oDoc.CardCode);
                 oAssetDocument.AssetValueDate = oDoc.DocDate;
                 oAssetDocument.Remarks = "Depreciación por IVA Costo Doc: " + oDoc.DocNum;
                 oAssetDocument.DepreciationArea = "*";
@@ -194,7 +195,8 @@ namespace T1.B1.IvaCosto
                         }
                     }
                 }
-                oAssetService.Add(oAssetDocument);
+                var response = oAssetService.Add(oAssetDocument);
+                ActualizarInfoCapitalizacion(response.Code.ToString(), thirdToUse, "FC");
             }
             catch (COMException comEx)
             {
@@ -230,6 +232,10 @@ namespace T1.B1.IvaCosto
 
             if (objRS.RecordCount > 0)
             {
+                var objDoc = (SAPbobsCOM.Documents)MainObject.Instance.B1Company.GetBusinessObject((SAPbobsCOM.BoObjectTypes)Enum.Parse(typeof(SAPbobsCOM.BoObjectTypes), pVal.Type));
+                    objDoc.GetByKey(int.Parse(oXml.InnerText));
+
+                var thirdToUse = GetValueThird(objDoc.CardCode);
                 var queryJournal = string.Format(Queries.Instance.Queries().Get("GetValueToJournal"), objRS.Fields.Item("TransId").Value);
                 var journal = (SAPbobsCOM.JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
                 var objRSJournal = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
@@ -241,10 +247,12 @@ namespace T1.B1.IvaCosto
                     {
                         journal.Lines.AccountCode = objRSJournal.Fields.Item("SalesTax").Value.ToString();
                         journal.Lines.Debit = double.Parse(objRSJournal.Fields.Item("Credit").Value.ToString());
+                        journal.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
                         journal.Lines.Add();
 
                         journal.Lines.AccountCode = objRSJournal.Fields.Item("U_HCO_CtaIva").Value.ToString();
                         journal.Lines.Credit = double.Parse(objRSJournal.Fields.Item("Credit").Value.ToString());
+                        journal.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
                         journal.Lines.Add();
 
                         objRSJournal.MoveNext();
@@ -266,7 +274,7 @@ namespace T1.B1.IvaCosto
 
             try
             {
-
+                var thirdToUse = GetValueThird(oDoc.CardCode);
                 oAssetDocument.AssetValueDate = oDoc.DocDate;
                 oAssetDocument.Remarks = "Depreciación crédito por IVA Costo Doc: " + oDoc.DocNum;
                 oAssetDocument.DepreciationArea = "*";
@@ -300,7 +308,9 @@ namespace T1.B1.IvaCosto
                         }
                     }
                 }
-                oAssetService.Add(oAssetDocument);
+
+                var response = oAssetService.Add(oAssetDocument);
+                ActualizarInfoCapitalizacion(response.Code.ToString(), thirdToUse, "NC");
             }
             catch (COMException comEx)
             {
@@ -333,6 +343,7 @@ namespace T1.B1.IvaCosto
 
             try
             {
+                var thirdToUse = GetValueThird(oDoc.CardCode);
                 oJE.ReferenceDate = oDoc.DocDate;
                 oJE.Memo = "Contabilización IVA Costo Doc: " + +oDoc.DocNum;
 
@@ -355,6 +366,7 @@ namespace T1.B1.IvaCosto
                             oJE.Lines.CostingCode3 = oDoc.Lines.CostingCode3;
                             oJE.Lines.CostingCode4 = oDoc.Lines.CostingCode4;
                             oJE.Lines.CostingCode5 = oDoc.Lines.CostingCode5;
+                            oJE.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
                             oJE.Lines.Add();
                             oJE.Lines.AccountCode = oDoc.Lines.AccountCode;
                             if (Debit) oJE.Lines.Debit = oDoc.Lines.TaxTotal;
@@ -364,6 +376,7 @@ namespace T1.B1.IvaCosto
                             oJE.Lines.CostingCode3 = oDoc.Lines.CostingCode3;
                             oJE.Lines.CostingCode4 = oDoc.Lines.CostingCode4;
                             oJE.Lines.CostingCode5 = oDoc.Lines.CostingCode5;
+                            oJE.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
                             oJE.Lines.Add();
                         }
                     }
@@ -387,6 +400,7 @@ namespace T1.B1.IvaCosto
                             oJE.Lines.CostingCode3 = oDoc.Lines.CostingCode3;
                             oJE.Lines.CostingCode4 = oDoc.Lines.CostingCode4;
                             oJE.Lines.CostingCode5 = oDoc.Lines.CostingCode5;
+                            oJE.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
                             oJE.Lines.Add();
                             oJE.Lines.AccountCode = oDoc.Lines.AccountCode;
                             if (Debit) oJE.Lines.Debit = oDoc.Lines.TaxTotal;
@@ -396,6 +410,7 @@ namespace T1.B1.IvaCosto
                             oJE.Lines.CostingCode3 = oDoc.Lines.CostingCode3;
                             oJE.Lines.CostingCode4 = oDoc.Lines.CostingCode4;
                             oJE.Lines.CostingCode5 = oDoc.Lines.CostingCode5;
+                            oJE.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
                             oJE.Lines.Add();
 
                         }
@@ -430,6 +445,104 @@ namespace T1.B1.IvaCosto
 
         }
 
+        static public void CheckCapitalizationGenerated(string docEntry, Documents oDoc)
+        {
+            var thirdToUse = GetValueThird(oDoc.CardCode);
+            var queryJournal = string.Format(Queries.Instance.Queries().Get("GetCapitalizationValue"), docEntry);
+            var objRSJournal = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+                objRSJournal.DoQuery(queryJournal);
+
+            if( objRSJournal.RecordCount > 0 )
+            {
+                while(!objRSJournal.EoF)
+                {
+                    ActualizarInfoCapitalizacion(objRSJournal.Fields.Item("DocEntry").Value.ToString(), thirdToUse, "FC");
+                    objRSJournal.MoveNext();
+                }
+            }
+        }
+
+        static public void CheckCapitalizationNCGenerated(string docEntry, Documents oDoc)
+        {
+            var thirdToUse = GetValueThird(oDoc.CardCode);
+            var queryJournal = string.Format(Queries.Instance.Queries().Get("GetCapitalizationNCValue"), docEntry);
+            var objRSJournal = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+            objRSJournal.DoQuery(queryJournal);
+
+            if (objRSJournal.RecordCount > 0)
+            {
+                while (!objRSJournal.EoF)
+                {
+                    ActualizarInfoCapitalizacion(objRSJournal.Fields.Item("DocEntry").Value.ToString(), thirdToUse, "NC");
+                    objRSJournal.MoveNext();
+                }
+            }
+        }
+
+        static public void ActualizarInfoCapitalizacion(string docEntry, string thirdToUse, string type)
+        {
+            UpdateJournalCapitalization(docEntry, thirdToUse, type);
+        }
+
+        static private void UpdateJournalCapitalization(string docEntry, string thirdToUse, string type = "FC")
+        {
+            var assetServices = (AssetDocumentService)MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(type.Equals("FC") ? ServiceTypes.AssetCapitalizationService : ServiceTypes.AssetCapitalizationCreditMemoService);
+            var faDocumentParams = (AssetDocumentParams)assetServices.GetDataInterface(AssetDocumentServiceDataInterfaces.adsAssetDocumentParams);
+            faDocumentParams.Code = int.Parse(docEntry);
+            var AssetDocument = assetServices.Get(faDocumentParams);
+            var journal = (JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+
+            for (int i = 0; i < AssetDocument.AssetDocumentAreaJournalCollection.Count; i++)
+            {
+                if (journal.GetByKey(AssetDocument.AssetDocumentAreaJournalCollection.Item(i).TransactionNumber))
+                {
+                    journal.UserFields.Fields.Item("U_HCO_ValAre").Value = GetValueDepreciationArea(AssetDocument.AssetDocumentAreaJournalCollection.Item(i).DepreciationArea);
+                    for( int j=0; j < journal.Lines.Count; j++)
+                    {
+                        journal.Lines.SetCurrentLine(j);
+                        journal.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
+                    }
+                    journal.Update();
+                }
+            }
+        }
+
+        static private string GetValueDepreciationArea(string value)
+        {
+            var strSQL = string.Format(Queries.Instance.Queries().Get("GetValueDep"), value);
+            var objRecordSet = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+            objRecordSet.DoQuery(strSQL);
+            objRecordSet.MoveFirst();
+
+            if (objRecordSet.RecordCount > 0)
+                return objRecordSet.Fields.Item("ValueDep").Value.ToString();
+
+            return string.Empty;
+        }
+
+        static public string GetValueThird(string cardCode)
+        {
+            try
+            {
+                var thrid = string.Empty;
+                var strSQL = string.Format(Queries.Instance.Queries().Get("GetThirdRelated"), cardCode);
+                var objRecordSet = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                objRecordSet.DoQuery(strSQL);
+                objRecordSet.MoveFirst();
+
+                if (objRecordSet.RecordCount > 0)
+                {
+                    thrid = objRecordSet.Fields.Item("Code").Value.ToString();
+                }
+
+                return thrid;
+            }
+            catch
+            {
+                return String.Empty;
+            }
+        }
+
         public static void CreateRevaluation(bool Debit, Documents oDoc)
         {
             if (oDoc.DocType == BoDocumentTypes.dDocument_Service) return;
@@ -442,6 +555,7 @@ namespace T1.B1.IvaCosto
 
             }
 
+            var thirdToUse = GetValueThird(oDoc.CardCode);
             MaterialRevaluation oRev = (MaterialRevaluation)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oMaterialRevaluation);
             SalesTaxCodes otaxCode = (SalesTaxCodes)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oSalesTaxCodes);
             SalesTaxAuthorities Ta = (SalesTaxAuthorities)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oSalesTaxAuthorities);
@@ -449,7 +563,6 @@ namespace T1.B1.IvaCosto
 
             try
             {
-
                 oRev.RevalType = "M";
                 oRev.DocDate = oDoc.DocDate;
                 oRev.Comments = "Revalorización por IVA Costo Doc: " + oDoc.DocNum;
@@ -479,6 +592,27 @@ namespace T1.B1.IvaCosto
                     if (oRev.Add() != 0)
                     {
                         var msn = MainObject.Instance.B1Company.GetLastErrorDescription();
+                    }
+                    else
+                    {
+                        var lastRevalDocEntry = MainObject.Instance.B1Company.GetNewObjectKey();
+                        var query = string.Format(Queries.Instance.Queries().Get("GetRevaluationJournal"), lastRevalDocEntry);
+                        var record = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                            record.DoQuery(query);
+                        if( record.RecordCount > 0 )
+                        {
+                            var journal =(JournalEntries) MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+                            if( journal.GetByKey(int.Parse(record.Fields.Item("TransId").Value.ToString())) )
+                            {
+                                for(int i=0; i < journal.Lines.Count; i++)
+                                {
+                                    journal.Lines.SetCurrentLine(i);
+                                    journal.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = thirdToUse;
+                                }
+
+                                journal.Update();
+                            }
+                        }
                     }
                 }
             }

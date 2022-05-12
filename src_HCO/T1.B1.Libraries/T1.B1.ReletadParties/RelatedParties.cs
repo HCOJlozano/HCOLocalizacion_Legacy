@@ -214,6 +214,39 @@ namespace T1.B1.RelatedParties
                 cond.CondVal = i.ToString(); ;
                 form.ChooseFromLists.Item($"CFL_Dim{i}").SetConditions(conds);
             }
+
+            var condsAcct = form.ChooseFromLists.Item("CFL_CtaD").GetConditions();
+            var condAcct = condsAcct.Add();
+                condAcct.BracketOpenNum = 2;
+                condAcct.Alias = "Frozen";
+                condAcct.Operation = BoConditionOperation.co_EQUAL;
+                condAcct.CondVal = "N";
+                condAcct.BracketCloseNum = 1;
+                condAcct.Relationship = BoConditionRelationship.cr_AND;
+                condAcct = condsAcct.Add();
+                condAcct.BracketOpenNum = 1;
+                condAcct.Alias = "Postable";
+                condAcct.Operation = BoConditionOperation.co_EQUAL;
+                condAcct.CondVal = "Y";
+                condAcct.BracketCloseNum = 2;
+
+            form.ChooseFromLists.Item("CFL_CtaD").SetConditions(condsAcct);
+
+            condsAcct = form.ChooseFromLists.Item("CFL_CtaH").GetConditions();
+            condAcct = condsAcct.Add();
+            condAcct.BracketOpenNum = 2;
+            condAcct.Alias = "Frozen";
+            condAcct.Operation = BoConditionOperation.co_EQUAL;
+            condAcct.CondVal = "N";
+            condAcct.BracketCloseNum = 1;
+            condAcct.Relationship = BoConditionRelationship.cr_AND;
+            condAcct = condsAcct.Add();
+            condAcct.BracketOpenNum = 1;
+            condAcct.Alias = "Postable";
+            condAcct.Operation = BoConditionOperation.co_EQUAL;
+            condAcct.CondVal = "Y";
+            condAcct.BracketCloseNum = 2;
+            form.ChooseFromLists.Item("CFL_CtaH").SetConditions(condsAcct);
         }
 
         public static void CheckLevelCondition(ItemEvent pVal)
@@ -1355,21 +1388,37 @@ namespace T1.B1.RelatedParties
             }
         }
 
-        static public void UpdateDepretiationJournal()
-        {
-            var assetParams = new AssetClassParams();
-                assetParams.Code = "1";
-   
-            var dep = (AssetClassesService) MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(ServiceTypes.AssetClassesService);
-            var asda = dep.Get(assetParams);
-          
-        }
-
         static public void ActualizarInfoCapitalizacion(string docEntry)
         {
             UpdateJournalCapitalization(docEntry);
             if (IsCheckItemCapitalizationMarked().Equals("Y"))
                 UpdateItemsCapitalization(docEntry);
+        }
+
+        static public void ValorizationExecution(string docEntry)
+        {
+            var journal = (JournalEntries) MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+            var querySN = Queries.Instance.Queries().Get("GetDefaultSN");
+            var record = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                record.DoQuery(querySN);
+            var RelPartyCode = record.Fields.Item("U_DefaultSN").Value.ToString();
+            var queryThird = string.Format(Queries.Instance.Queries().Get("GetValorizationExecution"), docEntry);
+            record.DoQuery(queryThird);
+            while(!record.EoF)
+            {
+                if( journal.GetByKey(int.Parse(record.Fields.Item("TransId").Value.ToString())) )
+                {
+                    for(int i=0; i<journal.Lines.Count; i++)
+                    {
+                        journal.Lines.SetCurrentLine(i);
+                        journal.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = RelPartyCode;
+                    }
+
+                    var resp = journal.Update();
+                }
+
+                record.MoveNext();
+            }
         }
 
         static private string IsCheckItemCapitalizationMarked()
@@ -1402,14 +1451,21 @@ namespace T1.B1.RelatedParties
 
         static public void SetCapitalizationNC(string formUid, string docEntry, string type)
         {
-            var form = MainObject.Instance.B1Application.Forms.Item(formUid);
-            var strSQL = string.Format(Queries.Instance.Queries().Get("CheckContainsAsset"), "RPC1", docEntry);
-            var objRecordSet = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+            try
+            {
+                var form = MainObject.Instance.B1Application.Forms.Item(formUid);
+                var strSQL = string.Format(Queries.Instance.Queries().Get("CheckContainsAsset"), "RPC1", docEntry);
+                var objRecordSet = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
                 objRecordSet.DoQuery(strSQL);
                 objRecordSet.MoveFirst();
-            if (objRecordSet.RecordCount > 0)
+                if (objRecordSet.RecordCount > 0)
+                {
+                    CreateCapitalizationNC(docEntry);
+                }
+            }
+            catch(Exception ex)
             {
-                CreateCapitalizationNC(docEntry);
+
             }
         }
 
@@ -1574,7 +1630,6 @@ namespace T1.B1.RelatedParties
         {
             SAPbobsCOM.Documents oDoc = (SAPbobsCOM.Documents)MainObject.Instance.B1Company.GetBusinessObject((SAPbobsCOM.BoObjectTypes)Enum.Parse(typeof(SAPbobsCOM.BoObjectTypes), objType));
 
-
             try
             {
                 var RelPartyCode = string.Empty;
@@ -1599,6 +1654,38 @@ namespace T1.B1.RelatedParties
                 else
                 {
                     RelPartyCode = GetValueThird(cardCodeDoc);
+                    var queryPayment = string.Format(Queries.Instance.Queries().Get("GetReceiptFromInvoice"), objType, xml.InnerText);
+                    var recordPayment = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                        recordPayment.DoQuery(queryPayment);
+
+                    if( recordPayment.RecordCount > 0 )
+                    {
+                        if (!recordPayment.Fields.Item("Receipt").Value.ToString().Equals(string.Empty))                                                                    
+                        {
+                            try 
+                            {
+                                var paym = (Payments)MainObject.Instance.B1Company.GetBusinessObject((BoObjectTypes)Enum.Parse(typeof(BoObjectTypes), recordPayment.Fields.Item("ObjType").Value.ToString()));
+                                if( paym.GetByKey(int.Parse(recordPayment.Fields.Item("Receipt").Value.ToString())) )
+                                {
+                                    var journalPay = (JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+                                    if (journalPay.GetByKey(int.Parse(recordPayment.Fields.Item("PaymentJournal").Value.ToString()))) 
+                                    {
+                                        for (int i = 0; i < journalPay.Lines.Count; i++)
+                                        {
+                                            journalPay.Lines.SetCurrentLine(i);
+                                            journalPay.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = RelPartyCode;
+                                        }
+
+                                        var resp = journalPay.Update();
+                                    }
+                                }
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
                 }
 
                 if (transId.Equals(string.Empty) || RelPartyCode.Equals(string.Empty))
@@ -2030,7 +2117,7 @@ namespace T1.B1.RelatedParties
                 BusinessPartners oBP = (BusinessPartners)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
                 oBP.GetByKey(cardCode);
 
-                return LicTradNumRP.Equals(oBP.FederalTaxID);
+                return LicTradNumRP.Replace("-","").ToString().Equals(oBP.FederalTaxID.Replace("-",""));
             }
             catch (COMException comEx)
             {
