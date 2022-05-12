@@ -316,6 +316,19 @@ namespace T1.B1.WithholdingTax
                     switch (pVal.EventType)
                     {
                         case BoEventTypes.et_ITEM_PRESSED:
+                            if (WHPurchaseDocuments.Contains(pVal.FormTypeEx) || WHSalesDocuments.Contains(pVal.FormTypeEx))
+                            {
+                                if (pVal.ItemUID.Equals("1"))
+                                {
+                                    Form oForm = MainObject.Instance.B1Application.Forms.ActiveForm;
+                                    if (!WithholdingTax.HasRelParty(oForm.DataSources.DBDataSources.Item(0).GetValue("CardCode", 0)))
+                                    {
+                                        MainObject.Instance.B1Application.MessageBox("El " + (WHPurchaseDocuments.Contains(pVal.FormTypeEx) ? "proveedor " : "cliente ") + "no tiene tercero relacionado");
+                                        BubbleEvent = false;
+                                    }
+                                }
+                            }
+
                             if (pVal.FormTypeEx.Equals("HCO_FWT1200"))
                             {
                                 if (pVal.ItemUID == "btnAdd")
