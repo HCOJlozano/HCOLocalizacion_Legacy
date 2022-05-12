@@ -87,6 +87,15 @@ namespace T1.B1.RelatedParties
                                     if (oForm.Mode == BoFormMode.fm_ADD_MODE)
                                         oForm.DataSources.DBDataSources.Item(0).SetValue("Code", 0, "1");
                                     return;
+                                } 
+                                else if(pVal.ItemUID == "Item_13")
+                                {
+                                    var third = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID).DataSources.DBDataSources.Item("@HCO_RP0001").GetValue("U_DefaultSN", 0);
+                                    MainObject.Instance.B1Application.Menus.Item("HCO_MRP0009").Activate();
+                                    var formThird = MainObject.Instance.B1Application.Forms.ActiveForm;
+                                    MainObject.Instance.B1Application.Menus.Item("1281").Activate();
+                                    ((EditText)formThird.Items.Item("0_U_E").Specific).Value = third;
+                                    formThird.Items.Item("1").Click();                                    
                                 }
                             }
 

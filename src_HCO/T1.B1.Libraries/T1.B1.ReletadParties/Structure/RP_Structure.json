@@ -511,6 +511,18 @@
     },
     {
       "TableCode": "HCO_RP0001",
+      "FieldCode": "CardName",
+      "FieldName": "CardName",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 100,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
       "FieldCode": "ClientPrefix",
       "FieldName": "ClientPrefix",
       "Type": 0,
@@ -735,7 +747,7 @@
       "LinkType": 0,
       "LinkCode": "",
       "DefaultValue": "",
-      "ValidValues": [ ]
+      "ValidValues": []
     },
     {
       "TableCode": "RCT4",

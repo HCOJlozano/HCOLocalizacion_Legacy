@@ -10,6 +10,7 @@ using T1.Queries.Entities;
 using System.IO;
 using System.Text;
 using System.Data;
+using System.Linq;
 
 namespace T1.B1.RelatedParties
 {
@@ -835,7 +836,8 @@ namespace T1.B1.RelatedParties
                     else if (type == TYPE_BP.SUPPLIER && (Vseries != 0 && Vseries != 2)) bp.Series = Vseries;
                     else bp.CardCode = ((type == TYPE_BP.CUSTOMER) ? record.Fields.Item("U_ClientPrefix").Value : record.Fields.Item("U_VendorPrefix").Value) + form.DataSources.DBDataSources.Item(0).GetValue("Code", 0) + "_" + secuence;
                     bp.CardName = form.DataSources.DBDataSources.Item(0).GetValue("Name", 0);
-                    bp.FederalTaxID = form.DataSources.DBDataSources.Item(0).GetValue("U_LicTradNum", 0) + "-" + form.DataSources.DBDataSources.Item(0).GetValue("U_AuthDig", 0);
+                    bp.FederalTaxID = form.DataSources.DBDataSources.Item(0).GetValue("U_LicTradNum", 0) + 
+                        (!string.IsNullOrEmpty(form.DataSources.DBDataSources.Item(0).GetValue("U_AuthDig", 0)) ? ("-" + form.DataSources.DBDataSources.Item(0).GetValue("U_AuthDig", 0)) : "");
                     bp.Phone1 = form.DataSources.DBDataSources.Item(0).GetValue("U_Phone1", 0);
                     bp.Phone2 = form.DataSources.DBDataSources.Item(0).GetValue("U_Phone2", 0);
                     bp.EmailAddress = form.DataSources.DBDataSources.Item(0).GetValue("U_Email", 0);
@@ -1830,8 +1832,9 @@ namespace T1.B1.RelatedParties
             {
                 case "Item_11":
                     if (B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Name")[0].ToString().Equals(string.Empty)) return;
-                    oForm.DataSources.DBDataSources.Item(0).SetValue(field, 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Name")[0].ToString());
-                    oForm.DataSources.DBDataSources.Item(0).SetValue("U_CardTypeID", 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Code")[0].ToString());
+                    oForm.DataSources.DBDataSources.Item(0).SetValue(field, 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Code")[0].ToString());
+                    oForm.DataSources.DBDataSources.Item(0).SetValue("U_CardName", 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Name")[0].ToString());                    
+                    //oForm.DataSources.DBDataSources.Item(0).SetValue("U_CardTypeID", 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Code")[0].ToString());
                     break;
                 case "Item_26":
                     if (B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Name")[0].ToString().Equals(string.Empty)) return;
@@ -2055,6 +2058,13 @@ namespace T1.B1.RelatedParties
             var cardCode = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "CardCode")[0].ToString();
             var cardType = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "CardType")[0].ToString();
             var cardName = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "CardName")[0].ToString();
+
+            if(validateCardCodeInMatrix(cardCode, oForm))
+            {
+                MainObject.Instance.B1Application.MessageBox("El " + (cardType.Equals("C") ? "cliente " : "proveedor ") + "seleccionado ya se encuentra registrado previamente.");
+                return;
+            }
+
             if (cardCode.Equals(string.Empty))
                 return;
 
@@ -2108,6 +2118,28 @@ namespace T1.B1.RelatedParties
                 oBP.GetByKey(cardCode);
 
                 return LicTradNumRP.Replace("-","").ToString().Equals(oBP.FederalTaxID.Replace("-",""));
+            }
+            catch (COMException comEx)
+            {
+                Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
+                _Logger.Error("", comEx);
+                return false;
+
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+                return false;
+            }
+        }
+
+        private static bool validateCardCodeInMatrix(string cardCode, Form oForm)
+        {
+            try
+            {
+                var dataTable = B1.Base.UIOperations.FormsOperations.SapDBDataSourceToDotNetDataTable(oForm.DataSources.DBDataSources.Item("@HCO_RP1101"));
+                return dataTable.AsEnumerable().Any(r => r.Field<string>("U_CardCode") == cardCode);
+                
             }
             catch (COMException comEx)
             {
