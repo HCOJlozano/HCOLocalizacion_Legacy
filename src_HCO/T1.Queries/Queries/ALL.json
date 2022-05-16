@@ -2,7 +2,7 @@
   "Queries": [
     {
       "QueryName": "GetChangesDifferences",
-      "Query": "SELECT T0.\"TransId\", (CASE WHEN (SELECT COUNT(1) FROM JDT1 INNER JOIN OCRD ON JDT1.\"ShortName\" = OCRD.\"CardCode\" WHERE \"JDT1\".\"TransId\" = T0.\"TransId\") > 0 THEN (SELECT MAX(\"Ter\".\"Code\") FROM JDT1 INNER JOIN OCRD ON JDT1.\"ShortName\" = OCRD.\"CardCode\" INNER JOIN \"@HCO_RP1101\" AS \"Ter\" ON \"Ter\".\"U_CardCode\" = OCRD.\"CardCode\" WHERE \"TransId\" = T0.\"TransId\") ELSE (SELECT MAX(\"U_DefaultSN\") FROM \"@HCO_RP0001\") END) AS \"RelPar\" FROM OJDT T0 WHERE T0.\"TransCode\" = 'DCA' AND T0.\"Ref1\" = '{0}'"
+      "Query": "SELECT T0.\"TransId\", (CASE WHEN (SELECT COUNT(1) FROM JDT1 INNER JOIN OCRD ON JDT1.\"ShortName\" = OCRD.\"CardCode\" WHERE \"JDT1\".\"TransId\" = T0.\"TransId\") > 0 THEN (SELECT MAX(\"Ter\".\"Code\") FROM JDT1 INNER JOIN OCRD ON JDT1.\"ShortName\" = OCRD.\"CardCode\" INNER JOIN \"@HCO_RP1101\" AS \"Ter\" ON \"Ter\".\"U_CardCode\" = OCRD.\"CardCode\" WHERE \"TransId\" = T0.\"TransId\") ELSE (SELECT MAX(\"U_DefaultSN\") FROM \"@HCO_RP0001\") END) AS \"RelPar\" FROM OJDT T0 WHERE T0.\"TransCode\" = '{1}' AND T0.\"Ref1\" = '{0}'"
     },
     {
       "QueryName": "GetCapitalizationValue",

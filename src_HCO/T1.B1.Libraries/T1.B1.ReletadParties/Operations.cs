@@ -49,7 +49,7 @@ namespace T1.B1.RelatedParties
                             {
                                 BubbleEvent = Instance.ValidateFieldsMovement(pVal);
                             }
-                            if (pVal.FormTypeEx == "369")
+                            if (pVal.FormTypeEx == "369" || pVal.FormTypeEx == "371")
                             {
                                 if( pVal.ItemUID == "1" )
                                     BubbleEvent = Instance.ValidateFieldsChangesTypes(pVal);
@@ -66,7 +66,7 @@ namespace T1.B1.RelatedParties
                                 }
                             }
 
-                            if (pVal.FormTypeEx == "369")
+                            if (pVal.FormTypeEx == "369" || pVal.FormTypeEx == "371")
                             {
                                 if (pVal.ItemUID == "1")
                                     Instance.SetReferenceChangesTypes(pVal);
@@ -211,7 +211,7 @@ namespace T1.B1.RelatedParties
                                     Instance.LoadFieldPayment(pVal);
                             }
 
-                            if( pVal.FormTypeEx == "369" )
+                            if( pVal.FormTypeEx == "369" || pVal.FormTypeEx == "371")
                             {
                                 Instance.AddFieldsJournalChangesTax(pVal);
                             }
@@ -407,7 +407,7 @@ namespace T1.B1.RelatedParties
                                 }
                             }
 
-                            if (BusinessObjectInfo.FormTypeEx == "369")
+                            if (BusinessObjectInfo.FormTypeEx == "369" || BusinessObjectInfo.FormTypeEx == "371")
                             {
                                 if (BusinessObjectInfo.ActionSuccess)
                                 {
