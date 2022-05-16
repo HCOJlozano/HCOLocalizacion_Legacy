@@ -268,6 +268,14 @@ namespace T1.B1.RelatedParties
             ((EditText)form.Items.Item("4").Specific).Value = hash;
         }
 
+        public static void SetReferencePeriodContab(ItemEvent pVal)
+        {
+            var hash = CreateMD5(DateTime.Now.ToString("yyyyMMddhhmmss")).Substring(0, 15);
+            var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+            if( form.Mode == BoFormMode.fm_ADD_MODE ) 
+                ((EditText)form.Items.Item("19").Specific).Value = hash;
+        }
+
         private static string CreateMD5(string input)
         {
             byte[] valueBytes = new byte[input.Length]; // <-- don't multiply by 2!

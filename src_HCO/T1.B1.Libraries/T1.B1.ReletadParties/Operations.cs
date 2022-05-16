@@ -72,6 +72,12 @@ namespace T1.B1.RelatedParties
                                     Instance.SetReferenceChangesTypes(pVal);
                             }
 
+                            if (pVal.FormTypeEx == "670")
+                            {
+                                if (pVal.ItemUID == "1")
+                                    Instance.SetReferencePeriodContab(pVal);
+                            }
+
                             if (pVal.FormTypeEx == Settings._Main.OutgoingPaymentFormTypeEx)
                             {
                                 if (pVal.ItemUID == "1")
