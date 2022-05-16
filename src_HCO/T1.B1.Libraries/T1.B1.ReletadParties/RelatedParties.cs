@@ -294,6 +294,29 @@ namespace T1.B1.RelatedParties
             var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
             var sel = ((ComboBox)form.Items.Item("11").Specific).Selected;
 
+            var areaVal = form.DataSources.UserDataSources.Item("UD_MetVat").Value;
+            if (string.IsNullOrEmpty(areaVal))
+            {
+                MainObject.Instance.B1Application.SetStatusBarMessage("Debe seleccionar el area de valorizacion");
+                return false;
+            }
+
+            var autAnul = ((CheckBox)form.Items.Item("27").Specific);
+            if (!autAnul.Checked)
+            {
+                MainObject.Instance.B1Application.SetStatusBarMessage("Debe seleccionar las anulaciones Automaticas");
+                return false;
+            }
+            else
+            {
+                var dateAnul = ((EditText)form.Items.Item("28").Specific).Value;
+                if( string.IsNullOrEmpty(dateAnul) )
+                {
+                    MainObject.Instance.B1Application.SetStatusBarMessage("Debe indicar una fecha de anulacion");
+                    return false;
+                }
+            } 
+
             if (sel == null)
             {
                 opt = false;
@@ -2165,16 +2188,25 @@ namespace T1.B1.RelatedParties
         public static void AddFieldsJournalChangesTax(ItemEvent pVal)
         {
             var oForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                oForm.DataSources.UserDataSources.Add("UD_MetVat", BoDataType.dt_SHORT_TEXT, 200);
+
             var labelReference = oForm.Items.Item("29");
             var itemReference = oForm.Items.Item("28");
             var labelAdd = oForm.Items.Add("lblMet", BoFormItemTypes.it_STATIC);
             var comboAdd = oForm.Items.Add("itmMet", BoFormItemTypes.it_COMBO_BOX);
 
             comboAdd.Top = itemReference.Top;
-            comboAdd.Left = itemReference.Left + 30;
+            comboAdd.Left = itemReference.Left;
+            comboAdd.DisplayDesc = true;
+            ((ComboBox)comboAdd.Specific).DataBind.SetBound(true, "", "UD_MetVat");
+            ((ComboBox)comboAdd.Specific).ValidValues.Add("C", "Común");
+            ((ComboBox)comboAdd.Specific).ValidValues.Add("I", "IFRS");
+            ((ComboBox)comboAdd.Specific).ValidValues.Add("L", "Local");
+
+            labelAdd.Width = 100;
             labelAdd.Top = labelReference.Top;
-            labelAdd.Left = labelReference.Left + 30;
-            ((StaticText)labelAdd.Specific).Caption = "Metodo de valorizacion";
+            labelAdd.Left = labelReference.Left;
+            ((StaticText)labelAdd.Specific).Caption = "Metodo valorizacion";
         }
 
         public static void UpdateJournalChangesTax(BusinessObjectInfo BusinessObjectInfo)
@@ -2183,6 +2215,7 @@ namespace T1.B1.RelatedParties
             var journal = (SAPbobsCOM.JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
             var oRS = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
             var hash = ((EditText)oForm.Items.Item("4").Specific).Value;
+            var areaVal = oForm.DataSources.UserDataSources.Item("UD_MetVat").Value;
             var strSQL = string.Format(Queries.Instance.Queries().Get("GetChangesDifferences"), hash);
                 oRS.DoQuery(strSQL);
 
@@ -2200,6 +2233,7 @@ namespace T1.B1.RelatedParties
                     }
                 }
 
+                journal.UserFields.Fields.Item("U_HCO_ValAre").Value = areaVal;
                 var resp = journal.Update();
                 oRS.MoveNext();
             }
