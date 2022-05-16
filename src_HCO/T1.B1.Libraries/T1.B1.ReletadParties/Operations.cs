@@ -49,6 +49,11 @@ namespace T1.B1.RelatedParties
                             {
                                 BubbleEvent = Instance.ValidateFieldsMovement(pVal);
                             }
+                            if (pVal.FormTypeEx == "369")
+                            {
+                                if( pVal.ItemUID == "1" )
+                                    BubbleEvent = Instance.ValidateFieldsChangesTypes(pVal);
+                            }
                             break;
                         case SAPbouiCOM.BoEventTypes.et_ITEM_PRESSED:
 
@@ -59,6 +64,12 @@ namespace T1.B1.RelatedParties
                                     BubbleEvent = Instance.ValidateFields(pVal);
                                     return;
                                 }
+                            }
+
+                            if (pVal.FormTypeEx == "369")
+                            {
+                                if (pVal.ItemUID == "1")
+                                    Instance.SetReferenceChangesTypes(pVal);
                             }
 
                             if (pVal.FormTypeEx == Settings._Main.OutgoingPaymentFormTypeEx)
@@ -198,6 +209,11 @@ namespace T1.B1.RelatedParties
 
                                 if (pVal.FormTypeEx == Settings._Main.OutgoingPaymentFormTypeEx || pVal.FormTypeEx == Settings._Main.ReceiptPaymentFormTypeEx)
                                     Instance.LoadFieldPayment(pVal);
+                            }
+
+                            if( pVal.FormTypeEx == "369" )
+                            {
+                                Instance.AddFieldsJournalChangesTax(pVal);
                             }
 
                             break;
@@ -381,13 +397,21 @@ namespace T1.B1.RelatedParties
                                 oForm.Items.Item("0_U_E").Enabled = false;
                             }
                             break;
-                        case SAPbouiCOM.BoEventTypes.et_FORM_DATA_ADD:
+                        case BoEventTypes.et_FORM_DATA_ADD:
 
                             if (BusinessObjectInfo.FormTypeEx == "426")
                             {
                                 if (BusinessObjectInfo.ActionSuccess)
                                 {
                                     Instance.UpdateJournalPayment(BusinessObjectInfo);
+                                }
+                            }
+
+                            if (BusinessObjectInfo.FormTypeEx == "369")
+                            {
+                                if (BusinessObjectInfo.ActionSuccess)
+                                {
+                                    Instance.UpdateJournalChangesTax(BusinessObjectInfo);
                                 }
                             }
 

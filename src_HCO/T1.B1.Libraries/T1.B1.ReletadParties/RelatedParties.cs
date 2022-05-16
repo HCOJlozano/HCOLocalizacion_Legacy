@@ -261,6 +261,59 @@ namespace T1.B1.RelatedParties
             }
         }
 
+        public static void SetReferenceChangesTypes(ItemEvent pVal)
+        {
+            var hash = CreateMD5(DateTime.Now.ToString("yyyyMMddhhmmss")).Substring(0, 15);
+            var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+            ((EditText)form.Items.Item("4").Specific).Value = hash;
+        }
+
+        private static string CreateMD5(string input)
+        {
+            byte[] valueBytes = new byte[input.Length]; // <-- don't multiply by 2!
+
+            var encoder = System.Text.Encoding.UTF8.GetEncoder(); // <-- UTF8 here
+            encoder.GetBytes(input.ToCharArray(), 0, input.Length, valueBytes, 0, true);
+
+            System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+            byte[] hashBytes = md5.ComputeHash(valueBytes);
+
+            var stringBuilder = new System.Text.StringBuilder();
+
+            for (int i = 0; i < hashBytes.Length; i++)
+            {
+                stringBuilder.Append(hashBytes[i].ToString("x2"));
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        public static bool ValidateFieldsChangesTypes(ItemEvent pVal)
+        {
+            var opt = true;
+            var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+            var sel = ((ComboBox)form.Items.Item("11").Specific).Selected;
+
+            if (sel == null)
+            {
+                opt = false;
+            }
+            else
+            {
+                if (sel.Value == "")
+                    opt = false;
+                else if (sel.Value != "DCA")
+                    opt = false;
+            }
+
+            if(!opt)
+            {
+                MainObject.Instance.B1Application.SetStatusBarMessage("Debe seleccionar el codigo de transaccion \"DCA\"");
+            }
+
+            return opt;
+        }
+
         public static bool ValidateFieldsMovement(ItemEvent pVal)
         {
             var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
@@ -2106,6 +2159,49 @@ namespace T1.B1.RelatedParties
                     ((EditText)oForm.Items.Item(pVal.ItemUID).Specific).Value = third;
                 }
                 finally { }
+            }
+        }
+
+        public static void AddFieldsJournalChangesTax(ItemEvent pVal)
+        {
+            var oForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+            var labelReference = oForm.Items.Item("29");
+            var itemReference = oForm.Items.Item("28");
+            var labelAdd = oForm.Items.Add("lblMet", BoFormItemTypes.it_STATIC);
+            var comboAdd = oForm.Items.Add("itmMet", BoFormItemTypes.it_COMBO_BOX);
+
+            comboAdd.Top = itemReference.Top;
+            comboAdd.Left = itemReference.Left + 30;
+            labelAdd.Top = labelReference.Top;
+            labelAdd.Left = labelReference.Left + 30;
+            ((StaticText)labelAdd.Specific).Caption = "Metodo de valorizacion";
+        }
+
+        public static void UpdateJournalChangesTax(BusinessObjectInfo BusinessObjectInfo)
+        {
+            var oForm = MainObject.Instance.B1Application.Forms.Item(BusinessObjectInfo.FormUID);
+            var journal = (SAPbobsCOM.JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+            var oRS = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+            var hash = ((EditText)oForm.Items.Item("4").Specific).Value;
+            var strSQL = string.Format(Queries.Instance.Queries().Get("GetChangesDifferences"), hash);
+                oRS.DoQuery(strSQL);
+
+            while(!oRS.EoF)
+            {
+                var third = oRS.Fields.Item("RelPar").Value.ToString();
+                var transId = int.Parse(oRS.Fields.Item("TransId").Value.ToString());
+
+                if(journal.GetByKey(transId))
+                {
+                    for(int i=0; i<journal.Lines.Count; i++)
+                    {
+                        journal.Lines.SetCurrentLine(i);
+                        journal.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = third;
+                    }
+                }
+
+                var resp = journal.Update();
+                oRS.MoveNext();
             }
         }
 
