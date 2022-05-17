@@ -51,7 +51,6 @@ namespace T1
                     //var dep = (SAPbobsCOM.AssetClassesService)MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.AssetClassesService);
                     //var asda = oCampaignService.Get(oCampaignParams);
 
-
                     #region loadFirstTimeData
                     //if (Settings._Main.loadInitialData)
                     //{

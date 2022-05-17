@@ -1,5 +1,6 @@
 ﻿using log4net;
 using Newtonsoft.Json.Linq;
+using SAPbouiCOM;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -83,6 +84,5 @@ namespace T1.Queries
             JArray a = (JArray)o[nodeToRead];
             return a.ToObject<List<T>>();
         }
-
     }
 }
