@@ -122,7 +122,11 @@
     },
     {
       "QueryName": "GetConfig",
-      "Query": "SELECT TOP 1 \"U_ClientPrefix\", \"U_VendorPrefix\", \"U_CSeries\", \"U_VSeries\" FROM \"@HCO_RP0001\""
+      "Query": "SELECT TOP 1 \"U_ConsecC\", \"U_ConsecV\" FROM \"@HCO_RP0001\""
+    },
+    {
+      "QueryName": "GetRPPrefix",
+      "Query": "SELECT T1.\"U_Prefix\", T1.\"U_Consecutive\" FROM \"@HCO_RP1100\" T0 INNER JOIN \"@HCO_RP0002\" T1 ON T0.\"U_CardTypeID\" = T1.\"Code\" WHERE T0.\"Code\" = '{0}'"
     },
     {
       "QueryName": "GetHCO_Tables",

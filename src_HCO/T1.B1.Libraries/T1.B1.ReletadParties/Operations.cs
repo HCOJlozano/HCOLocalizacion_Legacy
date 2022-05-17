@@ -41,7 +41,7 @@ namespace T1.B1.RelatedParties
                                 var oXml = oXML.InnerXml;
                                 MainObject.Instance.B1Application.LoadBatchActions(string.Format(oXml, pVal.FormUID));
                                 runResizelogic = false;
-                            }
+                            }                            
 
                             break;
                         case BoEventTypes.et_CLICK:
@@ -286,17 +286,61 @@ namespace T1.B1.RelatedParties
                                         oForm.Close();
                                     }
 
-                                    }
                                 }
-
-                                if(pVal.FormTypeEx == "426" )
+                            }
+                            else if (pVal.FormTypeEx.Equals("HCO_FRP0001"))
+                            {
+                                Form oForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                                if (pVal.ItemUID.Equals("Item_36"))
                                 {
-                                    if( pVal.ActionSuccess )
+                                    oForm.Items.Item("Item_41").Click();
+                                    if (!((CheckBox)oForm.Items.Item("Item_36").Specific).Checked)
                                     {
-                                        if( pVal.ItemUID == "arrowTer")
-                                            Instance.OpenThirdForm(pVal);
+                                        oForm.Items.Item("Item_5").Enabled = false;
+                                        oForm.Items.Item("Item_9").Enabled = false;
+                                        oForm.Items.Item("Item_1").Enabled = true;
+                                        oForm.Items.Item("Item_3").Enabled = true;
+                                        oForm.Items.Item("Item_37").Enabled = true;
+                                        oForm.Items.Item("Item_38").Enabled = true;
+                                        oForm.Items.Item("Item_39").Enabled = true;
+                                    }
+                                    else
+                                    {
+                                        oForm.Items.Item("Item_5").Enabled = true;
+                                        oForm.Items.Item("Item_9").Enabled = true;
+                                        oForm.Items.Item("Item_1").Enabled = false;
+                                        oForm.Items.Item("Item_3").Enabled = false;
+                                        oForm.Items.Item("Item_37").Enabled = true;
+                                        ((CheckBox)oForm.Items.Item("Item_37").Specific).Checked = false;
+                                        oForm.Items.Item("Item_37").Enabled = false;
+                                        oForm.Items.Item("Item_38").Enabled = true;
+                                        ((CheckBox)oForm.Items.Item("Item_38").Specific).Checked = false;
+                                        oForm.Items.Item("Item_38").Enabled = false;
+                                        oForm.Items.Item("Item_39").Enabled = true;
+                                        ((CheckBox)oForm.Items.Item("Item_39").Specific).Checked = false;
+                                        oForm.Items.Item("Item_39").Enabled = false;
                                     }
                                 }
+                                else if (pVal.ItemUID.Equals("Item_37"))
+                                {
+                                    if(((CheckBox)oForm.Items.Item("Item_37").Specific).Checked == true)
+                                        ((CheckBox)oForm.Items.Item("Item_38").Specific).Checked = false;
+                                }
+                                else if (pVal.ItemUID.Equals("Item_38"))
+                                {
+                                    if (((CheckBox)oForm.Items.Item("Item_38").Specific).Checked == true)
+                                        ((CheckBox)oForm.Items.Item("Item_37").Specific).Checked = false;
+                                }
+                            }
+
+                            if(pVal.FormTypeEx == "426" )
+                            {
+                                if( pVal.ActionSuccess )
+                                {
+                                    if( pVal.ItemUID == "arrowTer")
+                                        Instance.OpenThirdForm(pVal);
+                                }
+                            }
                             break;
 
                     }
@@ -401,6 +445,36 @@ namespace T1.B1.RelatedParties
                             {
                                 Form oForm = MainObject.Instance.B1Application.Forms.ActiveForm;
                                 oForm.Items.Item("0_U_E").Enabled = false;
+                            }
+                            else if(BusinessObjectInfo.FormTypeEx == "HCO_FRP0001")
+                            {
+                                Form oForm = MainObject.Instance.B1Application.Forms.ActiveForm;
+                                if (!((CheckBox)oForm.Items.Item("Item_36").Specific).Checked)
+                                {
+                                    oForm.Items.Item("Item_5").Enabled = false;
+                                    oForm.Items.Item("Item_9").Enabled = false;
+                                    oForm.Items.Item("Item_1").Enabled = true;
+                                    oForm.Items.Item("Item_3").Enabled = true;
+                                    oForm.Items.Item("Item_37").Enabled = true;
+                                    oForm.Items.Item("Item_38").Enabled = true;
+                                    oForm.Items.Item("Item_39").Enabled = true;
+                                }
+                                else
+                                {
+                                    oForm.Items.Item("Item_5").Enabled = true;
+                                    oForm.Items.Item("Item_9").Enabled = true;
+                                    oForm.Items.Item("Item_1").Enabled = false;
+                                    oForm.Items.Item("Item_3").Enabled = false;
+                                    oForm.Items.Item("Item_37").Enabled = true;
+                                    ((CheckBox)oForm.Items.Item("Item_37").Specific).Checked = false;
+                                    oForm.Items.Item("Item_37").Enabled = false;
+                                    oForm.Items.Item("Item_38").Enabled = true;
+                                    ((CheckBox)oForm.Items.Item("Item_38").Specific).Checked = false;
+                                    oForm.Items.Item("Item_38").Enabled = false;
+                                    oForm.Items.Item("Item_39").Enabled = true;
+                                    ((CheckBox)oForm.Items.Item("Item_39").Specific).Checked = false;
+                                    oForm.Items.Item("Item_39").Enabled = false;
+                                }
                             }
                             break;
                         case BoEventTypes.et_FORM_DATA_ADD:

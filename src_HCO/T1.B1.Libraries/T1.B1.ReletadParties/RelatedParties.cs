@@ -26,7 +26,6 @@ namespace T1.B1.RelatedParties
         {
             if (objRelParty == null) objRelParty = new Instance();
             GetRelPartyConfiguration();
-
         }
 
         private static void GetRelPartyConfiguration()
@@ -38,18 +37,17 @@ namespace T1.B1.RelatedParties
                 oRS.DoQuery(Queries.Instance.Queries().Get("GetRelPartyConfig"));
                 if (oRS.RecordCount > 0)
                 {
+                    CacheManager.CacheManager.Instance.addToCache("CodeRPConf", oRS.Fields.Item("Code").Value, CacheManager.CacheManager.objCachePriority.Default);
                     CacheManager.CacheManager.Instance.addToCache("DefaultSN", oRS.Fields.Item("U_DefaultSN").Value, CacheManager.CacheManager.objCachePriority.Default);
                     CacheManager.CacheManager.Instance.addToCache("ClientPrefix", oRS.Fields.Item("U_ClientPrefix").Value, CacheManager.CacheManager.objCachePriority.Default);
                     CacheManager.CacheManager.Instance.addToCache("VendorPrefix", oRS.Fields.Item("U_VendorPrefix").Value, CacheManager.CacheManager.objCachePriority.Default);
                     CacheManager.CacheManager.Instance.addToCache("CSeries", oRS.Fields.Item("U_CSeries").Value, CacheManager.CacheManager.objCachePriority.Default);
                     CacheManager.CacheManager.Instance.addToCache("VSeries", oRS.Fields.Item("U_VSeries").Value, CacheManager.CacheManager.objCachePriority.Default);
-                    CacheManager.CacheManager.Instance.addToCache("UseBPSeries", oRS.Fields.Item("U_UseBPSeries").Value, CacheManager.CacheManager.objCachePriority.Default);
-                    CacheManager.CacheManager.Instance.addToCache("ManyBPs", oRS.Fields.Item("U_ManyBPs").Value, CacheManager.CacheManager.objCachePriority.Default);
-                    CacheManager.CacheManager.Instance.addToCache("UseTSerial", oRS.Fields.Item("U_UseTSerial").Value, CacheManager.CacheManager.objCachePriority.Default);
-                    CacheManager.CacheManager.Instance.addToCache("UseTPref", oRS.Fields.Item("U_UseTPref").Value, CacheManager.CacheManager.objCachePriority.Default);
-                    CacheManager.CacheManager.Instance.addToCache("CharNum", oRS.Fields.Item("U_CharNum").Value, CacheManager.CacheManager.objCachePriority.Default);
-                    CacheManager.CacheManager.Instance.addToCache("StartNum", oRS.Fields.Item("U_StartNum").Value, CacheManager.CacheManager.objCachePriority.Default);
-
+                    CacheManager.CacheManager.Instance.addToCache("ManBPSerie", oRS.Fields.Item("U_ManBPSerie").Value, CacheManager.CacheManager.objCachePriority.Default);
+                    CacheManager.CacheManager.Instance.addToCache("MultBP", oRS.Fields.Item("U_MultBP").Value, CacheManager.CacheManager.objCachePriority.Default);
+                    CacheManager.CacheManager.Instance.addToCache("AutoConse", oRS.Fields.Item("U_AutoConse").Value, CacheManager.CacheManager.objCachePriority.Default);
+                    CacheManager.CacheManager.Instance.addToCache("TerPerfix", oRS.Fields.Item("U_TerPerfix").Value, CacheManager.CacheManager.objCachePriority.Default);
+                    CacheManager.CacheManager.Instance.addToCache("NumChara", oRS.Fields.Item("U_NumChara").Value, CacheManager.CacheManager.objCachePriority.Default);
                 }
             }
             catch (COMException comEx)
@@ -910,26 +908,85 @@ namespace T1.B1.RelatedParties
         }
         static public void createBP(TYPE_BP type, int secuence)
         {
+            RelatedParties.Instance.GetRelPartyConfiguration();
             var form = MainObject.Instance.B1Application.Forms.ActiveForm;
             var code = form.DataSources.DBDataSources.Item(0).GetValue("Code", 0);
             var queryConfig = Queries.Instance.Queries().Get("GetConfig");
             var bp = (BusinessPartners)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
             var record = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-            int Cseries = 0;
-            int Vseries = 0;
+            int series = 0;
+            int consecC = 0;
+            int consecV = 0;
+            string cardCode = "";
             try
             {
                 record.DoQuery(queryConfig);
                 record.MoveFirst();
-                Cseries = record.Fields.Item("U_CSeries").Value.ToString().Equals(string.Empty) ? 0 : Int32.Parse(record.Fields.Item("U_CSeries").Value.ToString());
-                Vseries = record.Fields.Item("U_VSeries").Value.ToString().Equals(string.Empty) ? 0 : Int32.Parse(record.Fields.Item("U_VSeries").Value.ToString());
+                consecC = record.Fields.Item("U_ConsecC").Value.ToString().Equals(string.Empty) ? 0 : Int32.Parse(record.Fields.Item("U_ConsecC").Value.ToString());
+                consecV = record.Fields.Item("U_ConsecV").Value.ToString().Equals(string.Empty) ? 0 : Int32.Parse(record.Fields.Item("U_ConsecV").Value.ToString());
+                var consec = (type == TYPE_BP.CUSTOMER) ? consecC : consecV;
 
                 if (MainObject.Instance.B1Application.MessageBox("Desea crear el socio de negocios ?", 1, "Si", "No") == 1)
                 {
+
+                    var manBpSerie =  CacheManager.CacheManager.Instance.getFromCache("ManBPSerie");
+                    var multBP =  CacheManager.CacheManager.Instance.getFromCache("MultBP");
+                    var autoConse =  CacheManager.CacheManager.Instance.getFromCache("AutoConse");
+                    var terPrefix =  CacheManager.CacheManager.Instance.getFromCache("TerPerfix");
+                    var prefix =  CacheManager.CacheManager.Instance.getFromCache((type == TYPE_BP.CUSTOMER) ? "ClientPrefix" : "VendorPrefix");
+                    if (manBpSerie.Equals("Y"))
+                    {
+                        if (type == TYPE_BP.CUSTOMER)
+                            series = string.IsNullOrEmpty(CacheManager.CacheManager.Instance.getFromCache("CSeries").ToString()) ? 0 : int.Parse(CacheManager.CacheManager.Instance.getFromCache("CSeries"));
+                        else if(type == TYPE_BP.SUPPLIER)
+                            series = string.IsNullOrEmpty(CacheManager.CacheManager.Instance.getFromCache("VSeries").ToString()) ? 0 : int.Parse(CacheManager.CacheManager.Instance.getFromCache("VSeries"));
+
+                        if (series == 0)
+                            throw new Exception("Seleccione una serie en la configuración de localización");
+                    }
+                    else
+                    {
+                        if (terPrefix.Equals("Y"))
+                        {
+                            var queryP = Queries.Instance.Queries().Get("GetRPPrefix");
+                            record.DoQuery(string.Format(queryP, code));
+                            record.MoveFirst();
+                            if(record.RecordCount > 0)
+                            {
+                                if (autoConse.Equals("Y"))
+                                    consec = string.IsNullOrEmpty(record.Fields.Item("U_Consecutive").Value.ToString()) ? 1 : int.Parse(record.Fields.Item("U_Consecutive").Value.ToString());
+                                prefix = record.Fields.Item("U_Prefix").Value;
+                            }                  
+
+                            if(string.IsNullOrEmpty(prefix))
+                                throw new Exception("la opción de configuración 'Manejar prefijo por tipo de tercero' está marcada pero no se configuró un prefijo para el tipo de tercero");
+                        }
+                        if (multBP.Equals("Y"))
+                        {
+                            cardCode = prefix + form.DataSources.DBDataSources.Item(0).GetValue("Code", 0) + "_" + secuence;
+                        }
+                        else if (autoConse.Equals("Y"))
+                        {
+                            var numChara = CacheManager.CacheManager.Instance.getFromCache("NumChara");
+                            cardCode = prefix + consec.ToString().PadLeft(numChara, '0');
+                            while (bp.GetByKey(cardCode))
+                            {
+                                consec += 1;
+                                cardCode = prefix + consec.ToString().PadLeft(numChara, '0');
+                            }
+                            bp = null;
+                            bp = (BusinessPartners)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
+                        }
+                        else
+                        {
+                            cardCode = prefix + code;
+                            if (bp.GetByKey(cardCode))
+                                throw new Exception("El socio de negocios ya existe, no es posible su creación");
+                        }
+                    }
+
                     bp.CardType = (type == TYPE_BP.CUSTOMER) ? BoCardTypes.cCustomer : BoCardTypes.cSupplier;
-                    if (type == TYPE_BP.CUSTOMER && (Cseries != 0 && Cseries != 1)) bp.Series = Cseries;
-                    else if (type == TYPE_BP.SUPPLIER && (Vseries != 0 && Vseries != 2)) bp.Series = Vseries;
-                    else bp.CardCode = ((type == TYPE_BP.CUSTOMER) ? record.Fields.Item("U_ClientPrefix").Value : record.Fields.Item("U_VendorPrefix").Value) + form.DataSources.DBDataSources.Item(0).GetValue("Code", 0) + "_" + secuence;
+                    if (series != 0) bp.Series = series; else bp.CardCode = cardCode;
                     bp.CardName = form.DataSources.DBDataSources.Item(0).GetValue("Name", 0);
                     bp.FederalTaxID = form.DataSources.DBDataSources.Item(0).GetValue("U_LicTradNum", 0) + 
                         (!string.IsNullOrEmpty(form.DataSources.DBDataSources.Item(0).GetValue("U_AuthDig", 0)) ? ("-" + form.DataSources.DBDataSources.Item(0).GetValue("U_AuthDig", 0)) : "");
@@ -951,6 +1008,14 @@ namespace T1.B1.RelatedParties
 
                     if (bp.Add() == 0)
                     {
+                        if (autoConse.Equals("Y"))
+                        {
+                            if (terPrefix.Equals("Y"))
+                                updateConsecRelPartyType(form.DataSources.DBDataSources.Item(0).GetValue("U_CardTypeID", 0), consec);
+                            else
+                                updateConsecRelPartyConfiguration(type, consec);
+                        }
+
                         var msg = ((type == TYPE_BP.CUSTOMER) ? "Cliente" : "Proveedor") + " creado exitosamente.";
 
                         _Logger.Debug(msg);
@@ -978,6 +1043,56 @@ namespace T1.B1.RelatedParties
             {
                 _Logger.Error("", er);
                 MainObject.Instance.B1Application.SetStatusBarMessage("HCO:" + er.Message, SAPbouiCOM.BoMessageTime.bmt_Short, true);
+            }
+        }
+
+        static private void updateConsecRelPartyConfiguration(TYPE_BP type, int concec)
+        {
+            try
+            {
+                var cs = MainObject.Instance.B1Company.GetCompanyService();
+                var gs = cs.GetGeneralService("HCO_FRP0001");
+                GeneralDataParams gdp = (GeneralDataParams)gs.GetDataInterface(GeneralServiceDataInterfaces.gsGeneralDataParams);
+                gdp.SetProperty("Code", CacheManager.CacheManager.Instance.getFromCache("CodeRPConf").ToString());
+                var gd = gs.GetByParams(gdp);
+                gd.SetProperty((type == TYPE_BP.CUSTOMER) ? "U_ConsecC" : "U_ConsecV", concec + 1);
+
+                gs.Update(gd);
+            }
+            catch (COMException comEx)
+            {
+                Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
+                _Logger.Error("", comEx);
+
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+            }
+        }
+
+        static private void updateConsecRelPartyType(string docTypeID, int concec)
+        {
+            try
+            {
+                var cs = MainObject.Instance.B1Company.GetCompanyService();
+                var gs = cs.GetGeneralService("HCO_FRP0002");
+                GeneralDataParams gdp = (GeneralDataParams)gs.GetDataInterface(GeneralServiceDataInterfaces.gsGeneralDataParams);
+                gdp.SetProperty("Code", docTypeID);
+                var gd = gs.GetByParams(gdp);
+                gd.SetProperty("U_Consecutive", concec + 1);
+
+                gs.Update(gd);
+            }
+            catch (COMException comEx)
+            {
+                Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
+                _Logger.Error("", comEx);
+
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
             }
         }
         static private bool DeleteThird(Form form, string Code)

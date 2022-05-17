@@ -106,6 +106,9 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Forms\HCO_Terceros_Configuracion.srf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Forms\HCO_Terceros_Informe_Movimientos.srf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -201,9 +204,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Forms\HCO Terceros Relacionados Faltantes.srf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Forms\HCO_Terceros_Configuracion.srf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Forms\HCO_Terceros_Departamentos.srf">
