@@ -571,114 +571,6 @@
     },
     {
       "TableCode": "HCO_RP0001",
-      "FieldCode": "UseBPSeries",
-      "FieldName": "UseBPSeries",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 1,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "N",
-      "ValidValues": [
-        {
-          "ValidValue": "Y",
-          "Description": "Yes"
-        },
-        {
-          "ValidValue": "N",
-          "Description": "No"
-        }
-      ]
-    },
-    {
-      "TableCode": "HCO_RP0001",
-      "FieldCode": "ManyBPs",
-      "FieldName": "ManyBPs",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 1,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "N",
-      "ValidValues": [
-        {
-          "ValidValue": "Y",
-          "Description": "Yes"
-        },
-        {
-          "ValidValue": "N",
-          "Description": "No"
-        }
-      ]
-    },
-    {
-      "TableCode": "HCO_RP0001",
-      "FieldCode": "UseTSerial",
-      "FieldName": "UseTSerial",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 1,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "N",
-      "ValidValues": [
-        {
-          "ValidValue": "Y",
-          "Description": "Yes"
-        },
-        {
-          "ValidValue": "N",
-          "Description": "No"
-        }
-      ]
-    },
-    {
-      "TableCode": "HCO_RP0001",
-      "FieldCode": "UseTPref",
-      "FieldName": "Prefijo",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 1,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "N",
-      "ValidValues": [
-        {
-          "ValidValue": "Y",
-          "Description": "Yes"
-        },
-        {
-          "ValidValue": "N",
-          "Description": "No"
-        }
-      ]
-    },
-    {
-      "TableCode": "HCO_RP0001",
-      "FieldCode": "CharNum",
-      "FieldName": "CharNum",
-      "Type": 2,
-      "SubType": 0,
-      "Length": 11,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_RP0001",
-      "FieldCode": "StartNum",
-      "FieldName": "StartNum",
-      "Type": 2,
-      "SubType": 0,
-      "Length": 11,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_RP0001",
       "FieldCode": "UserNameDB",
       "FieldName": "UserNameDB",
       "Type": 0,
@@ -732,6 +624,90 @@
       "Type": 0,
       "SubType": 0,
       "Length": 20,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "ManBPSerie",
+      "FieldName": "ManBPSerie",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "MultBP",
+      "FieldName": "MultBP",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "AutoConse",
+      "FieldName": "AutoConse",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "TerPerfix",
+      "FieldName": "TerPerfix",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "NumChara",
+      "FieldName": "Numero de caracteres",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "ConsecC",
+      "FieldName": "Consecutivo clientes",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 11,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "ConsecV",
+      "FieldName": "Consecutivo proveedores",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 11,
       "LinkType": 0,
       "LinkCode": "",
       "DefaultValue": "",
@@ -1013,6 +989,30 @@
           "Description": "Impuesto Diferido"
         }
       ]
+    },
+    {
+      "TableCode": "HCO_RP0002",
+      "FieldCode": "Prefix",
+      "FieldName": "Prefix",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_RP0002",
+      "FieldCode": "Consecutive",
+      "FieldName": "Consecutivo",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 11,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
     }
   ],
   "UDO": [
@@ -1043,6 +1043,14 @@
         {
           "Column": "Name",
           "Description": "Descripción"
+        },
+        {
+          "Column": "U_Prefix",
+          "Description": "Prefijo"
+        },
+        {
+          "Column": "U_Consecutive",
+          "Description": "Consecutivo"
         }
       ]
     },
