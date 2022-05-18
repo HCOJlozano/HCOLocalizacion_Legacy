@@ -30,7 +30,7 @@ namespace T1.B1.RelatedParties
                 objMenu = (MenuCreationParams)MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
                 count = MainObject.Instance.B1Application.Menus.Item("43528").SubMenus.Count + 1;
                 objMenu = (MenuCreationParams)MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
-                objMenu.String = "Configuración Localización H&&CO";
+                objMenu.String = "Configuración";
                 objMenu.UniqueID = "HCO_MRP0001";
                 objMenu.Type = SAPbouiCOM.BoMenuType.mt_STRING;
                 count = MainObject.Instance.B1Application.Menus.Item("HCO_RPT0001").SubMenus.Count + 1;
