@@ -1947,9 +1947,17 @@ namespace T1.B1.RelatedParties
             {
                 case "Item_11":
                     if (B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Name")[0].ToString().Equals(string.Empty)) return;
-                    oForm.DataSources.DBDataSources.Item(0).SetValue(field, 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Code")[0].ToString());
-                    oForm.DataSources.DBDataSources.Item(0).SetValue("U_CardName", 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Name")[0].ToString());                    
-                    //oForm.DataSources.DBDataSources.Item(0).SetValue("U_CardTypeID", 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Code")[0].ToString());
+                    switch (pVal.FormTypeEx)
+                    {
+                        case "HCO_FRP0001":
+                            oForm.DataSources.DBDataSources.Item(0).SetValue(field, 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Code")[0].ToString());
+                            oForm.DataSources.DBDataSources.Item(0).SetValue("U_CardName", 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Name")[0].ToString());
+                            break;
+                        case "HCO_FRP1100":
+                            oForm.DataSources.DBDataSources.Item(0).SetValue(field, 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Name")[0].ToString());
+                            oForm.DataSources.DBDataSources.Item(0).SetValue("U_CardTypeID", 0, B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Code")[0].ToString());
+                            break;
+                    }                                                           
                     break;
                 case "Item_26":
                     if (B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Name")[0].ToString().Equals(string.Empty)) return;
