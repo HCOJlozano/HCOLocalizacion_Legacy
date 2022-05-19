@@ -11,16 +11,19 @@ using System.IO;
 using System.Text;
 using System.Data;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace T1.B1.RelatedParties
 {
     public enum TYPE_BP { CUSTOMER, SUPPLIER };
     public enum TYPE_CRYSTAL { BALANCE, ERI, ESFA, DIARIO, TERCERO, RET_CODE, AUXILIAR, CERT_RET, RETPURCH_COD, RETSALE_COD, RETPRUCH_CARD, RETSALE_CARD, IVAPRUCH_COD, IVASALE_COD };
 
+
     public class Instance
     {
         private static Instance objRelParty;
         private static readonly ILog _Logger = Log.Instance.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, Settings._Main.logLevel);
+        private static List<string> listRow = new List<string>();
 
         private Instance()
         {
@@ -85,6 +88,75 @@ namespace T1.B1.RelatedParties
             var matrix = (SAPbouiCOM.Matrix)form.Items.Item(matrixItem).Specific;
                 matrix.Columns.Item("U_HCO_RELPAR").ChooseFromListUID = "CF_TER";
                 matrix.Columns.Item("U_HCO_RELPAR").ChooseFromListAlias = "Code";
+        }
+
+        public static void SetChooseFromListContPer(ItemEvent pVal) 
+        {
+            var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+            var lblTxt = form.Items.Add("lblThird", BoFormItemTypes.it_STATIC);
+            lblTxt.Width = 150;
+                lblTxt.Top = form.Items.Item("26").Top;
+                lblTxt.Left = form.Items.Item("26").Left;
+            ((StaticText)lblTxt.Specific).Caption = "Tercero Relacionado";
+
+            var itms = form.Items.Add("txtThird", BoFormItemTypes.it_EDIT);
+                itms.Top = form.Items.Item("22").Top;
+                itms.Left = form.Items.Item("22").Left+5;
+            ((EditText)itms.Specific).DataBind.SetBound(true, "ORCR", "U_HCO_RELPAR");
+
+            var oCFLs = form.ChooseFromLists;
+            var oCFLCreationParams = ((ChooseFromListCreationParams)(MainObject.Instance.B1Application.CreateObject(BoCreatableObjectType.cot_ChooseFromListCreationParams)));
+
+            oCFLCreationParams.MultiSelection = false;
+            oCFLCreationParams.ObjectType = "HCO_FRP1100";
+            oCFLCreationParams.UniqueID = "CFLTHR";
+
+            var oCFL = oCFLs.Add(oCFLCreationParams);
+
+            ((EditText)form.Items.Item("txtThird").Specific).ChooseFromListUID = "CFLTHR";
+            ((EditText)form.Items.Item("txtThird").Specific).ChooseFromListAlias = "Code";
+        }
+
+        public static void SetContPer(ItemEvent pVal)
+        {
+            listRow.Clear();
+            var form = MainObject.Instance.B1Application.Forms.ActiveForm;
+            var matrix = (Matrix) form.Items.Item("3").Specific;
+            for (int i = 1; i<matrix.RowCount; i++)
+            {
+                if (matrix.IsRowSelected(i))
+                    listRow.Add("'"+((EditText)matrix.GetCellSpecific("1", i)).Value+"'");
+            }
+        }
+
+        public static void MakeContPer(ItemEvent pVal)
+        {
+            if (listRow.Count > 0)
+            {
+                var journal = (JournalEntries) MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+                var query = string.Format(Queries.Instance.Queries().Get("GetJournalContPer"), string.Join(",", listRow));
+                var record = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                    record.DoQuery(query);
+                
+                if (record.RecordCount > 0)
+                {
+                    while(!record.EoF)
+                    {
+                        if( journal.GetByKey(int.Parse(record.Fields.Item("TransId").Value.ToString())) )
+                        {
+                            for(int i=0; i <journal.Lines.Count; i++ )
+                            {
+                                journal.Lines.SetCurrentLine(i);
+                                journal.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = record.Fields.Item("U_HCO_RELPAR").Value;
+                            }
+
+                            journal.Update();
+                        }
+
+                        record.MoveNext();
+                    }
+                }
+            }
         }
 
         public static void LoadFieldPayment(ItemEvent pVal)
@@ -292,6 +364,40 @@ namespace T1.B1.RelatedParties
             }
 
             return stringBuilder.ToString();
+        }
+
+        public static bool ValidateFieldsPeriodCont(ItemEvent pVal)
+        {
+            var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+            var sel = ((ComboBox)form.Items.Item("21").Specific).Selected;
+            var third = form.DataSources.DBDataSources.Item("ORCR").GetValue("U_HCO_RELPAR", 0);
+            if( third.Equals(String.Empty) )
+            {
+                MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tercero vacio");
+                return false;
+            }
+
+            if (sel == null)
+            {
+                MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tipo de codigo de transaccion vacio");
+                return false;
+            }
+            else
+            {
+                if (sel.Value == "")
+                {
+                    MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tipo de codigo de transaccion vacio");
+                    return false;
+                }
+
+                if( sel.Value != "CP" )
+                {
+                    MainObject.Instance.B1Application.SetStatusBarMessage("Tiene que seleccionar el codigo de transaccion del tipo \"CP\"");
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public static bool ValidateFieldsChangesTypes(ItemEvent pVal)
@@ -2119,6 +2225,10 @@ namespace T1.B1.RelatedParties
                 case "Item_0":
                     if (B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "OcrCode")[0].ToString().Equals(string.Empty)) return;
                     oForm.DataSources.UserDataSources.Item("UD_Dim5").Value = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "OcrCode")[0].ToString();
+                    break;
+                case "txtThird":
+                    if (B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Code")[0].ToString().Equals(string.Empty)) return;
+                    ((EditText)oForm.Items.Item(pVal.ItemUID).Specific).Value = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Code")[0].ToString();
                     break;
             }
 
