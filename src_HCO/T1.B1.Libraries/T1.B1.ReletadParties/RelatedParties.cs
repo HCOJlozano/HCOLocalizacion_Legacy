@@ -2458,7 +2458,7 @@ namespace T1.B1.RelatedParties
             labelAdd.Width = 100;
             labelAdd.Top = labelReference.Top;
             labelAdd.Left = labelReference.Left;
-            ((StaticText)labelAdd.Specific).Caption = "Metodo valorizacion";
+            ((StaticText)labelAdd.Specific).Caption = "Área de valorización";
         }
 
         public static void UpdateJournalChangesTax(BusinessObjectInfo BusinessObjectInfo)
