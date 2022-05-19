@@ -333,7 +333,7 @@ namespace T1.B1.RelatedParties
                 {
                     if (sel.Value == "")
                         opt = false;
-                    else if (sel.Value != "DCA")
+                    else if (sel.Value != "HDCA")
                         opt = false;
                 }
                 else if (pVal.FormTypeEx == "371")
@@ -347,7 +347,7 @@ namespace T1.B1.RelatedParties
 
             if(!opt)
             {
-                var cod = pVal.FormTypeEx == "369" ? "DCA" : "DCO";
+                var cod = pVal.FormTypeEx == "369" ? "HDCA" : "DCO";
                 MainObject.Instance.B1Application.SetStatusBarMessage($"Debe seleccionar el codigo de transaccion {cod}");
             }
 
@@ -2350,7 +2350,7 @@ namespace T1.B1.RelatedParties
             var oRS = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
             var hash = ((EditText)oForm.Items.Item("4").Specific).Value;
             var areaVal = oForm.DataSources.UserDataSources.Item("UD_MetVat").Value;
-            var strSQL = string.Format(Queries.Instance.Queries().Get("GetChangesDifferences"), hash, (BusinessObjectInfo.FormTypeEx.Equals("369") ? "DCA" : "DCO"));
+            var strSQL = string.Format(Queries.Instance.Queries().Get("GetChangesDifferences"), hash, (BusinessObjectInfo.FormTypeEx.Equals("369") ? "HDCA" : "DCO"));
                 oRS.DoQuery(strSQL);
 
             while(!oRS.EoF)
