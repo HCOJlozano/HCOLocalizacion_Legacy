@@ -41,7 +41,12 @@ namespace T1.B1.RelatedParties
                                 var oXml = oXML.InnerXml;
                                 MainObject.Instance.B1Application.LoadBatchActions(string.Format(oXml, pVal.FormUID));
                                 runResizelogic = false;
-                            }                            
+                            }
+
+                            if (pVal.FormTypeEx == "670")
+                            {
+                                Instance.SetChooseFromListContPer(pVal);
+                            }
 
                             break;
                         case BoEventTypes.et_CLICK:
@@ -54,8 +59,14 @@ namespace T1.B1.RelatedParties
                                 if( pVal.ItemUID == "1" )
                                     BubbleEvent = Instance.ValidateFieldsChangesTypes(pVal);
                             }
+                            if (pVal.FormTypeEx == "670")
+                            {
+                                if (pVal.ItemUID == "1")
+                                    BubbleEvent = Instance.ValidateFieldsPeriodCont(pVal);
+                            }
                             break;
-                        case SAPbouiCOM.BoEventTypes.et_ITEM_PRESSED:
+
+                        case BoEventTypes.et_ITEM_PRESSED:
 
                             if (pVal.FormTypeEx == Settings._Main.RelatedPartiesUDO)
                             {
@@ -220,6 +231,19 @@ namespace T1.B1.RelatedParties
                             if( pVal.FormTypeEx == "369" || pVal.FormTypeEx == "371")
                             {
                                 Instance.AddFieldsJournalChangesTax(pVal);
+                            }
+
+                            if (pVal.FormTypeEx == "683")
+                            {
+                                Instance.SetContPer(pVal);
+                            }
+
+                            break;
+
+                        case BoEventTypes.et_FORM_UNLOAD:
+                            if( pVal.FormTypeEx == "680" )
+                            {
+                                Instance.MakeContPer(pVal);
                             }
 
                             break;
