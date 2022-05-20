@@ -1033,7 +1033,8 @@ namespace T1.B1.RelatedParties
         static public int GetNext_BPSecuence(TYPE_BP type)
         {
             var form = MainObject.Instance.B1Application.Forms.ActiveForm;
-            var code = form.DataSources.DBDataSources.Item(0).GetValue("U_LicTradNum", 0) + "-" + form.DataSources.DBDataSources.Item(0).GetValue("U_AuthDig", 0);
+            var code = form.DataSources.DBDataSources.Item(0).GetValue("U_LicTradNum", 0) + 
+                ((!string.IsNullOrEmpty(form.DataSources.DBDataSources.Item(0).GetValue("U_AuthDig", 0))) ? "-" + form.DataSources.DBDataSources.Item(0).GetValue("U_AuthDig", 0) : "");
             var queryCheck = string.Format(Queries.Instance.Queries().Get("CheckBPCant"), code, type == TYPE_BP.CUSTOMER ? "C" : "S");
             var record = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
             record.DoQuery(queryCheck);
