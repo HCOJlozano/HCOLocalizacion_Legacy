@@ -1013,6 +1013,30 @@
       "LinkCode": "",
       "DefaultValue": "",
       "ValidValues": []
+    },
+    {
+      "TableCode": "ORCR",
+      "FieldCode": "HCO_RELPAR",
+      "FieldName": "Tercero relacionado",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "OTRT",
+      "FieldCode": "HCO_RELPAR",
+      "FieldName": "Tercero relacionado",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
     }
   ],
   "UDO": [
