@@ -5,8 +5,6 @@ using SAPbouiCOM;
 using System.Reflection;
 using System.Xml;
 using System.Threading;
-using System.Security.Permissions;
-using System.IO;
 
 namespace T1.B1.RelatedParties
 {
@@ -48,6 +46,11 @@ namespace T1.B1.RelatedParties
                                 Instance.SetChooseFromListContPer(pVal);
                             }
 
+                            if (pVal.FormTypeEx == "800")
+                            {
+                                Instance.SetChooseFromListContPlan(pVal);
+                            } 
+
                             break;
                         case BoEventTypes.et_CLICK:
                             if (pVal.ItemUID == "Item_69")
@@ -63,6 +66,11 @@ namespace T1.B1.RelatedParties
                             {
                                 if (pVal.ItemUID == "1")
                                     BubbleEvent = Instance.ValidateFieldsPeriodCont(pVal);
+                            }
+                            if (pVal.FormTypeEx == "800")
+                            {
+                                if (pVal.ItemUID == "1")
+                                    BubbleEvent = Instance.ValidateFieldsPeriodTempl(pVal);
                             }
                             break;
 
@@ -81,6 +89,12 @@ namespace T1.B1.RelatedParties
                             {
                                 if (pVal.ItemUID == "1")
                                     Instance.SetReferenceChangesTypes(pVal);
+                            }
+
+                            if (pVal.FormTypeEx == "392")
+                            {
+                                if (pVal.ItemUID == "1")
+                                   Instance.SetReferenceJournalTemplate(pVal);
                             }
 
                             if (pVal.FormTypeEx == "670")

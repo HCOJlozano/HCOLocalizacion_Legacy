@@ -77,32 +77,62 @@ namespace T1.B1.RelatedParties
         public static void LoadChooseFromListPayment(ItemEvent pVal)
         {
             var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-            var oCFLCreationParams = (SAPbouiCOM.ChooseFromListCreationParams) MainObject.Instance.B1Application.CreateObject(BoCreatableObjectType.cot_ChooseFromListCreationParams);
-                oCFLCreationParams.MultiSelection = false;
-                oCFLCreationParams.ObjectType = "HCO_FRP1100";
-                oCFLCreationParams.UniqueID = "CF_TER";
+            var oCFLCreationParams = (SAPbouiCOM.ChooseFromListCreationParams)MainObject.Instance.B1Application.CreateObject(BoCreatableObjectType.cot_ChooseFromListCreationParams);
+            oCFLCreationParams.MultiSelection = false;
+            oCFLCreationParams.ObjectType = "HCO_FRP1100";
+            oCFLCreationParams.UniqueID = "CF_TER";
 
             form.ChooseFromLists.Add(oCFLCreationParams);
 
             var matrixItem = pVal.FormTypeEx == Settings._Main.JournalFormTypeEx ? "76" : "71";
             var matrix = (SAPbouiCOM.Matrix)form.Items.Item(matrixItem).Specific;
-                matrix.Columns.Item("U_HCO_RELPAR").ChooseFromListUID = "CF_TER";
-                matrix.Columns.Item("U_HCO_RELPAR").ChooseFromListAlias = "Code";
+            matrix.Columns.Item("U_HCO_RELPAR").ChooseFromListUID = "CF_TER";
+            matrix.Columns.Item("U_HCO_RELPAR").ChooseFromListAlias = "Code";
         }
 
-        public static void SetChooseFromListContPer(ItemEvent pVal) 
+        public static void SetChooseFromListContPlan(ItemEvent pVal)
         {
             var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
             var lblTxt = form.Items.Add("lblThird", BoFormItemTypes.it_STATIC);
             lblTxt.Width = 150;
-                lblTxt.Top = form.Items.Item("26").Top;
-                lblTxt.Left = form.Items.Item("26").Left;
+            lblTxt.Top = form.Items.Item("7").Top;
+            lblTxt.Left = form.Items.Item("5").Left + form.Items.Item("5").Width - 130;
             ((StaticText)lblTxt.Specific).Caption = "Tercero Relacionado";
 
             var itms = form.Items.Add("txtThird", BoFormItemTypes.it_EDIT);
-                itms.Top = form.Items.Item("22").Top;
-                itms.Left = form.Items.Item("22").Left+5;
+            itms.Top = form.Items.Item("5").Top;
+            itms.Left = form.Items.Item("5").Left + form.Items.Item("5").Width - 130;
+
+            ((EditText)itms.Specific).DataBind.SetBound(true, "OTRT", "U_HCO_RELPAR");
+            ((EditText)itms.Specific).TabOrder = 9999;
+
+            var oCFLs = form.ChooseFromLists;
+            var oCFLCreationParams = ((ChooseFromListCreationParams)(MainObject.Instance.B1Application.CreateObject(BoCreatableObjectType.cot_ChooseFromListCreationParams)));
+
+            oCFLCreationParams.MultiSelection = false;
+            oCFLCreationParams.ObjectType = "HCO_FRP1100";
+            oCFLCreationParams.UniqueID = "CFLTHR";
+
+            var oCFL = oCFLs.Add(oCFLCreationParams);
+
+            ((EditText)form.Items.Item("txtThird").Specific).ChooseFromListUID = "CFLTHR";
+            ((EditText)form.Items.Item("txtThird").Specific).ChooseFromListAlias = "Code";
+        }
+
+        public static void SetChooseFromListContPer(ItemEvent pVal)
+        {
+            var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+            var lblTxt = form.Items.Add("lblThird", BoFormItemTypes.it_STATIC);
+            lblTxt.Width = 150;
+            lblTxt.Top = form.Items.Item("26").Top;
+            lblTxt.Left = form.Items.Item("26").Left;
+            ((StaticText)lblTxt.Specific).Caption = "Tercero Relacionado";
+
+            var itms = form.Items.Add("txtThird", BoFormItemTypes.it_EDIT);
+            itms.Top = form.Items.Item("22").Top;
+            itms.Left = form.Items.Item("22").Left + 5;
             ((EditText)itms.Specific).DataBind.SetBound(true, "ORCR", "U_HCO_RELPAR");
+            ((EditText)itms.Specific).TabOrder = 9999;
 
             var oCFLs = form.ChooseFromLists;
             var oCFLCreationParams = ((ChooseFromListCreationParams)(MainObject.Instance.B1Application.CreateObject(BoCreatableObjectType.cot_ChooseFromListCreationParams)));
@@ -121,11 +151,11 @@ namespace T1.B1.RelatedParties
         {
             listRow.Clear();
             var form = MainObject.Instance.B1Application.Forms.ActiveForm;
-            var matrix = (Matrix) form.Items.Item("3").Specific;
-            for (int i = 1; i<matrix.RowCount; i++)
+            var matrix = (Matrix)form.Items.Item("3").Specific;
+            for (int i = 1; i < matrix.RowCount; i++)
             {
                 if (matrix.IsRowSelected(i))
-                    listRow.Add("'"+((EditText)matrix.GetCellSpecific("1", i)).Value+"'");
+                    listRow.Add("'" + ((EditText)matrix.GetCellSpecific("1", i)).Value + "'");
             }
         }
 
@@ -133,18 +163,18 @@ namespace T1.B1.RelatedParties
         {
             if (listRow.Count > 0)
             {
-                var journal = (JournalEntries) MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+                var journal = (JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
                 var query = string.Format(Queries.Instance.Queries().Get("GetJournalContPer"), string.Join(",", listRow));
                 var record = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-                    record.DoQuery(query);
-                
+                record.DoQuery(query);
+
                 if (record.RecordCount > 0)
                 {
-                    while(!record.EoF)
+                    while (!record.EoF)
                     {
-                        if( journal.GetByKey(int.Parse(record.Fields.Item("TransId").Value.ToString())) )
+                        if (journal.GetByKey(int.Parse(record.Fields.Item("TransId").Value.ToString())))
                         {
-                            for(int i=0; i <journal.Lines.Count; i++ )
+                            for (int i = 0; i < journal.Lines.Count; i++)
                             {
                                 journal.Lines.SetCurrentLine(i);
                                 journal.Lines.UserFields.Fields.Item("U_HCO_RELPAR").Value = record.Fields.Item("U_HCO_RELPAR").Value;
@@ -163,9 +193,9 @@ namespace T1.B1.RelatedParties
         {
             var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
             var oCFLCreationParams = (SAPbouiCOM.ChooseFromListCreationParams)MainObject.Instance.B1Application.CreateObject(BoCreatableObjectType.cot_ChooseFromListCreationParams);
-                oCFLCreationParams.MultiSelection = false;
-                oCFLCreationParams.ObjectType = "HCO_FRP1100";
-                oCFLCreationParams.UniqueID = "CF_TERP";
+            oCFLCreationParams.MultiSelection = false;
+            oCFLCreationParams.ObjectType = "HCO_FRP1100";
+            oCFLCreationParams.UniqueID = "CF_TERP";
 
             form.ChooseFromLists.Add(oCFLCreationParams);
             var refLbl = form.Items.Item("53");
@@ -173,8 +203,8 @@ namespace T1.B1.RelatedParties
             var linkTer = form.Items.Add("arrowTer", BoFormItemTypes.it_LINKED_BUTTON);
             var lblTer = form.Items.Add("lblRelPar", BoFormItemTypes.it_STATIC);
             var txtTer = form.Items.Add("txtRelpar", BoFormItemTypes.it_EDIT);
-                lblTer.Left = refLbl.Left;
-                lblTer.Top = refLbl.Top + 15;
+            lblTer.Left = refLbl.Left;
+            lblTer.Top = refLbl.Top + 15;
             lblTer.Width = refLbl.Width;
             ((StaticText)lblTer.Specific).Caption = "Tercero Relacionado";
 
@@ -186,7 +216,7 @@ namespace T1.B1.RelatedParties
             ((EditText)txtTer.Specific).ChooseFromListAlias = "Code";
 
             linkTer.Top = txtTer.Top;
-            linkTer.Left = txtTer.Left-20;
+            linkTer.Left = txtTer.Left - 20;
             linkTer.LinkTo = "txtRelpar";
             ((LinkedButton)linkTer.Specific).LinkedObject = BoLinkedObject.lf_UserDefinedObject;
             ((LinkedButton)linkTer.Specific).LinkedObjectType = "HCO_FRP1100";
@@ -287,18 +317,18 @@ namespace T1.B1.RelatedParties
 
             var condsAcct = form.ChooseFromLists.Item("CFL_CtaD").GetConditions();
             var condAcct = condsAcct.Add();
-                condAcct.BracketOpenNum = 2;
-                condAcct.Alias = "Frozen";
-                condAcct.Operation = BoConditionOperation.co_EQUAL;
-                condAcct.CondVal = "N";
-                condAcct.BracketCloseNum = 1;
-                condAcct.Relationship = BoConditionRelationship.cr_AND;
-                condAcct = condsAcct.Add();
-                condAcct.BracketOpenNum = 1;
-                condAcct.Alias = "Postable";
-                condAcct.Operation = BoConditionOperation.co_EQUAL;
-                condAcct.CondVal = "Y";
-                condAcct.BracketCloseNum = 2;
+            condAcct.BracketOpenNum = 2;
+            condAcct.Alias = "Frozen";
+            condAcct.Operation = BoConditionOperation.co_EQUAL;
+            condAcct.CondVal = "N";
+            condAcct.BracketCloseNum = 1;
+            condAcct.Relationship = BoConditionRelationship.cr_AND;
+            condAcct = condsAcct.Add();
+            condAcct.BracketOpenNum = 1;
+            condAcct.Alias = "Postable";
+            condAcct.Operation = BoConditionOperation.co_EQUAL;
+            condAcct.CondVal = "Y";
+            condAcct.BracketCloseNum = 2;
 
             form.ChooseFromLists.Item("CFL_CtaD").SetConditions(condsAcct);
 
@@ -338,11 +368,42 @@ namespace T1.B1.RelatedParties
             ((EditText)form.Items.Item("4").Specific).Value = hash;
         }
 
+        public static void SetReferenceJournalTemplate(ItemEvent pVal)
+        {
+            var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+            var valueTmplate = ((EditText)form.Items.Item("28").Specific).Value;
+            var cmboTmplate = ((ComboBox)form.Items.Item("27").Specific).Selected;
+
+            if (!string.IsNullOrEmpty(valueTmplate))
+            {
+                var thirdQuery = string.Format((cmboTmplate.Value == "2" ? Queries.Instance.Queries().Get("GetThirdContabPer") : Queries.Instance.Queries().Get("GetThirdContabTmpl")), valueTmplate);
+                var matrixJournal = (Matrix)form.Items.Item("76").Specific;
+                var record = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                record.DoQuery(thirdQuery);
+
+                if (record.RecordCount > 0)
+                {
+                    try
+                    {
+                        form.Freeze(true);
+                        for (int i = 1; i <= matrixJournal.RowCount; i++)
+                        {
+                            ((EditText)matrixJournal.GetCellSpecific("U_HCO_RELPAR", i)).Value = record.Fields.Item("U_HCO_RELPAR").Value.ToString();
+                        }
+                    }
+                    finally
+                    {
+                        form.Freeze(false);
+                    }
+                }
+            }
+        }
+
         public static void SetReferencePeriodContab(ItemEvent pVal)
         {
             var hash = CreateMD5(DateTime.Now.ToString("yyyyMMddhhmmss")).Substring(0, 15);
             var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-            if( form.Mode == BoFormMode.fm_ADD_MODE ) 
+            if (form.Mode == BoFormMode.fm_ADD_MODE)
                 ((EditText)form.Items.Item("19").Specific).Value = hash;
         }
 
@@ -364,6 +425,20 @@ namespace T1.B1.RelatedParties
             }
 
             return stringBuilder.ToString();
+        } 
+
+        public static bool ValidateFieldsPeriodTempl(ItemEvent pVal)
+        {
+            var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+            var third = form.DataSources.DBDataSources.Item("OTRT").GetValue("U_HCO_RELPAR", 0);
+
+            if (third.Equals(String.Empty))
+            {
+                MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tercero vacio");
+                return false;
+            }
+
+            return true;
         }
 
         public static bool ValidateFieldsPeriodCont(ItemEvent pVal)

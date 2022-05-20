@@ -1,6 +1,14 @@
 ﻿{
   "Queries": [
     {
+      "QueryName": "GetThirdContabTmpl",
+      "Query": "SELECT \"U_HCO_RELPAR\" FROM OTRT X0 INNER JOIN \"@HCO_RP1100\" X1 ON X0.\"U_HCO_RELPAR\"=X1.\"Code\" WHERE \"TrtCode\" = '{0}'"
+    },
+    {
+      "QueryName": "GetThirdContabPer",
+      "Query": "SELECT \"U_HCO_RELPAR\" FROM ORCR X0 INNER JOIN \"@HCO_RP1100\" X1 ON X0.\"U_HCO_RELPAR\"=X1.\"Code\" WHERE \"RcurCode\" = '{0}'"
+    },
+    {
       "QueryName": "GetJournalContPer",
       "Query": "SELECT X0.\"TransId\", X1.\"U_HCO_RELPAR\" FROM OJDT X0 INNER JOIN ORCR X1 ON X0.\"Ref1\" = X1.\"Ref1\" WHERE X1.\"RcurCode\" IN ({0})"
     },
