@@ -152,7 +152,7 @@ namespace T1.B1.RelatedParties
             listRow.Clear();
             var form = MainObject.Instance.B1Application.Forms.ActiveForm;
             var matrix = (Matrix)form.Items.Item("3").Specific;
-            for (int i = 1; i < matrix.RowCount; i++)
+            for (int i = 1; i <= matrix.RowCount; i++)
             {
                 if (matrix.IsRowSelected(i))
                     listRow.Add("'" + ((EditText)matrix.GetCellSpecific("1", i)).Value + "'");
