@@ -10,82 +10,39 @@ using System.Xml;
 
 namespace T1.B1.WithholdingTax
 {
-    public enum FORM_MODE { SEARCH, NEW, OK}
+    public enum FORM_MODE { SEARCH, NEW, OK }
     public class Operations
     {
         private static Operations objWithHoldingTax;
         private static readonly ILog _Logger = Log.Instance.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, Settings._Main.logLevel);
         private static bool runResizelogic = true;
-        private static List<string> WHPurchaseDocuments = new List<string>();
-        private static List<string> WHSalesDocuments = new List<string>();
+        private static List<string> WTDocuments = new List<string>();
+        private static Form objForm;
+
+
         public static bool CloseFormBP = false;
         private Operations()
         {
-            try
-            {
-                WHPurchaseDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._WithHoldingTax.WTPurchaseObjects);
-                WHSalesDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._WithHoldingTax.WTSalesObjects);
-            }
-            catch (COMException comEx)
-            {
-                Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
-                _Logger.Error("", comEx);
-
-            }
-            catch (Exception er)
-            {
-                _Logger.Error("", er);
-            }
-
         }
-        public static void formDataEvent(ref SAPbouiCOM.BusinessObjectInfo BusinessObjectInfo, ref bool blBubbleEvent)
+        public static void FormDataEvent(ref BusinessObjectInfo BusinessObjectInfo, ref bool blBubbleEvent)
         {
             if (objWithHoldingTax == null) objWithHoldingTax = new Operations();
-            XmlDocument oXml = new XmlDocument();
-           
+            WTDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._WithHoldingTax.WTFormTypes);
+
             try
             {
                 if (!BusinessObjectInfo.BeforeAction)
                 {
                     switch (BusinessObjectInfo.EventType)
                     {
-                        case SAPbouiCOM.BoEventTypes.et_FORM_DATA_ADD:
-                            if (BusinessObjectInfo.ActionSuccess && (WHPurchaseDocuments.Contains(BusinessObjectInfo.FormTypeEx) || WHSalesDocuments.Contains(BusinessObjectInfo.FormTypeEx)))
-                            {
-                                AddDocumentInfoArgs objArgs = new AddDocumentInfoArgs();
-                                oXml.LoadXml(BusinessObjectInfo.ObjectKey);
-                                XmlNode Xn = oXml.LastChild;                                
-                                objArgs.ObjectKey = Xn["DocEntry"].InnerText;
-                                objArgs.ObjectType = BusinessObjectInfo.Type;
-                                objArgs.FormtTypeEx = BusinessObjectInfo.FormTypeEx;
-                                objArgs.FormUID = BusinessObjectInfo.FormUID;
-
-                                WithholdingTax.addDocumentInfo(objArgs);
-                            }
+                        case BoEventTypes.et_FORM_DATA_ADD:
+                            if (BusinessObjectInfo.ActionSuccess && (WTDocuments.Contains(BusinessObjectInfo.FormTypeEx))) WithholdingTax.AddDocumentInfo(BusinessObjectInfo);
                             break;
                         case BoEventTypes.et_FORM_UNLOAD:
-                            if (BusinessObjectInfo.ActionSuccess && (WHPurchaseDocuments.Contains(BusinessObjectInfo.FormTypeEx) || WHSalesDocuments.Contains(BusinessObjectInfo.FormTypeEx)))
-                            {
-                                CacheManager.CacheManager.Instance.removeFromCache("Disable_" + BusinessObjectInfo.FormUID);
-                                CacheManager.CacheManager.Instance.removeFromCache(Settings._WithHoldingTax.WTInfoGenCachePrefix + BusinessObjectInfo.FormUID);
-                                CacheManager.CacheManager.Instance.removeFromCache(Settings._WithHoldingTax.WTFOrmInfoCachePrefix + BusinessObjectInfo.FormUID);
-                                CacheManager.CacheManager.Instance.removeFromCache(Settings._WithHoldingTax.WTLastCardCodeCachePrefix + BusinessObjectInfo.FormUID);
-                                CacheManager.CacheManager.Instance.removeFromCache("WTLogicDone_" + BusinessObjectInfo.FormUID);
-                                CacheManager.CacheManager.Instance.removeFromCache("WTCFLExecuted");
-                                CacheManager.CacheManager.Instance.removeFromCache("WTLastActiveForm");
-                            }
+                            if (BusinessObjectInfo.ActionSuccess && (WTDocuments.Contains(BusinessObjectInfo.FormTypeEx))) WithholdingTax.RemoveFromCache(BusinessObjectInfo.FormUID);
                             break;
                         case SAPbouiCOM.BoEventTypes.et_FORM_DATA_LOAD:
-                            if (BusinessObjectInfo.FormTypeEx == "HCO_FWT1100")
-                            {
-                                SAPbouiCOM.Form objForm = MainObject.Instance.B1Application.Forms.Item(BusinessObjectInfo.FormUID);
-                                LinkedButton oLink = (SAPbouiCOM.LinkedButton)objForm.Items.Item("Item_13").Specific;
-                                oLink.LinkedObject = (SAPbouiCOM.BoLinkedObject)(Int32.Parse(objForm.DataSources.DBDataSources.Item(0).GetValue("U_DocType", 0)));
-                                oLink.Item.Visible = true;
-                                oLink = (SAPbouiCOM.LinkedButton)objForm.Items.Item("Item_11").Specific;
-                                oLink.Item.Visible = true;
-
-                            }
+                            if (BusinessObjectInfo.FormTypeEx == "HCO_FWT1100") WithholdingTax.InitBusinessPartnerForm(BusinessObjectInfo.FormUID);
                             break;
                     }
                 }
@@ -93,19 +50,18 @@ namespace T1.B1.WithholdingTax
                 {
                     switch (BusinessObjectInfo.EventType)
                     {
-                        case SAPbouiCOM.BoEventTypes.et_FORM_DATA_ADD:
-                            if (WHPurchaseDocuments.Contains(BusinessObjectInfo.FormTypeEx) || WHSalesDocuments.Contains(BusinessObjectInfo.FormTypeEx))
+                        case BoEventTypes.et_FORM_DATA_ADD:
+                            if (WTDocuments.Contains(BusinessObjectInfo.FormTypeEx))
                             {
-                                Form oForm = MainObject.Instance.B1Application.Forms.ActiveForm;
-                                if (!WithholdingTax.HasRelParty(oForm.DataSources.DBDataSources.Item(0).GetValue("CardCode", 0)))
+                                objForm = MainObject.Instance.B1Application.Forms.Item(BusinessObjectInfo.FormUID);
+                                if (!WithholdingTax.HasRelParty(objForm.DataSources.DBDataSources.Item(0).GetValue("CardCode", 0)))
                                 {
-                                    MainObject.Instance.B1Application.MessageBox("El " + (WHPurchaseDocuments.Contains(BusinessObjectInfo.FormTypeEx) ? "proveedor " : "cliente ") + "no tiene tercero relacionado");
+                                    MainObject.Instance.B1Application.MessageBox("El Cliente/Proveedor no tiene tercero relacionado.");
                                     blBubbleEvent = false;
                                 }
                             }
                             break;
                     }
-
                 }
             }
             catch (COMException COMException)
@@ -116,8 +72,13 @@ namespace T1.B1.WithholdingTax
             {
                 _Logger.Error("", er);
             }
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(objForm);
+                GC.Collect();
+            }
         }
-        public static void MenuEvent(ref SAPbouiCOM.MenuEvent pVal, ref bool BubbleEvent)
+        public static void MenuEvent(ref MenuEvent pVal, ref bool BubbleEvent)
         {
             try
             {
@@ -129,28 +90,19 @@ namespace T1.B1.WithholdingTax
                             WithholdingTax.LoadWithHoldingForm(Settings.EWithHoldingTax.MUNICIPALITY);
                             break;
                         case "HCO_MWT0003":
-                            WithholdingTax.LoadWithHoldingForm(Settings.EWithHoldingTax.WITHHOLDING_OPERATION);
-                            SAPbouiCOM.Form objForm = MainObject.Instance.B1Application.Forms.ActiveForm;
-                            LinkedButton oLink = (SAPbouiCOM.LinkedButton)objForm.Items.Item("Item_11").Specific;
-                            oLink.LinkedObjectType = "HCO_FRP1100";
-                            oLink.LinkedFormXmlPath = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\Forms\\HCO_Terceros_Relacionados.srf";
-                            oLink.Item.Visible = false;
+                            WithholdingTax.InitWithHoldingOperForm(WithholdingTax.LoadWithHoldingForm(Settings.EWithHoldingTax.WITHHOLDING_OPERATION));
                             break;
                         case "HCO_MWTARU":
                             var eventInfoMrparu = CacheManager.CacheManager.Instance.getFromCache(Settings._Main.lastRightClickEventInfo);
-                            WithholdingTax.MatrixOperationUDO("Add", "0_U_G");
-                            WithholdingTax.rowNumber("0_U_G");
+                            B1.Base.UIOperations.FormsOperations.MatrixOperationUDO("Add", "0_U_G", MainObject.Instance.B1Application.Forms.ActiveForm);
                             break;
                         case "HCO_MWT0004":
-                            WithholdingTax.LoadWithHoldingForm(Settings.EWithHoldingTax.MISSING_OPERATIONS);
-                            WithholdingTax.InitMissingOperationsForm();
+                            WithholdingTax.InitMissingOperationsForm(WithholdingTax.LoadWithHoldingForm(Settings.EWithHoldingTax.MISSING_OPERATIONS));
                             break;
                         case "1281":
-                            var form = MainObject.Instance.B1Application.Forms.ActiveForm;
-                            if (form.TypeEx == "HCO_FWT1100")
-                            {
-                                WithholdingTax.SetFormState(form, FORM_MODE.SEARCH);
-                            }
+                            objForm = MainObject.Instance.B1Application.Forms.ActiveForm;
+                            if (objForm.TypeEx == "HCO_FWT1100") WithholdingTax.SetFormState(objForm, FORM_MODE.SEARCH);
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(objForm);
                             break;
                     }
                 }
@@ -175,99 +127,93 @@ namespace T1.B1.WithholdingTax
             {
                 Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
                 _Logger.Error("", comEx);
-
             }
             catch (Exception er)
             {
                 _Logger.Error("", er);
             }
-        }
-        public static void ItemEvent(string FormUID, ref SAPbouiCOM.ItemEvent pVal, ref bool BubbleEvent)
-        {
-
-            WHPurchaseDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._WithHoldingTax.WTPurchaseObjects);
-            WHSalesDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._WithHoldingTax.WTSalesObjects);
-            
-            try
+            finally
             {
 
+                GC.Collect();
+            }
+        }
+        public static void ItemEvent(string FormUID, ref ItemEvent pVal, ref bool BubbleEvent)
+        {
+            WTDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._WithHoldingTax.WTFormTypes);
+
+            try
+            {
                 if (!pVal.BeforeAction)
                 {
                     switch (pVal.EventType)
                     {
                         case BoEventTypes.et_CHOOSE_FROM_LIST:
-                            if (WHPurchaseDocuments.Contains(pVal.FormTypeEx) || WHSalesDocuments.Contains(pVal.FormTypeEx))
-                            {
-                                if (pVal.ItemUID == "4" || pVal.ItemUID == "54")
-                                {
-                                    if (WithholdingTax.formModeAdd(pVal))
-                                    {
-                                        WithholdingTax.getSelectedBPInformation(pVal, true);
-                                        CacheManager.CacheManager.Instance.addToCache("WTCFLExecuted", true, CacheManager.CacheManager.objCachePriority.Default);
-                                    }
-                                    CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", MainObject.Instance.B1Application.Forms.ActiveForm.UniqueID, CacheManager.CacheManager.objCachePriority.Default);
-                                }
-                            }
-                            if(pVal.FormTypeEx == "HCO_FWT0100")
-                            {
-                                WithholdingTax.SetChooseFromListMunMatrix(pVal);
-                            }
+                            if (pVal.FormTypeEx == "HCO_FWT0100") WithholdingTax.SetChooseFromListMunMatrix(pVal);
+
                             break;
-
-                        case BoEventTypes.et_LOST_FOCUS:
-                            
-                        if (WHPurchaseDocuments.Contains(pVal.FormType.ToString()) || WHSalesDocuments.Contains(pVal.FormType.ToString()))
+                        case BoEventTypes.:
+                            if (WTDocuments.Contains(pVal.FormTypeEx))
                             {
-                                if (WithholdingTax.formModeAdd(pVal))
+                                if (pVal.Action_Success)
                                 {
-
-                                    bool WTExec = CacheManager.CacheManager.Instance.getFromCache("WTCFLExecuted") == null ? false : true;
-                                    bool LogicDone = CacheManager.CacheManager.Instance.getFromCache("WTLogicDone_" + pVal.FormUID) == null ? false : true;
-                                    if (pVal.ItemUID == "4" || pVal.ItemUID == "54" || pVal.ItemUID == "40")
+                                    objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                                    if ((pVal.ItemUID == "38" && pVal.ColUID == "1") && objForm.Mode == BoFormMode.fm_ADD_MODE)
                                     {
-                                        LogicDone = false;
-                                    }
-
-                                    if (!LogicDone)
-                                    {
-                                        if (!WTExec) WithholdingTax.getSelectedBPInformation(pVal, false);
-                                        else CacheManager.CacheManager.Instance.removeFromCache("WTCFLExecuted");
-                                        Form oForm = MainObject.Instance.B1Application.Forms.ActiveForm;
-                                        if (!oForm.DataSources.DBDataSources.Item(0).GetValue("CardCode", 0).Equals("") && !oForm.DataSources.DBDataSources.Item(0).GetValue("DocDate", 0).Equals(""))
-                                            WithholdingTax.activateWTMenu(pVal.FormUID, true);
+                                        CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", pVal.FormUID, CacheManager.CacheManager.objCachePriority.Default);
+                                        if (WithholdingTax.GetSelectedBPInformation(objForm)) WithholdingTax.activateWTMenu(pVal.FormUID, true);
                                     }
                                 }
+
                             }
                             break;
-
                         case BoEventTypes.et_COMBO_SELECT:
-                            if (WHPurchaseDocuments.Contains(pVal.FormTypeEx) || WHSalesDocuments.Contains(pVal.FormTypeEx))
+                            if (WTDocuments.Contains(pVal.FormTypeEx))
                             {
                                 if (pVal.ItemUID.Equals("226"))
                                 {
-                                    if (WithholdingTax.formModeAdd(pVal))
-                                    {
-                                        WithholdingTax.getSelectedBPInformation(pVal, false);
-                                        Form oForm = MainObject.Instance.B1Application.Forms.ActiveForm;
-                                        if (!oForm.DataSources.DBDataSources.Item(0).GetValue("CardCode", 0).Equals(""))
-                                            WithholdingTax.activateWTMenu(pVal.FormUID, true);
-                                    }
+                                    //if (WithholdingTax.FormModeAdd(pVal))
+                                    //{
+                                    //    WithholdingTax.getSelectedBPInformation(pVal, false);
+                                    //    objForm = MainObject.Instance.B1Application.Forms.ActiveForm;
+                                    //    if (!objForm.DataSources.DBDataSources.Item(0).GetValue("CardCode", 0).Equals(""))
+                                    //        WithholdingTax.activateWTMenu(pVal.FormUID, true);
+                                    //}
                                 }
                             }
                             break;
 
                         case BoEventTypes.et_ITEM_PRESSED:
-                            if (WHPurchaseDocuments.Contains(pVal.FormTypeEx) || WHSalesDocuments.Contains(pVal.FormTypeEx))
+                            if (WTDocuments.Contains(pVal.FormTypeEx))
                             {
-                                if (pVal.ItemUID.Equals("173"))
+                                //if (pVal.ItemUID.Equals("173"))
+                                //{
+                                //    if (WithholdingTax.FormModeAdd(pVal)) CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", MainObject.Instance.B1Application.Forms.ActiveForm.UniqueID, CacheManager.CacheManager.objCachePriority.Default);
+                                //}
+                                if (pVal.ItemUID.Equals("HCO_BTWT"))
                                 {
-                                    if (WithholdingTax.formModeAdd(pVal)) CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", MainObject.Instance.B1Application.Forms.ActiveForm.UniqueID, CacheManager.CacheManager.objCachePriority.Default);
+                                    objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                                    objForm.Update();
+                                    WithholdingTax.GetSelectedBPInformation(objForm);
+                                    WithholdingTax.activateWTMenu(pVal.FormUID, true);
                                 }
 
                             }
-
                             break;
                         case BoEventTypes.et_FORM_LOAD:
+                            if (WTDocuments.Contains(pVal.FormTypeEx))
+                            {
+                                objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                                objForm.Items.Add("HCO_BTWT", BoFormItemTypes.it_BUTTON);
+                                Button objBtn = (Button)objForm.Items.Item("HCO_BTWT").Specific;
+                                objBtn.Caption = "Calcular retenciones";
+                                objBtn.Item.Width = 110;
+                                objBtn.Item.Top = objForm.Items.Item("2").Top;
+                                objBtn.Item.Left = objForm.Items.Item("2").Left + objForm.Items.Item("2").Width + 2;
+                                //objBtn.Item.Enabled = false;
+                                objBtn.Item.Visible = true;
+                            }
+
                             if (pVal.FormTypeEx.Equals("60504"))
                             {
                                 string strLastActiveForm = CacheManager.CacheManager.Instance.getFromCache("WTLastActiveForm") == null ? "" : CacheManager.CacheManager.Instance.getFromCache("WTLastActiveForm");
@@ -280,7 +226,7 @@ namespace T1.B1.WithholdingTax
                                         if (strFormAutoActivate.Trim() == strLastActiveForm.Trim())
                                         {
                                             T1.B1.Base.UIOperations.Operations.startProgressBar("Asignando retenciones automáticas...", 2);
-                                            WithholdingTax.setBPWT(strFormAutoActivate, pVal);
+                                            WithholdingTax.SetBPWT(pVal.FormUID, strLastActiveForm);
                                         }
                                     }
                                 }
@@ -297,18 +243,8 @@ namespace T1.B1.WithholdingTax
                             }
                             break;
                         case BoEventTypes.et_FORM_UNLOAD:
-                            if (WHPurchaseDocuments.Contains(pVal.FormTypeEx) || WHSalesDocuments.Contains(pVal.FormTypeEx))
-                            {
-                                CacheManager.CacheManager.Instance.removeFromCache("Disable_" + pVal.FormUID);
-                                CacheManager.CacheManager.Instance.removeFromCache(Settings._WithHoldingTax.WTInfoGenCachePrefix + pVal.FormUID);
-                                CacheManager.CacheManager.Instance.removeFromCache(Settings._WithHoldingTax.WTFOrmInfoCachePrefix + pVal.FormUID);
-                                CacheManager.CacheManager.Instance.removeFromCache(Settings._WithHoldingTax.WTLastCardCodeCachePrefix + pVal.FormUID);
-                                CacheManager.CacheManager.Instance.removeFromCache("WTLogicDone_" + pVal.FormUID);
-                                CacheManager.CacheManager.Instance.removeFromCache("WTCFLExecuted");
-                                CacheManager.CacheManager.Instance.removeFromCache("WTLastActiveForm");
-                            }
+                            if (WTDocuments.Contains(pVal.FormTypeEx)) WithholdingTax.RemoveFromCache(pVal.FormUID);
                             break;
-
                     }
                 }
                 else
@@ -320,21 +256,22 @@ namespace T1.B1.WithholdingTax
                             {
                                 if (pVal.ItemUID == "btnAdd")
                                 {
-                                    Form oForm = MainObject.Instance.B1Application.Forms.ActiveForm;
-                                    if (oForm.PaneLevel == 1)
-                                        WithholdingTax.createMissingOperations(pVal);
+                                    objForm = MainObject.Instance.B1Application.Forms.ActiveForm;
+                                    if (objForm.PaneLevel == 1)
+                                        WithholdingTax.CreateMissingOperations(pVal);
                                     else
-                                        oForm.Close();
+                                        objForm.Close();
                                 }
-                                    
                             }
+                            break;
+                        case BoEventTypes.et_LOST_FOCUS:
 
-                                if (pVal.FormTypeEx.Equals("60504"))
+                            if (pVal.FormTypeEx.Equals("60504"))
                             {
                                 if (pVal.ItemUID == "1")
                                 {
                                     string blAutoActivate = CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") != null ? CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") : "";
-                                    SAPbouiCOM.Form objForm = null;
+                                    objForm = null;
                                     string strLastActiveForm = CacheManager.CacheManager.Instance.getFromCache("WTLastActiveForm") == null ? "" : CacheManager.CacheManager.Instance.getFromCache("WTLastActiveForm");
                                     if (strLastActiveForm.Trim().Length > 0)
                                     {
@@ -342,9 +279,9 @@ namespace T1.B1.WithholdingTax
                                         if (blAutoActivate.Trim().Length == 0)
                                         {
                                             objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                                            if (objForm.Mode == SAPbouiCOM.BoFormMode.fm_UPDATE_MODE && !isDisabled)
+                                            if (objForm.Mode == BoFormMode.fm_UPDATE_MODE && !isDisabled)
                                             {
-                                                if (MainObject.Instance.B1Application.MessageBox("La modificación manual de las retenciones deshabilitará el cálculo automatico para este documento. Desea Continuar? ", 2, "Sí", "No", "") != 2)
+                                                if (MainObject.Instance.B1Application.MessageBox("La modificación manual de las retenciones deshabilitará el cálculo automático para este documento. Desea Continuar? ", 2, "Sí", "No", "") != 2)
                                                 {
                                                     if (strLastActiveForm.Trim().Length > 0)
                                                     {
@@ -352,9 +289,9 @@ namespace T1.B1.WithholdingTax
                                                     }
                                                     else
                                                     {
-                                                        if (objForm.Mode == SAPbouiCOM.BoFormMode.fm_UPDATE_MODE)
+                                                        if (objForm.Mode == BoFormMode.fm_UPDATE_MODE)
                                                         {
-                                                            objForm.Items.Item("1").Click(SAPbouiCOM.BoCellClickType.ct_Regular);
+                                                            objForm.Items.Item("1").Click(BoCellClickType.ct_Regular);
                                                         }
                                                         else BubbleEvent = false;
                                                     }
@@ -364,7 +301,7 @@ namespace T1.B1.WithholdingTax
                                                 else
                                                 {
                                                     BubbleEvent = false;
-                                                    objForm.Items.Item("2").Click(SAPbouiCOM.BoCellClickType.ct_Regular);
+                                                    objForm.Items.Item("2").Click(BoCellClickType.ct_Regular);
                                                 }
                                             }
                                             CacheManager.CacheManager.Instance.removeFromCache("WTLastActiveForm");
@@ -374,8 +311,6 @@ namespace T1.B1.WithholdingTax
                                     }
                                 }
                             }
-
-
                             break;
                     }
                 }
@@ -391,83 +326,12 @@ namespace T1.B1.WithholdingTax
             }
             finally
             {
+                GC.Collect();
                 T1.B1.Base.UIOperations.Operations.stopProgressBar();
             }
         }
-
-        //public static void RightClickEvent(ref SAPbouiCOM.ContextMenuInfo eventInfo, out bool BubbleEvent)
-        //{
-        //    if (objWithHoldingTax == null)
-        //    {
-        //        objWithHoldingTax = new Operations();
-        //    }
-
-        //    SAPbouiCOM.Form objForm = null;
-        //    BubbleEvent = true;
-        //    try
-        //    {
-        //        objForm = MainObject.Instance.B1Application.Forms.Item(eventInfo.FormUID);
-
-        //        #region UDO Form
-        //        if (objForm.TypeEx == "HCO_T1SWT100UDO"
-        //            && eventInfo.BeforeAction
-        //            && eventInfo.ItemUID == "0_U_G"
-
-        //            )
-        //        {
-        //            SelfWithholdingTax.addInsertRowRelationMenuUDO(objForm, eventInfo);
-        //            SelfWithholdingTax.addDeleteRowRelationMenuUDO(objForm, eventInfo);
-
-
-
-        //        }
-
-        //        if (objForm.TypeEx == "HCO_T1SWT100UDO"
-        //            && !eventInfo.BeforeAction
-        //            && eventInfo.ItemUID == "0_U_G"
-
-        //            )
-        //        {
-        //            SelfWithholdingTax.removeDeleteRowRelationMenuUDO();
-        //            SelfWithholdingTax.removeInsertRowRelationMenuUDO();
-
-
-        //        }
-        //        #endregion
-        //        #region Invoice
-        //        if(objForm.TypeEx == "133"
-        //            && eventInfo.BeforeAction
-        //            )
-        //        {
-        //            string strLastActiveForm = MainObject.Instance.B1Application.Forms.ActiveForm.UniqueID;
-        //            CacheManager.CacheManager.Instance.addToCache("LastActiveForm", strLastActiveForm, CacheManager.CacheManager.objCachePriority.Default);
-
-        //        }
-
-        //        if(objForm.TypeEx == "133"
-        //            && !eventInfo.BeforeAction)
-        //        {
-        //            CacheManager.CacheManager.Instance.removeFromCache("LastActiveForm");
-
-        //        }
-        //        #endregion
-        //    }
-        //    catch (COMException comEx)
-        //    {
-        //        Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
-        //        _Logger.Error("", comEx);
-
-        //    }
-        //    catch (Exception er)
-        //    {
-        //        _Logger.Error("", er);
-        //    }
-        //}
-
         public static void RightClickEvent(ref SAPbouiCOM.ContextMenuInfo eventInfo, ref bool BubbleEvent)
         {
-            SAPbouiCOM.Form objForm = null;
-
             try
             {
                 objForm = MainObject.Instance.B1Application.Forms.Item(eventInfo.FormUID);
@@ -481,7 +345,6 @@ namespace T1.B1.WithholdingTax
                                 WithholdingTax.addInsertRowRelationMenuUDO(objForm, eventInfo);
                                 WithholdingTax.addDeleteRowRelationMenuUDO(objForm, eventInfo);
                             }
-
                             MainObject.Instance.B1Application.Menus.Item("1283").Enabled = false;
                             MainObject.Instance.B1Application.Menus.Item("1284").Enabled = false;
                             break;
@@ -497,9 +360,6 @@ namespace T1.B1.WithholdingTax
                                 WithholdingTax.removeDeleteRowRelationMenuUDO();
                                 WithholdingTax.removeInsertRowRelationMenuUDO();
                             }
-
-
-
                             break;
                     }
                 }
@@ -514,9 +374,12 @@ namespace T1.B1.WithholdingTax
             {
                 _Logger.Error("", er);
             }
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(objForm);
+                GC.Collect();
+            }
         }
-
-
 
     }
 }

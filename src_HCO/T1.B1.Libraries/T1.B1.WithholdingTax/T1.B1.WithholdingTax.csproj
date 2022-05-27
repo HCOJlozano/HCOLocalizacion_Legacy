@@ -111,6 +111,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Document.cs" />
     <Compile Include="InternalClass.cs" />
     <Compile Include="Menu.cs" />
     <Compile Include="Operations.cs" />

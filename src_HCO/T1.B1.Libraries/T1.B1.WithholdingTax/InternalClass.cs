@@ -14,21 +14,27 @@ namespace T1.B1.WithholdingTax
         public int Row { get; set; }
     }
 
-    public class WithholdingTaxConfigDetail
+    public class WithholdingTaxDetail
     {
         public string WTCode { get; set; }
-        public string HCO_MMCode { get; set; }
-        public double HCO_MinBase { get; set; }
-        public int HCO_WTType { get; set; }
-        public string HCO_MunGroup { get; set; }
-        public string HCO_Area { get; set; }
-        public List<WithholdingTaxConfigMun> MunGroup { get; set; }
+        public double Rate { get; set; }
+        public string MMCode { get; set; }
+        public double MinBase { get; set; }
+        public int WTType { get; set; }
+        public string MunGroup { get; set; }
+        public string Area { get; set; }
+        public double NetBase { get; set; }
+        public double VatBase { get; set; }
+        public bool isMinBaseValid { get { return MinBase <= (WTType == 1 ? VatBase : NetBase); }}
+        public bool assigned { get; set; }
+        public List<WithholdingTaxConfigMun> Municipios { get; set; }    
+
     }
 
     public class WithholdingTaxConfigMun
     {
         public string MunCode { get; set; }
-
+        public string MunName { get; set; }
     }
 
     public class B1WithHoldingInfoMatrixLine
@@ -38,43 +44,6 @@ namespace T1.B1.WithholdingTax
     }
 
     
-    public class SelfWithholdingTaxInfo
-    {
-        public string Code { get; set; }
-        public string Debit { get; set; }
-        public string Credit { get; set; }
-        public double Percentage { get; set; }
-
-        public int DocEntry { get; set; }
-        public int DocNum { get; set; }
-        public string CardCode { get; set; }
-        public double dbWtAmount { get; set; }
-        public double dbBaseAmount { get; set; }
-        public string DocType { get; set; }
-        public double MinMount { get; set; }
-    }
-
-    public class SelfWithholdingTaxTransaction
-    {
-        public int JournalEntry { get; set; }
-        public double BaseAmount { get; set; }
-        public bool Cancelled { get; set; }
-        public string DocType { get; set; }
-        public int DocEntry { get; set; }
-        public string CardCode { get; set; }
-        public string ThirdParty { get; set; }
-        public string Code { get; set; }
-        public double Total { get; set; }
-        public int DocNum { get; set; }
-        public string DocSeries { get; set; }
-    }
-
-    public class SelfWothholdingTaxResult
-    {
-        public string Message { get; set; }
-        public string MessageCode { get; set; }
-    }
-
 
     public class AddDocumentInfoArgs
     {
