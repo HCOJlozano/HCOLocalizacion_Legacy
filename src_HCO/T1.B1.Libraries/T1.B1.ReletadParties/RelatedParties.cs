@@ -431,11 +431,13 @@ namespace T1.B1.RelatedParties
         {
             var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
             var third = form.DataSources.DBDataSources.Item("OTRT").GetValue("U_HCO_RELPAR", 0);
-
-            if (third.Equals(String.Empty))
+            if (form.Mode == BoFormMode.fm_ADD_MODE)
             {
-                MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tercero vacio");
-                return false;
+                if (third.Equals(String.Empty))
+                {
+                    MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tercero vacio");
+                    return false;
+                }
             }
 
             return true;
@@ -446,29 +448,33 @@ namespace T1.B1.RelatedParties
             var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
             var sel = ((ComboBox)form.Items.Item("21").Specific).Selected;
             var third = form.DataSources.DBDataSources.Item("ORCR").GetValue("U_HCO_RELPAR", 0);
-            if( third.Equals(String.Empty) )
-            {
-                MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tercero vacio");
-                return false;
-            }
 
-            if (sel == null)
+            if (form.Mode == BoFormMode.fm_ADD_MODE)
             {
-                MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tipo de codigo de transaccion vacio");
-                return false;
-            }
-            else
-            {
-                if (sel.Value == "")
+                if (third.Equals(String.Empty))
+                {
+                    MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tercero vacio");
+                    return false;
+                }
+
+                if (sel == null)
                 {
                     MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tipo de codigo de transaccion vacio");
                     return false;
                 }
-
-                if( sel.Value != "CP" )
+                else
                 {
-                    MainObject.Instance.B1Application.SetStatusBarMessage("Tiene que seleccionar el codigo de transaccion del tipo \"CP\"");
-                    return false;
+                    if (sel.Value == "")
+                    {
+                        MainObject.Instance.B1Application.SetStatusBarMessage("No puede dejar el campo de tipo de codigo de transaccion vacio");
+                        return false;
+                    }
+
+                    if (sel.Value != "CP")
+                    {
+                        MainObject.Instance.B1Application.SetStatusBarMessage("Tiene que seleccionar el codigo de transaccion del tipo \"CP\"");
+                        return false;
+                    }
                 }
             }
 
@@ -481,55 +487,58 @@ namespace T1.B1.RelatedParties
             var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
             var sel = ((ComboBox)form.Items.Item("11").Specific).Selected;
 
-            var areaVal = form.DataSources.UserDataSources.Item("UD_MetVat").Value;
-            if (string.IsNullOrEmpty(areaVal))
+            if (form.Mode == BoFormMode.fm_ADD_MODE)
             {
-                MainObject.Instance.B1Application.SetStatusBarMessage("Debe seleccionar el area de valorizacion");
-                return false;
-            }
-
-            var autAnul = ((CheckBox)form.Items.Item("27").Specific);
-            if (!autAnul.Checked)
-            {
-                MainObject.Instance.B1Application.SetStatusBarMessage("Debe seleccionar las anulaciones Automaticas");
-                return false;
-            }
-            else
-            {
-                var dateAnul = ((EditText)form.Items.Item("28").Specific).Value;
-                if( string.IsNullOrEmpty(dateAnul) )
+                var areaVal = form.DataSources.UserDataSources.Item("UD_MetVat").Value;
+                if (string.IsNullOrEmpty(areaVal))
                 {
-                    MainObject.Instance.B1Application.SetStatusBarMessage("Debe indicar una fecha de anulacion");
+                    MainObject.Instance.B1Application.SetStatusBarMessage("Debe seleccionar el area de valorizacion");
                     return false;
                 }
-            } 
 
-            if (sel == null)
-            {
-                opt = false;
-            }
-            else
-            {
-                if (pVal.FormTypeEx == "369")
+                var autAnul = ((CheckBox)form.Items.Item("27").Specific);
+                if (!autAnul.Checked)
                 {
-                    if (sel.Value == "")
-                        opt = false;
-                    else if (sel.Value != "HDCA")
-                        opt = false;
+                    MainObject.Instance.B1Application.SetStatusBarMessage("Debe seleccionar las anulaciones Automaticas");
+                    return false;
                 }
-                else if (pVal.FormTypeEx == "371")
+                else
                 {
-                    if (sel.Value == "")
-                        opt = false;
-                    else if (sel.Value != "DCO")
-                        opt = false;
+                    var dateAnul = ((EditText)form.Items.Item("28").Specific).Value;
+                    if (string.IsNullOrEmpty(dateAnul))
+                    {
+                        MainObject.Instance.B1Application.SetStatusBarMessage("Debe indicar una fecha de anulacion");
+                        return false;
+                    }
                 }
-            }
 
-            if(!opt)
-            {
-                var cod = pVal.FormTypeEx == "369" ? "HDCA" : "DCO";
-                MainObject.Instance.B1Application.SetStatusBarMessage($"Debe seleccionar el codigo de transaccion {cod}");
+                if (sel == null)
+                {
+                    opt = false;
+                }
+                else
+                {
+                    if (pVal.FormTypeEx == "369")
+                    {
+                        if (sel.Value == "")
+                            opt = false;
+                        else if (sel.Value != "HDCA")
+                            opt = false;
+                    }
+                    else if (pVal.FormTypeEx == "371")
+                    {
+                        if (sel.Value == "")
+                            opt = false;
+                        else if (sel.Value != "DCO")
+                            opt = false;
+                    }
+                }
+
+                if (!opt)
+                {
+                    var cod = pVal.FormTypeEx == "369" ? "HDCA" : "DCO";
+                    MainObject.Instance.B1Application.SetStatusBarMessage($"Debe seleccionar el codigo de transaccion {cod}");
+                }
             }
 
             return opt;
