@@ -13,7 +13,7 @@ namespace T1.B1.Base.UIOperations
     public class FormsOperations
     {
         private static readonly ILog _Logger = T1.Log.Instance.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, Settings._Main.logLevel);
-
+        //private static Form objForm;
         private FormsOperations()
         {
 
@@ -79,9 +79,9 @@ namespace T1.B1.Base.UIOperations
         {
             if (MainObject.Instance.B1Application.Menus.Exists(uniqueID)) return;
 
-            SAPbouiCOM.MenuItem oMenuItem = null;
-            SAPbouiCOM.Menus oMenus = null;
-            SAPbouiCOM.MenuCreationParams oCreationPackage = null;
+            MenuItem oMenuItem = null;
+            Menus oMenus = null;
+            MenuCreationParams oCreationPackage = null;
 
             oCreationPackage = ((SAPbouiCOM.MenuCreationParams)(MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams)));
             try
@@ -105,7 +105,13 @@ namespace T1.B1.Base.UIOperations
             {
                 _Logger.Error("", er);
             }
-
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(oMenuItem);
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(oMenus);
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(oCreationPackage);
+                GC.Collect();
+            }
         }
 
         public static void DeleteRightClickMenu(string uniqueID)
@@ -132,6 +138,53 @@ namespace T1.B1.Base.UIOperations
             var matrix = (Matrix)oForm.Items.Item(ItemID).Specific;
             for (int i = 1; i <= matrix.RowCount; i++)
                 ((EditText)matrix.GetCellSpecific("#", i)).Value = i.ToString();
+        }
+
+        static public void MatrixOperationUDO(string Action, string ItemId, Form oForm)
+        {
+            try
+            {
+                var objMatrix = (Matrix)oForm.Items.Item(ItemId).Specific;
+
+                switch (Action)
+                {
+                    case "Add":
+                        objMatrix.AddRow(1);
+                        objMatrix.FlushToDataSource();
+                        for (int i = 1; i <= objMatrix.RowCount; i++)
+                            objMatrix.SetCellWithoutValidation(objMatrix.RowCount, "#", i.ToString());
+                        break;
+
+                    case "Delete":
+
+                        for (int i = objMatrix.RowCount; i >= 1; i--)
+                            if (objMatrix.IsRowSelected(i))
+                                objMatrix.DeleteRow(i);
+
+                        var numerationUID = objMatrix.Columns.Item(0).UniqueID;
+                        for (int i = 1; i <= objMatrix.RowCount; i++)
+                            ((EditText)objMatrix.GetCellSpecific(numerationUID, i)).Value = i.ToString();
+                        break;
+                }
+
+                if (oForm.Mode == BoFormMode.fm_OK_MODE)
+                    oForm.Mode = BoFormMode.fm_UPDATE_MODE;
+            }
+            catch (COMException comEx)
+            {
+                Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
+                _Logger.Error("", comEx);
+
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+            }
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(oForm);
+                GC.Collect();
+            }
         }
 
         public static System.Data.DataTable SapDataTableToDotNetDataTable(string XMLDatatable)
@@ -181,6 +234,8 @@ namespace T1.B1.Base.UIOperations
 
             var Rows = XDoc.Element("dbDataSources").Element("rows").Elements("row");
 
+
+
             //var Names = new List<string>();
             foreach (var Row in Rows)
             {
@@ -198,6 +253,67 @@ namespace T1.B1.Base.UIOperations
 
                 DT.Rows.Add(DTRow);
             }
+
+            return DT;
+        }
+
+        public static System.Data.DataTable SapDBDataSourceGetBase(SAPbouiCOM.DBDataSource sap_table)
+        {
+            var DT = new System.Data.DataTable();
+            DT.Columns.Add("LineTotal", typeof(System.Double));
+            DT.Columns.Add("VatSum", typeof(System.Double));
+
+            var XDoc = System.Xml.Linq.XDocument.Parse(sap_table.GetAsXML());
+            var Rows = XDoc.Element("dbDataSources").Element("rows").Elements("row");
+
+            foreach (var Row in Rows)
+            {
+                string wtliable = (from h in Row.Descendants("cell")
+                                   where h.Element("uid").Value == "WtLiable"
+                                   select new
+                                   {
+                                       uid = h.Element("uid").Value,
+                                       value = h.Element("value").Value
+                                   }).First().value;
+
+                if (wtliable.Equals("Y")) Row.Remove();
+                //{ 
+
+                //}
+            }
+
+            if (Rows.ToList().Count > 0)
+            {             
+                double linetotal = double.Parse((from h in XDoc.Root.Descendants("cell")
+                                                 where h.Element("uid").Value == "LineTotal"
+                                                 select new
+                                                 {
+                                                     uid = h.Element("uid").Value,
+                                                     value = h.Element("value").Value
+                                                 }).First().value, System.Globalization.CultureInfo.InvariantCulture);
+            }
+            //var DTRow = DT.NewRow();
+
+            //double vatsum = double.Parse((from h in Row.Descendants("cell")
+            //                              where h.Element("uid").Value == "VatSum"
+            //                              select new
+            //                              {
+            //                                  uid = h.Element("uid").Value,
+            //                                  value = h.Element("value").Value
+            //                              }).First().value, System.Globalization.CultureInfo.InvariantCulture);
+
+            //DTRow["LineTotal"] = linetotal;
+            //DTRow["VatSum"] = vatsum;
+            //DT.Rows.Add(DTRow);
+
+            //var tets = from d in XDoc.Root.Descendants("cell")
+            //       select new
+            //       {
+            //           uid = d.Element("uid").Value,
+            //           value = d.Element("value").Value
+            //       };
+
+
 
             return DT;
         }

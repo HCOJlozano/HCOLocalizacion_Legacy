@@ -79,7 +79,7 @@ namespace T1.B1.EventManager
             blBubbleEvent = true;
 
             if (blBubbleEvent)
-                WithholdingTax.Operations.formDataEvent(ref BusinessObjectInfo, ref blBubbleEvent);
+                WithholdingTax.Operations.FormDataEvent(ref BusinessObjectInfo, ref blBubbleEvent);
 
             if (blBubbleEvent)
                 RelatedParties.Operations.FormDataAddEvent(ref BusinessObjectInfo, ref blBubbleEvent);
