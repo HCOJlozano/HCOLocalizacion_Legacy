@@ -222,18 +222,7 @@ namespace T1.B1.WithholdingTax
                             break;
 
                         case BoEventTypes.et_ITEM_PRESSED:
-                            if (WTDocuments.Contains(pVal.FormTypeEx))
-                            {
-                                if (pVal.Action_Success)
-                                {
-                                    objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                                    if (pVal.ItemUID == "1" && objForm.Mode == BoFormMode.fm_ADD_MODE)
-                                    {
-                                        CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", pVal.FormUID, CacheManager.CacheManager.objCachePriority.Default);
-                                        if (WithholdingTax.GetSelectedBPInformation(objForm, false)) WithholdingTax.activateWTMenu(pVal.FormUID, true);
-                                    }
-                                }
-                            }
+                            
                             break;
                         case BoEventTypes.et_FORM_LOAD:
                             //if (WTDocuments.Contains(pVal.FormTypeEx))
@@ -288,6 +277,18 @@ namespace T1.B1.WithholdingTax
                                         WithholdingTax.CreateMissingOperations(pVal);
                                     else
                                         objForm.Close();
+                                }
+                            }
+                            if (WTDocuments.Contains(pVal.FormTypeEx))
+                            {
+                                if (pVal.Action_Success)
+                                {
+                                    objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                                    if (pVal.ItemUID == "1" && objForm.Mode == BoFormMode.fm_ADD_MODE)
+                                    {
+                                        CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", pVal.FormUID, CacheManager.CacheManager.objCachePriority.Default);
+                                        if (WithholdingTax.GetSelectedBPInformation(objForm, false)) WithholdingTax.activateWTMenu(pVal.FormUID, true);
+                                    }
                                 }
                             }
 

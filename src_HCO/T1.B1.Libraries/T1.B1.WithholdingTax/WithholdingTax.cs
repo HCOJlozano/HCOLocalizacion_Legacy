@@ -526,7 +526,7 @@ namespace T1.B1.WithholdingTax
                         }
                         else oDetail.assigned = false;
                     }
-
+                    
                     CacheManager.CacheManager.Instance.addToCache(Settings._WithHoldingTax.WTFormInfoCachePrefix + objForm.UniqueID, WTDocInfo, CacheManager.CacheManager.objCachePriority.Default);
                 }
                 string strFormAutoActivate = CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") != null ? CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") : "";
@@ -558,6 +558,7 @@ namespace T1.B1.WithholdingTax
 
             objForm = MainObject.Instance.B1Application.Forms.Item(FormUID);
             string strFormAutoActivate = CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") != null ? CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") : "";
+            string decimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 
             try
             {
@@ -582,11 +583,11 @@ namespace T1.B1.WithholdingTax
                             {
                                 objEditBase = (EditText)objMatrix.GetCellSpecific("U_HCO_BaseAmnt", i);
                                 objEditWT = (EditText)objMatrix.GetCellSpecific("14", i);
-                                objEditBase.Value = oDetail.WTType == 1 ? oDetail.VatBase.ToString(System.Globalization.CultureInfo.InvariantCulture) : oDetail.NetBase.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                                objEditWT.Value = oDetail.WTType == 1 ? (oDetail.VatBase * (oDetail.Rate / 100)).ToString() : (oDetail.NetBase * (oDetail.Rate / 100)).ToString();
+                                objEditBase.Value = oDetail.WTType == 1 ? oDetail.VatBase.ToString() : oDetail.NetBase.ToString();
+                                objEditWT.Value = (oDetail.WTType == 1 ? (oDetail.VatBase * (oDetail.Rate / 100)).ToString() : (oDetail.NetBase * (oDetail.Rate / 100)).ToString()).Replace(decimalSeparator, MainObject.Instance.B1AdminInfo.DecimalSeparator);
                             }
                         }
-                    }
+                    }                   
                 }
 
                 if (objWTForm.Mode != BoFormMode.fm_OK_MODE) objWTForm.Items.Item("1").Click(SAPbouiCOM.BoCellClickType.ct_Regular);
@@ -630,14 +631,14 @@ namespace T1.B1.WithholdingTax
                                              {
                                                  uid = h.Element("uid").Value,
                                                  value = h.Element("value").Value
-                                             }).First().value, System.Globalization.CultureInfo.InvariantCulture);
+                                             }).First().value, System.Globalization.CultureInfo.CurrentCulture);
                     VatBase += double.Parse((from h in Row.Descendants("cell")
                                              where h.Element("uid").Value == "VatSum"
                                              select new
                                              {
                                                  uid = h.Element("uid").Value,
                                                  value = h.Element("value").Value
-                                             }).First().value, System.Globalization.CultureInfo.InvariantCulture);
+                                             }).First().value, System.Globalization.CultureInfo.CurrentCulture);
                 }
 
             }
@@ -647,6 +648,8 @@ namespace T1.B1.WithholdingTax
             var XDoc = System.Xml.Linq.XDocument.Parse(sap_table.SerializeAsXML(BoMatrixXmlSelect.mxs_All));
             var Rows = (XDoc.Element("Matrix").Element("Rows").Elements("Row")).ToList();
             string auxValue = string.Empty;
+
+            string decimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 
             foreach (var Row in Rows)
             {
@@ -668,8 +671,9 @@ namespace T1.B1.WithholdingTax
                                     value = h.Element("Value").Value
                                 }).First().value;
 
-                    auxValue = auxValue.Replace(docCurr, "");
+                    auxValue = auxValue.Replace(docCurr, "").Trim();
                     auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.ThousandsSeparator, "");
+                    auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.DecimalSeparator, decimalSeparator);
 
                     NetBase += double.Parse(auxValue, System.Globalization.CultureInfo.CurrentCulture);
 
@@ -681,8 +685,9 @@ namespace T1.B1.WithholdingTax
                                     value = h.Element("Value").Value
                                 }).First().value;
 
-                    auxValue = auxValue.Replace(docCurr, "");
+                    auxValue = auxValue.Replace(docCurr, "").Trim();
                     auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.ThousandsSeparator, "");
+                    auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.DecimalSeparator, decimalSeparator);
 
                     VatBase += double.Parse(auxValue, System.Globalization.CultureInfo.CurrentCulture);
                 }

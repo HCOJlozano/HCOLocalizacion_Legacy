@@ -134,8 +134,6 @@ namespace T1.B1.EventManager
                 Expenses.Operations.RightClickEvent(ref eventInfo, ref BubbleEvent);
         }
 
-
-
         private void ObjApplication_RightClickEvent(ref SAPbouiCOM.ContextMenuInfo eventInfo, out bool BubbleEvent)
         {
             throw new NotImplementedException();
@@ -146,7 +144,6 @@ namespace T1.B1.EventManager
             BubbleEvent = true;                 
 
         }
-
 
         internal class ItemInfo
         {
