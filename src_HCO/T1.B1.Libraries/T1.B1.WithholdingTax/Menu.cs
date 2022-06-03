@@ -45,7 +45,7 @@ namespace T1.B1.WithholdingTax
                 }
 
                 objMenu = (MenuCreationParams)MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
-                objMenu.String = "Registro de retenciones";
+                objMenu.String = "Registro de operaciones";
                 objMenu.UniqueID = "HCO_MWT0003";
                 objMenu.Type = SAPbouiCOM.BoMenuType.mt_STRING;
                 count = MainObject.Instance.B1Application.Menus.Item("HCO_MWT0001").SubMenus.Count + 1;

@@ -22,7 +22,7 @@ namespace T1
         {
             try
             {
-                if(!checkInstalled("SAP Crystal Reports runtime engine for .NET Framework (64-bit)") )
+                if (!checkInstalled("SAP Crystal Reports runtime engine for .NET Framework (64-bit)"))
                 {
                     InstallDependency();
                 }
@@ -39,7 +39,7 @@ namespace T1
                 {
                     _Logger.Debug("Starting Meta data creation.");
 
-                   // bool blMD = T1.B1.MetaData.Operations.blCreateMD(Settings._Main.createMD);
+                    // bool blMD = T1.B1.MetaData.Operations.blCreateMD(Settings._Main.createMD);
                     _Logger.Debug("Meta data creation ended.");
                     //if (blMD)
                     //{
@@ -50,6 +50,7 @@ namespace T1
 
                     //var dep = (SAPbobsCOM.AssetClassesService)MainObject.Instance.B1Company.GetCompanyService().GetBusinessService(SAPbobsCOM.ServiceTypes.AssetClassesService);
                     //var asda = oCampaignService.Get(oCampaignParams);
+
 
                     #region loadFirstTimeData
                     //if (Settings._Main.loadInitialData)
@@ -82,7 +83,7 @@ namespace T1
                     T1.B1.EventFilter.Operations objEventFilter = new B1.EventFilter.Operations();
                     T1.B1.EventManager.Operations objEventManager = new B1.EventManager.Operations();
 
-                   // T1.TaskScheduler.Instance.TaskScheduler();
+                    // T1.TaskScheduler.Instance.TaskScheduler();
                     if (objEventManager.Status)
                     {
                         //Add Logic to menu that finds if the menu was created or not before. Find a quicker way to compare the existing menus instead of com object.
@@ -147,8 +148,8 @@ namespace T1
             var currentPath = System.IO.Directory.GetCurrentDirectory() + "\\Dependencies\\CR13SP31MSI64_0-10010309.msi";
             var installerProcess = new Process();
             var processInfo = new ProcessStartInfo();
-                processInfo.Arguments = $@"/i  {currentPath}";
-                processInfo.FileName = "msiexec";
+            processInfo.Arguments = $@"/i  {currentPath}";
+            processInfo.FileName = "msiexec";
 
             installerProcess.StartInfo = processInfo;
             installerProcess.Start();

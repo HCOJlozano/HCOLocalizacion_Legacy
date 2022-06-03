@@ -4,26 +4,68 @@
   "UserTables": [
     {
       "TableCode": "HCO_WT0100",
-      "Description": "Grupos de municipios H",
+      "Description": " HCO Grupos de municipios H",
       "Type": 1
     },
     {
       "TableCode": "HCO_WT0101",
-      "Description": "Grupos de municipios L",
+      "Description": "HCO Grupos de municipios L",
       "Type": 2
     },
     {
       "TableCode": "HCO_WT1100",
-      "Description": "Registro de retenciones H",
+      "Description": "HCO Registro de operaciones H",
       "Type": 3
     },
     {
       "TableCode": "HCO_WT1101",
-      "Description": "Registro de retenciones L",
+      "Description": "HCO Registro de operaciones L",
       "Type": 4
     }
   ],
   "UserFields": [
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "ManualWT",
+      "FieldName": "Retención manual",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "N",
+      "ValidValues": [
+        {
+          "ValidValue": "Y",
+          "Description": "Yes"
+        },
+        {
+          "ValidValue": "N",
+          "Description": "No"
+        }
+      ]
+    },
+    {
+      "TableCode": "HCO_RP0001",
+      "FieldCode": "ManualWT",
+      "FieldName": "Retención manual",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "N",
+      "ValidValues": [
+        {
+          "ValidValue": "Y",
+          "Description": "Yes"
+        },
+        {
+          "ValidValue": "N",
+          "Description": "No"
+        }
+      ]
+    },
     {
       "TableCode": "OWHT",
       "FieldCode": "HCO_WTType",
@@ -103,6 +145,16 @@
       "Length": 50,
       "LinkType": 0,
       "LinkCode": "HCO_WT0100",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "INV5",
+      "FieldCode": "HCO_BaseAmnt",
+      "FieldName": "Base de retención",
+      "Type": 4,
+      "SubType": 80,
+      "Length": 0,
       "DefaultValue": "",
       "ValidValues": []
     },
@@ -381,7 +433,7 @@
   "UDO": [
     {
       "Code": "HCO_FWT0100",
-      "Description": "Grupos de municipios",
+      "Description": "HCO Grupos de municipios",
       "TableCode": "HCO_WT0100",
       "Type": 1,
       "DefaultForm": 0,
@@ -393,7 +445,7 @@
     },
     {
       "Code": "HCO_FWT1100",
-      "Description": "Registro de retenciones",
+      "Description": "HCO Registro de operaciones",
       "TableCode": "HCO_WT1100",
       "Type": 3,
       "DefaultForm": 0,
