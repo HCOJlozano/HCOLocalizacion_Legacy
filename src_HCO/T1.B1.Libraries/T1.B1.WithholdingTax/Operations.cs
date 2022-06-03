@@ -255,11 +255,7 @@ namespace T1.B1.WithholdingTax
                                 if (strLastActiveForm.Trim().Length > 0)
                                 {
                                     bool blDisabled = CacheManager.CacheManager.Instance.getFromCache("Disable_" + strLastActiveForm) != null ? true : false;
-                                    if (!blDisabled)
-                                    {
-                                        T1.B1.Base.UIOperations.Operations.startProgressBar("Asignando retenciones automáticas...", 2);
-                                        WithholdingTax.SetTypeWT(pVal.FormUID, strLastActiveForm);
-                                    }
+                                    if (!blDisabled) WithholdingTax.SetTypeWT(pVal.FormUID, strLastActiveForm);
                                 }
                             }
                             if (pVal.FormTypeEx.Equals("frmDummy"))
@@ -312,6 +308,7 @@ namespace T1.B1.WithholdingTax
                                 //    WithholdingTax.activateWTMenu(pVal.FormUID, true);
                                 //}
                             }
+
                             break;
                         case BoEventTypes.et_LOST_FOCUS:
 
