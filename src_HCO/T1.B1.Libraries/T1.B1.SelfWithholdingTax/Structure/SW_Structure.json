@@ -20,27 +20,6 @@
   ],
   "UserFields": [
     {
-      "TableCode": "HCO_RP0001",
-      "FieldCode": "SWTLiable",
-      "FieldName": "Compañía autorretenedora",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 1,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "N",
-      "ValidValues": [
-        {
-          "ValidValue": "Y",
-          "Description": "Yes"
-        },
-        {
-          "ValidValue": "N",
-          "Description": "No"
-        }
-      ]
-    },
-    {
       "TableCode": "HCO_SW0100",
       "FieldCode": "DebitAcct",
       "FieldName": "Cuenta débito",
@@ -118,12 +97,12 @@
     },
     {
       "TableCode": "HCO_SW0100",
-      "FieldCode": "WTCode",
-      "FieldName": "Ret. Vinculada",
+      "FieldCode": "Purchase",
+      "FieldName": "Compras",
       "Type": 0,
       "SubType": 0,
       "Length": 1,
-      "LinkType": 0,
+            "LinkType": 0,
       "LinkCode": "",
       "DefaultValue": "N",
       "ValidValues": [
@@ -145,7 +124,7 @@
       "Type": 0,
       "SubType": 0,
       "Length": 1,
-      "LinkType": 0,
+                  "LinkType": 0,
       "LinkCode": "",
       "DefaultValue": "N",
       "ValidValues": [
@@ -178,9 +157,9 @@
       "SubType": 0,
       "Length": 100,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
-    {
+        {
       "TableCode": "HCO_SW0101",
       "FieldCode": "CardName",
       "FieldName": "Nombre socio de negocio",
@@ -188,7 +167,7 @@
       "SubType": 0,
       "Length": 100,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -198,7 +177,7 @@
       "SubType": 0,
       "Length": 10,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -208,7 +187,7 @@
       "SubType": 80,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -218,7 +197,7 @@
       "SubType": 0,
       "Length": 11,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -228,7 +207,7 @@
       "SubType": 0,
       "Length": 11,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -238,7 +217,7 @@
       "SubType": 0,
       "Length": 11,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -248,7 +227,7 @@
       "SubType": 0,
       "Length": 50,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -258,7 +237,7 @@
       "SubType": 0,
       "Length": 10,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -268,7 +247,7 @@
       "SubType": 80,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -290,7 +269,7 @@
       "SubType": 0,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -300,7 +279,7 @@
       "SubType": 0,
       "Length": 15,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -310,7 +289,7 @@
       "SubType": 80,
       "Length": 0,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -320,7 +299,7 @@
       "SubType": 0,
       "Length": 30,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     },
     {
       "TableCode": "HCO_SW1100",
@@ -340,7 +319,7 @@
       "SubType": 0,
       "Length": 100,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [ ]
     }
   ],
   "UDO": [

@@ -25,27 +25,6 @@
   ],
   "UserFields": [
     {
-      "TableCode": "HCO_RP0001",
-      "FieldCode": "ManualWT",
-      "FieldName": "Retención manual",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 1,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "N",
-      "ValidValues": [
-        {
-          "ValidValue": "Y",
-          "Description": "Yes"
-        },
-        {
-          "ValidValue": "N",
-          "Description": "No"
-        }
-      ]
-    },
-    {
       "TableCode": "OWHT",
       "FieldCode": "HCO_WTType",
       "FieldName": "Tipo de retención",

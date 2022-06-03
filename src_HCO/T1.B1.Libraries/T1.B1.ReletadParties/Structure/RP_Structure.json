@@ -962,7 +962,7 @@
       "Length": 3,
       "LinkType": 0,
       "LinkCode": "",
-      "DefaultValue": "",
+      "DefaultValue": "C",
       "ValidValues": [
         {
           "ValidValue": "AC",
