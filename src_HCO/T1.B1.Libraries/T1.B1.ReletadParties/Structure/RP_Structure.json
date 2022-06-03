@@ -974,7 +974,7 @@
       "Length": 3,
       "LinkType": 0,
       "LinkCode": "",
-      "DefaultValue": "C",
+      "DefaultValue": "",
       "ValidValues": [
         {
           "ValidValue": "AC",

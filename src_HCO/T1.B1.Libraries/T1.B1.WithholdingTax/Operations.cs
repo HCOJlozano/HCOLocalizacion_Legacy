@@ -150,35 +150,73 @@ namespace T1.B1.WithholdingTax
                     {
                         case BoEventTypes.et_CHOOSE_FROM_LIST:
                             if (pVal.FormTypeEx == "HCO_FWT0100") WithholdingTax.SetChooseFromListMunMatrix(pVal);
-
                             break;
-                        case BoEventTypes.:
+                        case BoEventTypes.et_LOST_FOCUS:
                             if (WTDocuments.Contains(pVal.FormTypeEx))
                             {
                                 if (pVal.Action_Success)
                                 {
                                     objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                                    if ((pVal.ItemUID == "38" && pVal.ColUID == "1") && objForm.Mode == BoFormMode.fm_ADD_MODE)
+                                    if ((pVal.ItemUID == "4" || pVal.ItemUID == "38") && objForm.Mode == BoFormMode.fm_ADD_MODE)
                                     {
                                         CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", pVal.FormUID, CacheManager.CacheManager.objCachePriority.Default);
-                                        if (WithholdingTax.GetSelectedBPInformation(objForm)) WithholdingTax.activateWTMenu(pVal.FormUID, true);
+                                        if (WithholdingTax.GetSelectedBPInformation(objForm, false)) WithholdingTax.activateWTMenu(pVal.FormUID, true);
                                     }
                                 }
+                            }
+                            if (pVal.FormTypeEx.Equals("60504"))
+                            {
+                                string strLastActiveForm = CacheManager.CacheManager.Instance.getFromCache("WTLastActiveForm") == null ? "" : CacheManager.CacheManager.Instance.getFromCache("WTLastActiveForm");
 
+                                if (pVal.ItemUID == "6" && !(CacheManager.CacheManager.Instance.getFromCache("Updating_" + strLastActiveForm) == null ? false : true) && (pVal.ColUID == "14" || pVal.ColUID == "U_HCO_BaseAmnt"))
+                                {
+                                    string blAutoActivate = CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") != null ? CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") : "";
+                                    objForm = null;
+
+                                    if (strLastActiveForm.Trim().Length > 0 || blAutoActivate.Trim().Length == 0)
+                                    {
+                                        bool isDisabled = CacheManager.CacheManager.Instance.getFromCache("Disable_" + strLastActiveForm) == null ? false : true;
+                                        objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                                        if (objForm.Mode == BoFormMode.fm_UPDATE_MODE && !isDisabled)
+                                        {
+                                            if (MainObject.Instance.B1Application.MessageBox("La modificación manual de las retenciones deshabilitará el cálculo automático para este documento. ¿Desea Continuar? ", 2, "Sí", "No", "") != 2)
+                                            {
+                                                //if (strLastActiveForm.Trim().Length > 0)
+                                                //{
+                                                CacheManager.CacheManager.Instance.addToCache(string.Concat("Disable_", strLastActiveForm), true, CacheManager.CacheManager.objCachePriority.Default);
+                                                //}
+                                                //else
+                                                //{
+                                                //    if (objForm.Mode == BoFormMode.fm_UPDATE_MODE)
+                                                //    {
+                                                //        objForm.Items.Item("1").Click(BoCellClickType.ct_Regular);
+                                                //    }
+                                                //    else BubbleEvent = false;
+                                                //}
+
+                                                //objForm.Close();
+                                            }
+                                            //else
+                                            //{
+                                            //    BubbleEvent = false;
+                                            //    objForm.Items.Item("2").Click(BoCellClickType.ct_Regular);
+                                            //}
+                                        }
+                                        CacheManager.CacheManager.Instance.removeFromCache("WTLastActiveForm");
+                                        //T1.B1.Base.UIOperations.Operations.stopProgressBar();
+
+
+                                    }
+                                }
                             }
                             break;
                         case BoEventTypes.et_COMBO_SELECT:
                             if (WTDocuments.Contains(pVal.FormTypeEx))
                             {
-                                if (pVal.ItemUID.Equals("226"))
+                                objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                                if (pVal.ItemUID.Equals("226") && objForm.Mode == BoFormMode.fm_ADD_MODE)
                                 {
-                                    //if (WithholdingTax.FormModeAdd(pVal))
-                                    //{
-                                    //    WithholdingTax.getSelectedBPInformation(pVal, false);
-                                    //    objForm = MainObject.Instance.B1Application.Forms.ActiveForm;
-                                    //    if (!objForm.DataSources.DBDataSources.Item(0).GetValue("CardCode", 0).Equals(""))
-                                    //        WithholdingTax.activateWTMenu(pVal.FormUID, true);
-                                    //}
+                                    if (WithholdingTax.GetSelectedBPInformation(objForm, true)) WithholdingTax.activateWTMenu(pVal.FormUID, true);
                                 }
                             }
                             break;
@@ -186,33 +224,30 @@ namespace T1.B1.WithholdingTax
                         case BoEventTypes.et_ITEM_PRESSED:
                             if (WTDocuments.Contains(pVal.FormTypeEx))
                             {
-                                //if (pVal.ItemUID.Equals("173"))
-                                //{
-                                //    if (WithholdingTax.FormModeAdd(pVal)) CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", MainObject.Instance.B1Application.Forms.ActiveForm.UniqueID, CacheManager.CacheManager.objCachePriority.Default);
-                                //}
-                                if (pVal.ItemUID.Equals("HCO_BTWT"))
+                                if (pVal.Action_Success)
                                 {
                                     objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                                    objForm.Update();
-                                    WithholdingTax.GetSelectedBPInformation(objForm);
-                                    WithholdingTax.activateWTMenu(pVal.FormUID, true);
+                                    if (pVal.ItemUID == "1" && objForm.Mode == BoFormMode.fm_ADD_MODE)
+                                    {
+                                        CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", pVal.FormUID, CacheManager.CacheManager.objCachePriority.Default);
+                                        if (WithholdingTax.GetSelectedBPInformation(objForm, false)) WithholdingTax.activateWTMenu(pVal.FormUID, true);
+                                    }
                                 }
-
                             }
                             break;
                         case BoEventTypes.et_FORM_LOAD:
-                            if (WTDocuments.Contains(pVal.FormTypeEx))
-                            {
-                                objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                                objForm.Items.Add("HCO_BTWT", BoFormItemTypes.it_BUTTON);
-                                Button objBtn = (Button)objForm.Items.Item("HCO_BTWT").Specific;
-                                objBtn.Caption = "Calcular retenciones";
-                                objBtn.Item.Width = 110;
-                                objBtn.Item.Top = objForm.Items.Item("2").Top;
-                                objBtn.Item.Left = objForm.Items.Item("2").Left + objForm.Items.Item("2").Width + 2;
-                                //objBtn.Item.Enabled = false;
-                                objBtn.Item.Visible = true;
-                            }
+                            //if (WTDocuments.Contains(pVal.FormTypeEx))
+                            //{
+                            //    objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                            //    objForm.Items.Add("HCO_BTWT", BoFormItemTypes.it_BUTTON);
+                            //    Button objBtn = (Button)objForm.Items.Item("HCO_BTWT").Specific;
+                            //    objBtn.Caption = "Calcular retenciones";
+                            //    objBtn.Item.Width = 110;
+                            //    objBtn.Item.Top = objForm.Items.Item("2").Top;
+                            //    objBtn.Item.Left = objForm.Items.Item("2").Left + objForm.Items.Item("2").Width + 2;
+                            //    //objBtn.Item.Enabled = false;
+                            //    objBtn.Item.Visible = true;
+                            //}
 
                             if (pVal.FormTypeEx.Equals("60504"))
                             {
@@ -222,12 +257,8 @@ namespace T1.B1.WithholdingTax
                                     bool blDisabled = CacheManager.CacheManager.Instance.getFromCache("Disable_" + strLastActiveForm) != null ? true : false;
                                     if (!blDisabled)
                                     {
-                                        string strFormAutoActivate = CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") != null ? CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") : "";
-                                        if (strFormAutoActivate.Trim() == strLastActiveForm.Trim())
-                                        {
-                                            T1.B1.Base.UIOperations.Operations.startProgressBar("Asignando retenciones automáticas...", 2);
-                                            WithholdingTax.SetBPWT(pVal.FormUID, strLastActiveForm);
-                                        }
+                                        T1.B1.Base.UIOperations.Operations.startProgressBar("Asignando retenciones automáticas...", 2);
+                                        WithholdingTax.SetTypeWT(pVal.FormUID, strLastActiveForm);
                                     }
                                 }
                             }
@@ -263,54 +294,28 @@ namespace T1.B1.WithholdingTax
                                         objForm.Close();
                                 }
                             }
+
+                            if (WTDocuments.Contains(pVal.FormTypeEx))
+                            {
+                                objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+
+                                if (pVal.ItemUID.Equals("173") && objForm.Mode == BoFormMode.fm_ADD_MODE)
+                                {
+                                    CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", pVal.FormUID, CacheManager.CacheManager.objCachePriority.Default);
+                                    WithholdingTax.GetSelectedBPInformation(objForm, true);
+                                }
+
+                                //if (pVal.ItemUID.Equals("HCO_BTWT") && objForm.Mode == BoFormMode.fm_ADD_MODE)
+                                //{
+                                //    objForm.Update();
+                                //    WithholdingTax.GetSelectedBPInformation(objForm);
+                                //    WithholdingTax.activateWTMenu(pVal.FormUID, true);
+                                //}
+                            }
                             break;
                         case BoEventTypes.et_LOST_FOCUS:
 
-                            if (pVal.FormTypeEx.Equals("60504"))
-                            {
-                                if (pVal.ItemUID == "1")
-                                {
-                                    string blAutoActivate = CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") != null ? CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") : "";
-                                    objForm = null;
-                                    string strLastActiveForm = CacheManager.CacheManager.Instance.getFromCache("WTLastActiveForm") == null ? "" : CacheManager.CacheManager.Instance.getFromCache("WTLastActiveForm");
-                                    if (strLastActiveForm.Trim().Length > 0)
-                                    {
-                                        bool isDisabled = CacheManager.CacheManager.Instance.getFromCache("Disable_" + strLastActiveForm) == null ? false : true;
-                                        if (blAutoActivate.Trim().Length == 0)
-                                        {
-                                            objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                                            if (objForm.Mode == BoFormMode.fm_UPDATE_MODE && !isDisabled)
-                                            {
-                                                if (MainObject.Instance.B1Application.MessageBox("La modificación manual de las retenciones deshabilitará el cálculo automático para este documento. Desea Continuar? ", 2, "Sí", "No", "") != 2)
-                                                {
-                                                    if (strLastActiveForm.Trim().Length > 0)
-                                                    {
-                                                        CacheManager.CacheManager.Instance.addToCache(string.Concat("Disable_", strLastActiveForm), true, CacheManager.CacheManager.objCachePriority.Default);
-                                                    }
-                                                    else
-                                                    {
-                                                        if (objForm.Mode == BoFormMode.fm_UPDATE_MODE)
-                                                        {
-                                                            objForm.Items.Item("1").Click(BoCellClickType.ct_Regular);
-                                                        }
-                                                        else BubbleEvent = false;
-                                                    }
 
-                                                    objForm.Close();
-                                                }
-                                                else
-                                                {
-                                                    BubbleEvent = false;
-                                                    objForm.Items.Item("2").Click(BoCellClickType.ct_Regular);
-                                                }
-                                            }
-                                            CacheManager.CacheManager.Instance.removeFromCache("WTLastActiveForm");
-                                            T1.B1.Base.UIOperations.Operations.stopProgressBar();
-
-                                        }
-                                    }
-                                }
-                            }
                             break;
                     }
                 }

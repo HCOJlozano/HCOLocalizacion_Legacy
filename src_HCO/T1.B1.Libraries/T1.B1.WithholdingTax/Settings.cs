@@ -62,18 +62,20 @@ namespace T1.B1.WithholdingTax
             public string WTInternalRegistryUDO { get; set; }
 
 
-
             public string WTFormInfoCachePrefix { get; }
             public string WTInfoGenCachePrefix { get; }
             public string WTLastCardCodeCachePrefix { get; set; }
+            public string WTLineTotalsGenCachePrefix { get; set; }
 
             public string WTFormTypes { get; set; }            
             public string WTObjects { get; set; }
             public string WTSalesObjectTypes { get; set; }
             public string WTPurchaseObjectTypes { get; set; }
             public string WTCheckObjects { get; set; }
+
             
-            public WithHoldingTax()
+
+        public WithHoldingTax()
             {
                 WTMuniInfoUDO = "HCO_FWT0100";
                 WTMuniInfoChildUDO = "HCO_WT0101";
@@ -82,6 +84,7 @@ namespace T1.B1.WithholdingTax
                 WTFormInfoCachePrefix = "WTInfoForm_";
                 WTInfoGenCachePrefix = "WTAddOnGenerated_";
                 WTLastCardCodeCachePrefix = "WTLastCardCode_";
+                WTLineTotalsGenCachePrefix = "WTLineTotals";
 
                 WTFormTypes = "[\"141\",\"181\",\"65306\",\"60092\",\"133\",\"179\",\"65303\",\"65307\",\"60091\"]";
                 WTObjects = "[\"13\", \"14\",\"18\", \"19\"]";                

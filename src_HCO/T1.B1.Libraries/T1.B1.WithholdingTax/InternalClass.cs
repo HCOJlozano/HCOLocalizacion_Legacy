@@ -31,7 +31,7 @@ namespace T1.B1.WithholdingTax
 
     }
 
-    public class WithholdingTaxConfigMun
+   public class WithholdingTaxConfigMun
     {
         public string MunCode { get; set; }
         public string MunName { get; set; }

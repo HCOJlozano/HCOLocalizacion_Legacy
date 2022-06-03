@@ -262,6 +262,7 @@ namespace T1.B1.Base.UIOperations
             var DT = new System.Data.DataTable();
             DT.Columns.Add("LineTotal", typeof(System.Double));
             DT.Columns.Add("VatSum", typeof(System.Double));
+
             var XDoc = System.Xml.Linq.XDocument.Parse(sap_table.GetAsXML());
             var Rows = XDoc.Element("dbDataSources").Element("rows").Elements("row");
 
