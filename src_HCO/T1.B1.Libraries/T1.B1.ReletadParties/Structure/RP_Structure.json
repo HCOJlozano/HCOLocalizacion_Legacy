@@ -3,7 +3,7 @@
 {
   "UserTables": [
     {
-      "TableCode": "HCO_CINF01",
+      "TableCode": "HCO_RP0001",
       "Description": "Configuracion",
       "Type": 1
     },
