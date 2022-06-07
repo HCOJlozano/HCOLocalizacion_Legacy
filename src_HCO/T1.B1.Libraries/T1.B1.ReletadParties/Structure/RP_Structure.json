@@ -3,7 +3,7 @@
 {
   "UserTables": [
     {
-      "TableCode": "HCO_RP0001",
+      "TableCode": "HCO_CINF01",
       "Description": "Configuracion",
       "Type": 1
     },
@@ -962,7 +962,7 @@
       "Length": 3,
       "LinkType": 0,
       "LinkCode": "",
-      "DefaultValue": "C",
+      "DefaultValue": "",
       "ValidValues": [
         {
           "ValidValue": "AC",

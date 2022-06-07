@@ -24,27 +24,7 @@
     }
   ],
   "UserFields": [
-    {
-      "TableCode": "HCO_RP0001",
-      "FieldCode": "ManualWT",
-      "FieldName": "Retención manual",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 1,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "N",
-      "ValidValues": [
-        {
-          "ValidValue": "Y",
-          "Description": "Yes"
-        },
-        {
-          "ValidValue": "N",
-          "Description": "No"
-        }
-      ]
-    },
+
     {
       "TableCode": "HCO_RP0001",
       "FieldCode": "ManualWT",
@@ -88,6 +68,18 @@
         {
           "ValidValue": 3,
           "Description": "ICA"
+        },
+        {
+          "ValidValue": 4,
+          "Description": "TIMBRE"
+        },
+        {
+          "ValidValue": 5,
+          "Description": "GARANTÍAS"
+        },
+        {
+          "ValidValue": 6,
+          "Description": "ESTAMPILLAS"
         }
       ]
     },
@@ -109,10 +101,6 @@
         {
           "ValidValue": "C",
           "Description": "Compras"
-        },
-        {
-          "ValidValue": "A",
-          "Description": "Ventas y compras"
         }
       ]
     },
@@ -313,6 +301,18 @@
         {
           "ValidValue": 3,
           "Description": "ICA"
+        },
+        {
+          "ValidValue": 4,
+          "Description": "TIMBRE"
+        },
+        {
+          "ValidValue": 5,
+          "Description": "GARANTÍAS"
+        },
+        {
+          "ValidValue": 6,
+          "Description": "ESTAMPILLAS"
         }
       ]
     },

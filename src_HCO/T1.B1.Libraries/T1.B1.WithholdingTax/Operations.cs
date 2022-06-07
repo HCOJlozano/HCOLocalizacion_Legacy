@@ -59,8 +59,13 @@ namespace T1.B1.WithholdingTax
                                     MainObject.Instance.B1Application.MessageBox("El Cliente/Proveedor no tiene tercero relacionado.");
                                     blBubbleEvent = false;
                                 }
+                                CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", BusinessObjectInfo.FormUID, CacheManager.CacheManager.objCachePriority.Default);
+                                //if (WithholdingTax.GetSelectedBPInformation(objForm, false)) WithholdingTax.activateWTMenu(BusinessObjectInfo.FormUID, true);
+
+
                             }
                             break;
+
                     }
                 }
             }
@@ -74,7 +79,7 @@ namespace T1.B1.WithholdingTax
             }
             finally
             {
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(objForm);
+
                 GC.Collect();
             }
         }
@@ -157,7 +162,7 @@ namespace T1.B1.WithholdingTax
                                 if (pVal.Action_Success)
                                 {
                                     objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                                    if ((pVal.ItemUID == "4" || pVal.ItemUID == "38") && objForm.Mode == BoFormMode.fm_ADD_MODE)
+                                    if ((pVal.ItemUID == "38") && objForm.Mode == BoFormMode.fm_ADD_MODE)
                                     {
                                         CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", pVal.FormUID, CacheManager.CacheManager.objCachePriority.Default);
                                         if (WithholdingTax.GetSelectedBPInformation(objForm, false)) WithholdingTax.activateWTMenu(pVal.FormUID, true);
@@ -222,7 +227,7 @@ namespace T1.B1.WithholdingTax
                             break;
 
                         case BoEventTypes.et_ITEM_PRESSED:
-                            
+
                             break;
                         case BoEventTypes.et_FORM_LOAD:
                             //if (WTDocuments.Contains(pVal.FormTypeEx))
@@ -241,7 +246,7 @@ namespace T1.B1.WithholdingTax
                             if (pVal.FormTypeEx.Equals("60504"))
                             {
                                 string strLastActiveForm = CacheManager.CacheManager.Instance.getFromCache("WTLastActiveForm") == null ? "" : CacheManager.CacheManager.Instance.getFromCache("WTLastActiveForm");
-                                if (strLastActiveForm.Trim().Length > 0)
+                                if (strLastActiveForm.Trim().Length > 0 && MainObject.Instance.B1Application.Forms.Item(strLastActiveForm).Mode == BoFormMode.fm_ADD_MODE)
                                 {
                                     bool blDisabled = CacheManager.CacheManager.Instance.getFromCache("Disable_" + strLastActiveForm) != null ? true : false;
                                     if (!blDisabled) WithholdingTax.SetTypeWT(pVal.FormUID, strLastActiveForm);
@@ -279,23 +284,15 @@ namespace T1.B1.WithholdingTax
                                         objForm.Close();
                                 }
                             }
-                            if (WTDocuments.Contains(pVal.FormTypeEx))
-                            {
-                                if (pVal.Action_Success)
-                                {
-                                    objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                                    if (pVal.ItemUID == "1" && objForm.Mode == BoFormMode.fm_ADD_MODE)
-                                    {
-                                        CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", pVal.FormUID, CacheManager.CacheManager.objCachePriority.Default);
-                                        if (WithholdingTax.GetSelectedBPInformation(objForm, false)) WithholdingTax.activateWTMenu(pVal.FormUID, true);
-                                    }
-                                }
-                            }
 
                             if (WTDocuments.Contains(pVal.FormTypeEx))
                             {
                                 objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-
+                                if (pVal.ItemUID.Equals("1") && objForm.Mode == BoFormMode.fm_ADD_MODE)
+                                {
+                                    if (WithholdingTax.IsBasedNC(objForm.UniqueID))
+                                        objForm.Items.Item("16").Click(BoCellClickType.ct_Regular);
+                                }
                                 if (pVal.ItemUID.Equals("173") && objForm.Mode == BoFormMode.fm_ADD_MODE)
                                 {
                                     CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", pVal.FormUID, CacheManager.CacheManager.objCachePriority.Default);
