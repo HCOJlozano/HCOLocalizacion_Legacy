@@ -4,9 +4,6 @@ using log4net;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using SAPbouiCOM;
-using System.Resources;
-using System.Reflection;
-using System.Xml;
 
 namespace T1.B1.WithholdingTax
 {
@@ -74,7 +71,9 @@ namespace T1.B1.WithholdingTax
             }
             finally
             {
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(objForm);
+                if( objForm != null )
+                 System.Runtime.InteropServices.Marshal.ReleaseComObject(objForm);
+
                 GC.Collect();
             }
         }

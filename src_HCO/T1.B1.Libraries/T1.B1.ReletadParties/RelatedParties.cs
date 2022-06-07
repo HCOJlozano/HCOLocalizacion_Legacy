@@ -431,7 +431,7 @@ namespace T1.B1.RelatedParties
         {
             var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
             var third = form.DataSources.DBDataSources.Item("OTRT").GetValue("U_HCO_RELPAR", 0);
-            if (form.Mode == BoFormMode.fm_ADD_MODE)
+            if (form.Mode == BoFormMode.fm_ADD_MODE || form.Mode == BoFormMode.fm_UPDATE_MODE)
             {
                 if (third.Equals(String.Empty))
                 {
@@ -449,7 +449,7 @@ namespace T1.B1.RelatedParties
             var sel = ((ComboBox)form.Items.Item("21").Specific).Selected;
             var third = form.DataSources.DBDataSources.Item("ORCR").GetValue("U_HCO_RELPAR", 0);
 
-            if (form.Mode == BoFormMode.fm_ADD_MODE)
+            if (form.Mode == BoFormMode.fm_ADD_MODE || form.Mode == BoFormMode.fm_UPDATE_MODE)
             {
                 if (third.Equals(String.Empty))
                 {
