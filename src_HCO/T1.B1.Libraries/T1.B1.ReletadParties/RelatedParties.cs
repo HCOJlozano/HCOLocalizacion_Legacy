@@ -588,8 +588,7 @@ namespace T1.B1.RelatedParties
                 oForm2.Items.Item("410000001").Click();
                 var oForm3 = MainObject.Instance.B1Application.Forms.ActiveForm;
                     oForm3.Visible = false;
-                ((EditText)oForm3.Items.Item("1000003").Specific).Value = MainObject.Instance.B1Company.CompanyDB;
-                ((EditText)oForm3.Items.Item("1000009").Specific).Value = MainObject.Instance.B1Company.UserSignature.ToString();
+                ((EditText)oForm3.Items.Item("1000003").Specific).Value = MainObject.Instance.B1Company.UserSignature.ToString();
                 oForm3.Items.Item("1").Click();
             }
             catch (Exception ex)
