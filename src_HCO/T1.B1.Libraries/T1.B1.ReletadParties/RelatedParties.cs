@@ -16,7 +16,7 @@ using System.Collections.Generic;
 namespace T1.B1.RelatedParties
 {
     public enum TYPE_BP { CUSTOMER, SUPPLIER };
-    public enum TYPE_CRYSTAL { BALANCE, ERI, ESFA, DIARIO, TERCERO, RET_CODE, AUXILIAR, CERT_RET, RETPURCH_COD, RETSALE_COD, RETPRUCH_CARD, RETSALE_CARD, IVAPRUCH_COD, IVASALE_COD };
+    public enum TYPE_CRYSTAL { BALANCE, ERI, ESFA, DIARIO, TERCERO, RET_CODE, AUXILIAR, CERT_RET, RETPURCH_COD, RETSALE_COD, RETPRUCH_CARD, RETSALE_CARD, IVAPRUCH_COD, IVASALE_COD, BALNCE_TEST_RP, CERT_RET_IVA };
 
 
     public class Instance
@@ -588,8 +588,7 @@ namespace T1.B1.RelatedParties
                 oForm2.Items.Item("410000001").Click();
                 var oForm3 = MainObject.Instance.B1Application.Forms.ActiveForm;
                     oForm3.Visible = false;
-                ((EditText)oForm3.Items.Item("1000003").Specific).Value = MainObject.Instance.B1Company.CompanyDB;
-                ((EditText)oForm3.Items.Item("1000009").Specific).Value = MainObject.Instance.B1Company.UserSignature.ToString();
+                ((EditText)oForm3.Items.Item("1000003").Specific).Value = MainObject.Instance.B1Company.UserSignature.ToString();               
                 oForm3.Items.Item("1").Click();
             }
             catch (Exception ex)
@@ -728,32 +727,40 @@ namespace T1.B1.RelatedParties
         {
             switch (type)
             {
-                case TYPE_CRYSTAL.BALANCE:
-                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\Balance de prueba.rpt";
-                case TYPE_CRYSTAL.DIARIO:
-                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\Movimiento Diario.rpt";
-                case TYPE_CRYSTAL.ERI:
-                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\ERI (Perdidas y ganancias).rpt";
-                case TYPE_CRYSTAL.ESFA:
-                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\ESFA(BALANCE).rpt";
-                case TYPE_CRYSTAL.TERCERO:
-                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\Movimiento terceros.rpt";
                 case TYPE_CRYSTAL.AUXILIAR:
                     return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\Auxiliar de cuenta.rpt";
-                case TYPE_CRYSTAL.CERT_RET:
-                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\CertificadoRetencionCompras.rpt";
-                case TYPE_CRYSTAL.RETPURCH_COD:
-                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\RetencionesComprasPorCodigo.rpt";
-                case TYPE_CRYSTAL.RETSALE_COD:
-                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\RetencionesVentasPorCodigO.rpt";
-                case TYPE_CRYSTAL.RETPRUCH_CARD:
-                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\RetencionesComprasPorProveedor.rpt";
-                case TYPE_CRYSTAL.RETSALE_CARD:
-                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\RetencionesVentasPorCliente.rpt";
+                case TYPE_CRYSTAL.BALANCE:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\Balance de prueba.rpt";
+                case TYPE_CRYSTAL.BALNCE_TEST_RP:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\Balance de prueba por tercero.rpt";
+                case TYPE_CRYSTAL.DIARIO:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\Movimiento Diario.rpt";
+
+                case TYPE_CRYSTAL.ESFA:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\ESF(BALANCE).rpt";
+                case TYPE_CRYSTAL.ERI:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\ERI (Perdidas y ganancias).rpt";
+                case TYPE_CRYSTAL.TERCERO:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\Movimiento terceros.rpt";
+
                 case TYPE_CRYSTAL.IVASALE_COD:
                     return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\IVA_VentasPorCodigo.rpt";
                 case TYPE_CRYSTAL.IVAPRUCH_COD:
                     return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\IVA_ComprasPorCodigo.rpt";
+
+                case TYPE_CRYSTAL.RETPURCH_COD:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\RetencionesComprasPorCodigo.rpt";
+                case TYPE_CRYSTAL.RETSALE_COD:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\RetencionesVentasPorCodigo.rpt";
+                case TYPE_CRYSTAL.RETPRUCH_CARD:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\RetencionesComprasPorProveedor.rpt";
+                case TYPE_CRYSTAL.RETSALE_CARD:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\RetencionesVentasPorCliente.rpt";
+
+                case TYPE_CRYSTAL.CERT_RET:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\CertificadoRetencionCompras.rpt";
+                case TYPE_CRYSTAL.CERT_RET_IVA:
+                    return AppDomain.CurrentDomain.BaseDirectory + "\\Report\\CertificadoRetencionComprasIVA.rpt";
                 default:
                     return string.Empty;
             }

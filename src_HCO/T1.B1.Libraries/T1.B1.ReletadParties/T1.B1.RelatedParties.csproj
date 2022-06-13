@@ -136,7 +136,10 @@
     <None Include="Report\ERI %28Perdidas y ganancias%29.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Report\ESFA%28BALANCE%29.rpt">
+    <None Include="Report\ESF%28BALANCE%29.rpt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Report\informe_movimiento_tercero_hana.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Report\IVA_ComprasPorCodigo.rpt">
@@ -160,7 +163,7 @@
     <None Include="Report\RetencionesVentasPorCliente.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Report\RetencionesVentasPorCodigO.rpt">
+    <None Include="Report\RetencionesVentasPorCodigo.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

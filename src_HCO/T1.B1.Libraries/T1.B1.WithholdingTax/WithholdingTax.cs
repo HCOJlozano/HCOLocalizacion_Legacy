@@ -444,8 +444,9 @@ namespace T1.B1.WithholdingTax
             {
                 if (CacheManager.CacheManager.Instance.getFromCache(Settings._WithHoldingTax.WTInfoGenCachePrefix + objForm.UniqueID) != null ? true : false)
                 {
+                    string doctype = objForm.DataSources.DBDataSources.Item(0).GetValue("DocType", 0);
                     WTDocInfo = CacheManager.CacheManager.Instance.getFromCache(Settings._WithHoldingTax.WTFormInfoCachePrefix + objForm.UniqueID);
-                    GetMatrixBaseAmount(objForm.DataSources.DBDataSources.Item(0), ((Matrix)objForm.Items.Item("38").Specific), ref NetBase, ref VatBase);
+                    GetMatrixBaseAmount(objForm.DataSources.DBDataSources.Item(0), ((Matrix)objForm.Items.Item(doctype == "I"? "38": "39").Specific), ref NetBase, ref VatBase, doctype);
 
                     foreach (WithholdingTaxDetail oDet in WTDocInfo)
                     {
@@ -572,7 +573,8 @@ namespace T1.B1.WithholdingTax
             try
             {
                 objWTForm = MainObject.Instance.B1Application.Forms.Item(FormUID_WT);
-                GetMatrixBaseAmount(objForm.DataSources.DBDataSources.Item(0), ((Matrix)objForm.Items.Item("38").Specific), ref NetBase, ref VatBase);
+                string doctype = objForm.DataSources.DBDataSources.Item(0).GetValue("DocType", 0);
+                GetMatrixBaseAmount(objForm.DataSources.DBDataSources.Item(0), ((Matrix)objForm.Items.Item(doctype == "I" ? "38" : "39").Specific), ref NetBase, ref VatBase, doctype);
 
                 if (CacheManager.CacheManager.Instance.getFromCache(Settings._WithHoldingTax.WTFormInfoCachePrefix + FormUID) != null)
                 {
@@ -660,7 +662,7 @@ namespace T1.B1.WithholdingTax
             NetBase = NetBase - (NetBase * (double.Parse(sap_table.GetValue("DiscPrcnt",0), System.Globalization.CultureInfo.InvariantCulture)/100));
 
         }
-        public static void GetMatrixBaseAmount(SAPbouiCOM.DBDataSource sap_table, SAPbouiCOM.Matrix sap_table_lines, ref double NetBase, ref double VatBase)
+        public static void GetMatrixBaseAmount(SAPbouiCOM.DBDataSource sap_table, SAPbouiCOM.Matrix sap_table_lines, ref double NetBase, ref double VatBase, string doctype)
         {
             var XDoc = System.Xml.Linq.XDocument.Parse(sap_table_lines.SerializeAsXML(BoMatrixXmlSelect.mxs_All));
             var Rows = (XDoc.Element("Matrix").Element("Rows").Elements("Row")).ToList();
@@ -668,56 +670,112 @@ namespace T1.B1.WithholdingTax
 
             string decimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 
-            foreach (var Row in Rows)
+            if(doctype == "I")
             {
-                string wtliable = (from h in Row.Descendants("Column")
-                                   where h.Element("ID").Value == "174"
-                                   select new
-                                   {
-                                       uid = h.Element("ID").Value,
-                                       value = h.Element("Value").Value
-                                   }).First().value;
-
-                if (wtliable.Equals("Y"))
+                foreach (var Row in Rows)
                 {
-                    auxValue = (from h in Row.Descendants("Column")
-                                where h.Element("ID").Value == "21"
-                                select new
-                                {
-                                    uid = h.Element("ID").Value,
-                                    value = h.Element("Value").Value
-                                }).First().value;
+                    string wtliable = (from h in Row.Descendants("Column")
+                                       where h.Element("ID").Value == "174"
+                                       select new
+                                       {
+                                           uid = h.Element("ID").Value,
+                                           value = h.Element("Value").Value
+                                       }).First().value;
 
-                    if (!auxValue.Equals(""))
+                    if (wtliable.Equals("Y"))
                     {
-                        auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.LocalCurrency, "").Trim();
-                        auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.ThousandsSeparator, "");
-                        auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.DecimalSeparator, decimalSeparator);
+                        auxValue = (from h in Row.Descendants("Column")
+                                    where h.Element("ID").Value == "21"
+                                    select new
+                                    {
+                                        uid = h.Element("ID").Value,
+                                        value = h.Element("Value").Value
+                                    }).First().value;
+
+                        if (!auxValue.Equals(""))
+                        {
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.LocalCurrency, "").Trim();
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.ThousandsSeparator, "");
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.DecimalSeparator, decimalSeparator);
+                        }
+                        else auxValue = "0";
+
+
+                        NetBase += double.Parse(auxValue, System.Globalization.CultureInfo.CurrentCulture);
+
+                        auxValue = (from h in Row.Descendants("Column")
+                                    where h.Element("ID").Value == "82"
+                                    select new
+                                    {
+                                        uid = h.Element("ID").Value,
+                                        value = h.Element("Value").Value
+                                    }).First().value;
+
+                        if (!auxValue.Equals(""))
+                        {
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.LocalCurrency, "").Trim();
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.ThousandsSeparator, "");
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.DecimalSeparator, decimalSeparator);
+                        }
+                        else auxValue = "0";
+
+                        VatBase += double.Parse(auxValue, System.Globalization.CultureInfo.CurrentCulture);
                     }
-                    else auxValue = "0";
-
-
-                    NetBase += double.Parse(auxValue, System.Globalization.CultureInfo.CurrentCulture);
-
-                    auxValue = (from h in Row.Descendants("Column")
-                                where h.Element("ID").Value == "82"
-                                select new
-                                {
-                                    uid = h.Element("ID").Value,
-                                    value = h.Element("Value").Value
-                                }).First().value;
-
-                    if (!auxValue.Equals(""))
-                    {
-                        auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.LocalCurrency, "").Trim();
-                        auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.ThousandsSeparator, "");
-                        auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.DecimalSeparator, decimalSeparator);
-                    }
-                    else auxValue = "0";
-
-                    VatBase += double.Parse(auxValue, System.Globalization.CultureInfo.CurrentCulture);
                 }
             }
+            else
+            {
+                foreach (var Row in Rows)
+                {
+                    string wtliable = (from h in Row.Descendants("Column")
+                                       where h.Element("ID").Value == "101"
+                                       select new
+                                       {
+                                           uid = h.Element("ID").Value,
+                                           value = h.Element("Value").Value
+                                       }).First().value;
+
+                    if (wtliable.Equals("Y"))
+                    {
+                        auxValue = (from h in Row.Descendants("Column")
+                                    where h.Element("ID").Value == "12"
+                                    select new
+                                    {
+                                        uid = h.Element("ID").Value,
+                                        value = h.Element("Value").Value
+                                    }).First().value;
+
+                        if (!auxValue.Equals(""))
+                        {
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.LocalCurrency, "").Trim();
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.ThousandsSeparator, "");
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.DecimalSeparator, decimalSeparator);
+                        }
+                        else auxValue = "0";
+
+
+                        NetBase += double.Parse(auxValue, System.Globalization.CultureInfo.CurrentCulture);
+
+                        auxValue = (from h in Row.Descendants("Column")
+                                    where h.Element("ID").Value == "32"
+                                    select new
+                                    {
+                                        uid = h.Element("ID").Value,
+                                        value = h.Element("Value").Value
+                                    }).First().value;
+
+                        if (!auxValue.Equals(""))
+                        {
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.LocalCurrency, "").Trim();
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.ThousandsSeparator, "");
+                            auxValue = auxValue.Replace(MainObject.Instance.B1AdminInfo.DecimalSeparator, decimalSeparator);
+                        }
+                        else auxValue = "0";
+
+                        VatBase += double.Parse(auxValue, System.Globalization.CultureInfo.CurrentCulture);
+                    }
+                }
+            }          
 
             NetBase = NetBase - (NetBase * (double.Parse(sap_table.GetValue("DiscPrcnt", 0), System.Globalization.CultureInfo.InvariantCulture) / 100));
 
@@ -1189,9 +1247,8 @@ namespace T1.B1.WithholdingTax
         }
         static public void CreateMissingOperations(SAPbouiCOM.ItemEvent pVal)
         {
-            List<string> WHPurchaseDocuments = new List<string>();
-            List<string> WHSalesDocuments = new List<string>();
-            SAPbobsCOM.CompanyService objCompanyService = null;
+             List<string> WTDocuments = new List<string>();
+        SAPbobsCOM.CompanyService objCompanyService = null;
             SAPbobsCOM.GeneralService objEntryObject = null;
             SAPbobsCOM.GeneralData objEntryInfo = null;
             SAPbobsCOM.GeneralData objEntryLinesInfo = null;
@@ -1208,10 +1265,8 @@ namespace T1.B1.WithholdingTax
             string dbBaseAmnt = "";
             int count = 0;
             string munCode = string.Empty;
+            WTDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._WithHoldingTax.WTFormTypes);
 
-
-            WHPurchaseDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._WithHoldingTax.WTPurchaseObjectTypes);
-            WHSalesDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._WithHoldingTax.WTSalesObjectTypes);
             oMatriz = (Matrix)oForm.Items.Item("grTRA").Specific;
             oMatriz.FlushToDataSource();
             System.Data.DataTable oDT = B1.Base.UIOperations.FormsOperations.SapDataTableToDotNetDataTable(oForm.DataSources.DataTables.Item("DT_TRA").SerializeAsXML(BoDataTableXmlSelect.dxs_All));
@@ -1254,12 +1309,12 @@ namespace T1.B1.WithholdingTax
                     for (int i = 0; i < oBP.Addresses.Count; i++)
                     {
                         oBP.Addresses.SetCurrentLine(i);
-                        if (WHPurchaseDocuments.Contains(doc.DocType))
+                        if (oBP.CardType == BoCardTypes.cSupplier)
                         {
                             add_inv = oDoc.PayToCode;
                             if (add_inv.Equals(oBP.Addresses.AddressName) && oBP.Addresses.AddressType == BoAddressType.bo_BillTo) munCode = oBP.Addresses.UserFields.Fields.Item("U_HCO_MUNI").Value.ToString();
                         }
-                        else if (WHSalesDocuments.Contains(doc.DocType))
+                        else if (oBP.CardType == BoCardTypes.cCustomer)
                         {
                             add_inv = oDoc.ShipToCode;
                             if (add_inv.Equals(oBP.Addresses.AddressName) && oBP.Addresses.AddressType == BoAddressType.bo_ShipTo) munCode = oBP.Addresses.UserFields.Fields.Item("U_HCO_MUNI").Value.ToString();
@@ -1298,7 +1353,7 @@ namespace T1.B1.WithholdingTax
                                 objEntryLinesInfo.SetProperty("U_WTType", oWT.UserFields.Fields.Item("U_HCO_WTType").Value);
                                 objEntryLinesInfo.SetProperty("U_WTCode", oWHTData.WTCode);
                                 objEntryLinesInfo.SetProperty("U_WTRate", oWT.BaseAmount);
-                                objEntryLinesInfo.SetProperty("U_WTBase", oDoc.WithholdingTaxData.UserFields.Fields.Item("U_HCO_BaseAmnt").Value.ToString());
+                                objEntryLinesInfo.SetProperty("U_WTBase", GetWTDocBaseAmount(oDoc));
                                 objEntryLinesInfo.SetProperty("U_WTAmnt", oWHTData.WTAmount);
                                 objEntryLinesInfo.SetProperty("U_BaseLine", oWHTData.LineNum);
                                 objEntryLinesInfo.SetProperty("U_Account", oWT.Account);

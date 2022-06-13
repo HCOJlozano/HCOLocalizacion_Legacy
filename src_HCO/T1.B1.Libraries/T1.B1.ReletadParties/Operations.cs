@@ -652,47 +652,58 @@ namespace T1.B1.RelatedParties
                         case "HCO_MRP0009":
                             Instance.LoadRelatedPartiesForm(Settings.RelatedParties.RELATED_PARTIES);
                             break;
-                        case "HCO_MRP1010":
-                            Instance.LoadRelatedPartiesForm(Settings.RelatedParties.RELATED_PARTIES_MOVEMENT);
-                            break;
                         case "HCO_MRP0010":
                             Instance.LoadRelatedPartiesForm(Settings.RelatedParties.RELATED_PARTIES_CREATION_WIZARD);
                             break;
-                        case "HCO_RPT0011":
-                            Instance.LoadCrystalReport(TYPE_CRYSTAL.ERI);
-                            break;
-                        case "HCO_RPT0012":
-                            Instance.LoadCrystalReport(TYPE_CRYSTAL.ESFA);
-                            break;
-                        case "HCO_RPT0013":
-                            Instance.LoadCrystalReport(TYPE_CRYSTAL.BALANCE);
-                            break;
-                        case "HCO_RPT0014":
-                            Instance.LoadCrystalReport(TYPE_CRYSTAL.DIARIO);
-                            break;
-                        case "HCO_RPT0015":
-                            Instance.LoadCrystalReport(TYPE_CRYSTAL.CERT_RET);
-                            break;
-                        case "HCO_RPT0016":
+
+                        case "HCO_RPT1001":
                             Instance.LoadCrystalReport(TYPE_CRYSTAL.AUXILIAR);
                             break;
-                        case "HCO_RPT0017":
-                            Instance.LoadCrystalReport(TYPE_CRYSTAL.RETPURCH_COD);
+                        case "HCO_RPT1002":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.DIARIO);
                             break;
-                        case "HCO_RPT0018":
-                            Instance.LoadCrystalReport(TYPE_CRYSTAL.RETSALE_COD);
+                        case "HCO_RPT1003":
+                            Instance.LoadRelatedPartiesForm(Settings.RelatedParties.RELATED_PARTIES_MOVEMENT);
                             break;
-                        case "HCO_RPT0019":
-                            Instance.LoadCrystalReport(TYPE_CRYSTAL.RETPRUCH_CARD);
+
+                        case "HCO_RPT2001":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.ESFA);
                             break;
-                        case "HCO_RPT0020":
-                            Instance.LoadCrystalReport(TYPE_CRYSTAL.RETSALE_CARD);
+                        case "HCO_RPT2002":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.ERI);
                             break;
-                        case "HCO_RPT0021":
+                        case "HCO_RPT2003":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.BALANCE);
+                            break;
+                        case "HCO_RPT2004":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.BALNCE_TEST_RP);
+                            break;
+
+                        case "HCO_RPT3101":
                             Instance.LoadCrystalReport(TYPE_CRYSTAL.IVASALE_COD);
                             break;
-                        case "HCO_RPT0022":
+                        case "HCO_RPT3102":
                             Instance.LoadCrystalReport(TYPE_CRYSTAL.IVAPRUCH_COD);
+                            break;
+
+                        case "HCO_RPT3201":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.RETPURCH_COD);
+                            break;
+                        case "HCO_RPT3202":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.RETSALE_COD);
+                            break;
+                        case "HCO_RPT3203":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.RETPRUCH_CARD);
+                            break;
+                        case "HCO_RPT3204":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.RETSALE_CARD);
+                            break;
+
+                        case "HCO_RPT3301":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.CERT_RET);
+                            break;
+                        case "HCO_RPT3302":
+                            Instance.LoadCrystalReport(TYPE_CRYSTAL.CERT_RET_IVA);
                             break;
 
                         //case "1282":

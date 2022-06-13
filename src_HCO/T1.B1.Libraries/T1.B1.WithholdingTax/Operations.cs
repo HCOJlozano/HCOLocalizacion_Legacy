@@ -162,7 +162,7 @@ namespace T1.B1.WithholdingTax
                                 if (pVal.Action_Success)
                                 {
                                     objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                                    if ((pVal.ItemUID == "38") && objForm.Mode == BoFormMode.fm_ADD_MODE)
+                                    if ((pVal.ItemUID == "38" || pVal.ItemUID == "39") && objForm.Mode == BoFormMode.fm_ADD_MODE)
                                     {
                                         CacheManager.CacheManager.Instance.addToCache("WTLastActiveForm", pVal.FormUID, CacheManager.CacheManager.objCachePriority.Default);
                                         if (WithholdingTax.GetSelectedBPInformation(objForm, false)) WithholdingTax.activateWTMenu(pVal.FormUID, true);

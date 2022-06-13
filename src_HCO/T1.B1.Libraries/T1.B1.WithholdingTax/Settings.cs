@@ -86,7 +86,7 @@ namespace T1.B1.WithholdingTax
                 WTLastCardCodeCachePrefix = "WTLastCardCode_";
                 WTLineTotalsGenCachePrefix = "WTLineTotals";
 
-                WTFormTypes = "[\"141\",\"181\",\"65306\",\"60092\",\"133\",\"179\",\"65303\",\"65307\",\"60091\"]";
+                WTFormTypes = "[\"141\",\"181\",\"65306\",\"60092\",\"133\",\"179\",\"65303\",\"65307\",\"60091\",\"65302\"]";
                 WTObjects = "[\"13\", \"14\",\"18\", \"19\"]";
             }
 
