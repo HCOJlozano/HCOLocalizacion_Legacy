@@ -142,6 +142,9 @@
     <None Include="Report\informe_movimiento_tercero_hana.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Report\informe_movimiento_tercero_hana.rpt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Report\IVA_ComprasPorCodigo.rpt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
