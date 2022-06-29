@@ -173,6 +173,9 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="packages.config" />
+    <Content Include="Forms\Autorretenciones.srf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Forms\SWTaxConfigForm.srf" />
     <Content Include="Forms\SWTaxFolderDocuments.xml" />
     <Content Include="Structure\SW_Structure.json">

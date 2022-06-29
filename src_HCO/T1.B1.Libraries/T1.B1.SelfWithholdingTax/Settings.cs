@@ -13,6 +13,11 @@ namespace T1.B1.SelfWithholdingTax
         public static Main _Main { get; }
         public static string AppDataPath { get; set; }
         public static SelfWithHoldingTax _SelfWithHoldingTax { get; }
+        public static string WTaxTransCode = "HAUT";
+        public enum SelfWithHoldingTaxTypes
+        {
+            SELFWHITHHOLDINGTAX_CONFIGURAION
+        };
 
 
         static Settings()
@@ -41,9 +46,9 @@ namespace T1.B1.SelfWithholdingTax
             {
                 logLevel = "Debug";
                 lastRightClickEventInfo = "lastRightClickEventInfoBP";
-                
+
             }
-            
+
             protected override Westwind.Utilities.Configuration.IConfigurationProvider OnCreateDefaultProvider(string sectionName, object configData)
             {
                 var provider = new Westwind.Utilities.Configuration.JsonFileConfigurationProvider<Main>()
@@ -81,30 +86,29 @@ namespace T1.B1.SelfWithholdingTax
             public string getSelfWithHoldingTransactions { get; set; }
             public string relatedpartyFieldInLines { get; }
             public string MissingSWTFormUID { get; }
-            public string WTSalesObjects { get; set; }
-            public string WTPurchaseObjects { get; set; }
+            public string SWTDocuments { get; set; }
             public SelfWithHoldingTax()
             {
 
                 getSelfWithHoldingTaxQuery = "SELECT DISTINCT \"U_MinAmnt\",TA.\"Code\" ,TA.\"U_CreditAcct\", TA.\"U_DebitAcct\", TA.\"U_Rate\" FROM \"@HCO_SW0100\" TA left join \"@HCO_SW0101\" TB on TA.\"Code\" = TB.\"Code\" WHERE (TA.\"U_Sales\" = '{1}') and ((TA.\"U_Enabled\" = 'Y' and TB.\"U_CardCode\" = '{0}') or TA.\"U_IsGlobal\" = 'Y')";
                 getSelfWithHoldingTaxQueryPurchase = "SELECT DISTINCT TA.\"U_MinAmnt\", TA.\"Code\" , TA.\"U_CreditAcct\", TA.\"U_DebitAcct\", TA.\"U_Rate\" FROM \"@HCO_SW0100\" TA left join \"@HCO_SW0101\" TB on TA.\"Code\" = TB.\"Code\" WHERE (TA.\"U_Purchase\" = '{1}') and ((TA.\"U_Enabled\" = 'Y' and TB.\"U_CardCode\" = '{0}') or [TA.\"U_IsGlobal\" = 'Y')";
 
-                WTaxTransCode = "T1SW";
+                WTaxTransCode = "HAUT";
                 relatedpartyFieldInLines = "U_HCO_RELPAR";
                 SWtaxUDOTransaction = "HCO_FSW1100";
                 CancelFormUID = "HCO_SWTF001";
                 getPostedSWtaxQueryV1 = "select distinct 'N' as \"Sel.\", \"TransId\" as \"Asiento\", \"TaxDate\" as \"Fecha\", case when \"credit\" > 0 then \"Credit\" else \"Debit\" end as \"Total\", \"LineMemo\" as \"Comentario\", space(500) as \"Resultado\" from JDT1 where \"LineMemo\" like '%Auto%[--SWTCode--]%' and(TaxDate >= Convert(datetime, '[--StartDate--]', 112) and \"TaxDate\" <= Convert(datetime, '[--EndDate--]', 112))";
                 getPostedSWtaxQueryV2 = "select distinct 'N' as \"Sel.\",OJDT.\"TransId\" as \"Asiento\", OJDT.\"TaxDate\" as \"Fecha\", case when credit > 0 then \"Credit\" else \"Debit\" end as \"Total\", \"Memo\" as \"Comentario\", space(500) as \"Resultado\" " +
-" from JDT1 "+
+" from JDT1 " +
 " inner join OJDT on OJDT.\"TransId\" = JDT1.\"TransId\" " +
 " where OJDT.\"TransCode\" = '[--TransCode--]' and(OJDT.\"TaxDate\" >= Convert(datetime, '[--StartDate--]', 112) and OJDT.\"TaxDate\" <= Convert(datetime, '[--EndDate--]', 112)) " +
 " and OJDT.\"StornoToTr\" is null " +
 " and(JDT1.\"TransId\" not in (select distinct \"StornoToTr\" from OJDT where \"StornoToTr\" is not null))";
-                    
+
                 TransactionCodeBase = true;
-                getRegistrationFromJEQuery = "SELECT \"DocEntry\" from [@HCO_SW1100] where \"U_TrasnId\" = [--JE--]";         
+                getRegistrationFromJEQuery = "SELECT \"DocEntry\" from [@HCO_SW1100] where \"U_TrasnId\" = [--JE--]";
                 getSelfWithHoldingTransactions = "select \"U_DocEntry\", \"U_DocNum\" from [@HCO_SW1100] where \"Canceled\" = 'N' and \"U_DocDate\" >= convert(datetime, '[--StartDate--]', 112) and \"U_DocDate\" <= convert(datetime, '[--EndDate--]', 112)";
-                showFolderInDocumentsList = "133,179,-133,-179";
+                showFolderInDocumentsList = "133,-133,179,-179";
                 SelfWithHoldingFolderId = "HCO_FSWT";
                 SelfWithHoldingFolderPane = 20;
                 lastFolderId = "1320002137";
@@ -112,12 +116,11 @@ namespace T1.B1.SelfWithholdingTax
                 MissingSWTFormUID = "HCO_FSW1200";
                 useVersion2 = true;
                 getMissingSWT = "select distinct 'N' as \"Sel\", \"DocEntry\" as \"Documento\", \"DocNum\" as \"Número\", \"DocDate\" as \"Fecha\", \"DocTotal\" as \"Total\",space(500) as \"Resultado\" from OINV where \"DocEntry\" not in (select distinct \"U_DocEntry\" from [@HCO_SW1100]) and \"DocDate\" >= convert(datetime, '[--StartDate--]', 112) and \"DocDate\" <= convert(datetime, '[--EndDate--]', 112)";
-                WTPurchaseObjects = "[\"141\",\"181\",\"65306\",\"60092\"]";
-                WTSalesObjects = "[\"133\",\"179\",\"65303\",\"65307\",\"60091\"]";
+                SWTDocuments = "[\"133\",\"179\",\"65303\",\"60090\",\"60091\"]";
             }
 
 
-            
+
 
             protected override Westwind.Utilities.Configuration.IConfigurationProvider OnCreateDefaultProvider(string sectionName, object configData)
             {
@@ -135,7 +138,7 @@ namespace T1.B1.SelfWithholdingTax
 
         }
 
-      
+
 
 
 

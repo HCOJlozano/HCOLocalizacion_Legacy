@@ -51,6 +51,7 @@ namespace T1.B1.SelfWithholdingTax
         public double dbBaseAmount { get; set; }
         public string DocType { get; set; }
         public double MinMount { get; set; }
+        public string TypeLine { get; set; }
     }
 
     public class SelfWithholdingTaxTransaction
