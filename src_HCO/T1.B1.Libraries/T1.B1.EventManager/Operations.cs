@@ -67,7 +67,7 @@ namespace T1.B1.EventManager
                 SelfWithholdingTax.Operations.ItemEvent(FormUID, ref pVal, ref BubbleEvent);
 
             if (BubbleEvent)
-               Expenses.Operations.ItemEvent(FormUID, ref pVal, ref BubbleEvent);
+                Expenses.Operations.ItemEvent(FormUID, ref pVal, ref BubbleEvent);
 
             if (BubbleEvent)
                 IvaCosto.Operations.ItemEvent(FormUID, ref pVal, ref BubbleEvent);
@@ -88,7 +88,7 @@ namespace T1.B1.EventManager
                 SelfWithholdingTax.Operations.formDataEvent(ref BusinessObjectInfo, ref blBubbleEvent);
 
             if (blBubbleEvent)
-               Expenses.Operations.formDataAddEvent(ref BusinessObjectInfo, ref blBubbleEvent);
+                Expenses.Operations.formDataAddEvent(ref BusinessObjectInfo, ref blBubbleEvent);
 
             if (blBubbleEvent)
                 IvaCosto.Operations.formDataEvent(ref BusinessObjectInfo, ref blBubbleEvent);
@@ -108,13 +108,13 @@ namespace T1.B1.EventManager
                 SelfWithholdingTax.Operations.MenuEvent(ref pVal, ref BubbleEvent);
 
             if (BubbleEvent)
-               Expenses.Operations.MenuEvent(ref pVal, ref BubbleEvent);
+                Expenses.Operations.MenuEvent(ref pVal, ref BubbleEvent);
 
             if (BubbleEvent)
                 CajaMenor.Operations.MenuEvent(ref pVal, ref BubbleEvent);
 
-            //if (BubbleEvent)
-            //    InformesTerceros.Operations.MenuEvent(ref pVal, out BubbleEvent);
+            if (BubbleEvent)
+                InformesTerceros.Operations.MenuEvent(ref pVal, out BubbleEvent);
         }
 
         public void RightClickEvent(ref SAPbouiCOM.ContextMenuInfo eventInfo, out bool BubbleEvent)

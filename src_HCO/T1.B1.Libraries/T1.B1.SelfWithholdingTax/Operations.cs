@@ -128,71 +128,71 @@ namespace T1.B1.SelfWithholdingTax
                                 }
                                 break;
                             case BoEventTypes.et_FORM_RESIZE:
-                                if (runResizelogic)
-                                {
-                                    showInFolderList = Settings._SelfWithHoldingTax.showFolderInDocumentsList.Split(',');
-                                    for (int i = 0; i < showInFolderList.Length; i++)
-                                    {
-                                        if (showInFolderList[i] == pVal.FormTypeEx)
-                                        {
-                                            blInList = true;
-                                            break;
-                                        }
-                                    }
-                                    if (blInList)
-                                    {
-                                        SelfWithholdingTax.HCOSelfWithHoldingFolderAdd(pVal.FormUID);
-                                        blInList = false;
-                                    }
+                                //if (runResizelogic)
+                                //{
+                                //    showInFolderList = Settings._SelfWithHoldingTax.showFolderInDocumentsList.Split(',');
+                                //    for (int i = 0; i < showInFolderList.Length; i++)
+                                //    {
+                                //        if (showInFolderList[i] == pVal.FormTypeEx)
+                                //        {
+                                //            blInList = true;
+                                //            break;
+                                //        }
+                                //    }
+                                //    if (blInList)
+                                //    {
+                                //        SelfWithholdingTax.HCOSelfWithHoldingFolderAdd(pVal.FormUID);
+                                //        blInList = false;
+                                //    }
 
-                                }
-                                runResizelogic = true;
+                                //}
+                                //runResizelogic = true;
                                 break;
                             case BoEventTypes.et_COMBO_SELECT:
                                 break;
                             case BoEventTypes.et_ITEM_PRESSED:
-                                if (pVal.FormTypeEx == Settings._SelfWithHoldingTax.CancelFormUID)
-                                {
-                                    if (pVal.ItemUID == "1") SelfWithholdingTax.getPostedSWTaxDocuments(FormUID, pVal);
-                                    if (pVal.ItemUID == "txtSWTCode") SelfWithholdingTax.setSelectedCode(pVal);
-                                    if (pVal.ItemUID == "btnCalc") SelfWithholdingTax.cancelPostedTaxDocuments(FormUID, pVal);
-                                    if (pVal.FormTypeEx == "HCO_FSW0100")
-                                    {
-                                        if (pVal.ItemUID == "btnAddAll")
-                                        {
-                                            SelfWithholdingTax.addAllPBS(pVal);
-                                        }
-                                        if (pVal.ItemUID == "btnClear")
-                                        {
-                                            SelfWithholdingTax.clearAllPBS(pVal);
-                                        }
-                                    }
-                                    if(pVal.FormTypeEx == Settings._SelfWithHoldingTax.MissingSWTFormUID)
-                                    {
-                                        if (pVal.ItemUID == "btnCalc") SelfWithholdingTax.addMisingSWTDocuments(FormUID, pVal); 
-                                    }
-                                }
-                                if (pVal.ItemUID == Settings._SelfWithHoldingTax.SelfWithHoldingFolderId)
-                                {
-                                    showInFolderList = Settings._SelfWithHoldingTax.showFolderInDocumentsList.Split(',');
-                                    for (int i = 0; i < showInFolderList.Length; i++)
-                                    {
-                                        if (showInFolderList[i] == pVal.FormTypeEx)
-                                        {
-                                            blInList = true;
-                                            break;
-                                        }
-                                    }
-                                    if (blInList)
-                                    {
-                                        MainObject.Instance.B1Application.Forms.Item(pVal.FormUID).PaneLevel = Settings._SelfWithHoldingTax.SelfWithHoldingFolderPane;
-                                    }
-                                }
-                                if(pVal.FormTypeEx == Settings._SelfWithHoldingTax.MissingSWTFormUID)
-                                {
-                                    if(pVal.ItemUID == "btnGet") SelfWithholdingTax.getMissingSWTaxDocuments(FormUID, pVal);
+                                //if (pVal.FormTypeEx == Settings._SelfWithHoldingTax.CancelFormUID)
+                                //{
+                                //    if (pVal.ItemUID == "1") SelfWithholdingTax.getPostedSWTaxDocuments(FormUID, pVal);
+                                //    if (pVal.ItemUID == "txtSWTCode") SelfWithholdingTax.setSelectedCode(pVal);
+                                //    if (pVal.ItemUID == "btnCalc") SelfWithholdingTax.cancelPostedTaxDocuments(FormUID, pVal);
+                                //    if (pVal.FormTypeEx == "HCO_FSW0100")
+                                //    {
+                                //        if (pVal.ItemUID == "btnAddAll")
+                                //        {
+                                //            SelfWithholdingTax.addAllPBS(pVal);
+                                //        }
+                                //        if (pVal.ItemUID == "btnClear")
+                                //        {
+                                //            SelfWithholdingTax.clearAllPBS(pVal);
+                                //        }
+                                //    }
+                                //    if (pVal.FormTypeEx == Settings._SelfWithHoldingTax.MissingSWTFormUID)
+                                //    {
+                                //        if (pVal.ItemUID == "btnCalc") SelfWithholdingTax.addMisingSWTDocuments(FormUID, pVal);
+                                //    }
+                                //}
+                                //if (pVal.ItemUID == Settings._SelfWithHoldingTax.SelfWithHoldingFolderId)
+                                //{
+                                //    showInFolderList = Settings._SelfWithHoldingTax.showFolderInDocumentsList.Split(',');
+                                //    for (int i = 0; i < showInFolderList.Length; i++)
+                                //    {
+                                //        if (showInFolderList[i] == pVal.FormTypeEx)
+                                //        {
+                                //            blInList = true;
+                                //            break;
+                                //        }
+                                //    }
+                                //    if (blInList)
+                                //    {
+                                //        MainObject.Instance.B1Application.Forms.Item(pVal.FormUID).PaneLevel = Settings._SelfWithHoldingTax.SelfWithHoldingFolderPane;
+                                //    }
+                                //}
+                                //if (pVal.FormTypeEx == Settings._SelfWithHoldingTax.MissingSWTFormUID)
+                                //{
+                                //    if (pVal.ItemUID == "btnGet") SelfWithholdingTax.getMissingSWTaxDocuments(FormUID, pVal);
 
-                                }
+                                //}
                                 break;
                             case BoEventTypes.et_DOUBLE_CLICK:
                                 if (pVal.FormTypeEx == Settings._SelfWithHoldingTax.CancelFormUID)
@@ -205,21 +205,21 @@ namespace T1.B1.SelfWithholdingTax
                                 }
                                 break;
                             case BoEventTypes.et_FORM_LOAD:
-                                showInFolderList = Settings._SelfWithHoldingTax.showFolderInDocumentsList.Split(',');
-                                for (int i = 0; i < showInFolderList.Length; i++)
-                                {
-                                    if (showInFolderList[i] == pVal.FormTypeEx)
-                                    {
-                                        blInList = true;
-                                        break;
-                                    }
-                                }
-                                if (blInList)
-                                {
+                                //showInFolderList = Settings._SelfWithHoldingTax.showFolderInDocumentsList.Split(',');
+                                //for (int i = 0; i < showInFolderList.Length; i++)
+                                //{
+                                //    if (showInFolderList[i] == pVal.FormTypeEx)
+                                //    {
+                                //        blInList = true;
+                                //        break;
+                                //    }
+                                //}
+                                //if (blInList)
+                                //{
 
-                                    SelfWithholdingTax.HCOSelfWithHoldingFolderAdd(pVal.FormUID);
-                                    runResizelogic = false;
-                                }
+                                //    SelfWithholdingTax.HCOSelfWithHoldingFolderAdd(pVal.FormUID);
+                                //    runResizelogic = false;
+                                //}
                                 break;
                         }
                     }

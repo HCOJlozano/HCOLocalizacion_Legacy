@@ -31,7 +31,7 @@ namespace T1.B1.RelatedParties
             GetRelPartyConfiguration();
         }
 
-        private static void GetRelPartyConfiguration()
+        public static void GetRelPartyConfiguration()
         {
             Recordset oRS = (SAPbobsCOM.Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
 
@@ -51,6 +51,8 @@ namespace T1.B1.RelatedParties
                     CacheManager.CacheManager.Instance.addToCache("AutoConse", oRS.Fields.Item("U_AutoConse").Value, CacheManager.CacheManager.objCachePriority.Default);
                     CacheManager.CacheManager.Instance.addToCache("TerPerfix", oRS.Fields.Item("U_TerPerfix").Value, CacheManager.CacheManager.objCachePriority.Default);
                     CacheManager.CacheManager.Instance.addToCache("NumChara", oRS.Fields.Item("U_NumChara").Value, CacheManager.CacheManager.objCachePriority.Default);
+                    CacheManager.CacheManager.Instance.addToCache("ManualWT", oRS.Fields.Item("U_ManualWT").Value, CacheManager.CacheManager.objCachePriority.Default);
+                    CacheManager.CacheManager.Instance.addToCache("SWTLiable", oRS.Fields.Item("U_SWTLiable").Value, CacheManager.CacheManager.objCachePriority.Default);
                 }
             }
             catch (COMException comEx)

@@ -154,6 +154,10 @@
       <Project>{cedc8726-ece7-4696-bb9c-3bbf2ce65a63}</Project>
       <Name>T1.B1.MenuManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\T1.B1.Libraries\T1.B1.ReletadParties\T1.B1.RelatedParties.csproj">
+      <Project>{31bb74de-a0ae-4697-a40b-866c803406ac}</Project>
+      <Name>T1.B1.RelatedParties</Name>
+    </ProjectReference>
     <ProjectReference Include="..\T1.GeneralClasses\Settings\T1.Config.csproj">
       <Project>{8ded118e-19e8-456c-a48f-621c098482ae}</Project>
       <Name>T1.Config</Name>

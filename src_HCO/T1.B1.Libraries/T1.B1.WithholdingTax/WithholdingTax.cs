@@ -446,7 +446,7 @@ namespace T1.B1.WithholdingTax
                 {
                     string doctype = objForm.DataSources.DBDataSources.Item(0).GetValue("DocType", 0);
                     WTDocInfo = CacheManager.CacheManager.Instance.getFromCache(Settings._WithHoldingTax.WTFormInfoCachePrefix + objForm.UniqueID);
-                    GetMatrixBaseAmount(objForm.DataSources.DBDataSources.Item(0), ((Matrix)objForm.Items.Item(doctype == "I"? "38": "39").Specific), ref NetBase, ref VatBase, doctype);
+                    GetMatrixBaseAmount(objForm.DataSources.DBDataSources.Item(0), ((Matrix)objForm.Items.Item(doctype == "I" ? "38" : "39").Specific), ref NetBase, ref VatBase, doctype);
 
                     foreach (WithholdingTaxDetail oDet in WTDocInfo)
                     {
@@ -479,12 +479,19 @@ namespace T1.B1.WithholdingTax
             return updateble;
         }
 
-        public static void SetTypeWT(string FormUID_WT, string FormUID)
+        public static void SetTypeWT(string FormUID_WT, string FormUID, bool ManualWT)
         {
-            if (!IsBasedNC(FormUID)) SetBPWT(FormUID_WT, FormUID);
-            else SetDocWT(FormUID_WT, FormUID);
+            string strFormAutoActivate = CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") != null ? CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") : "";
+            bool AutoAct = strFormAutoActivate.Trim() == FormUID;
+            bool calc = (!AutoAct && !ManualWT) ? false : true;
+
+            if (calc)
+            {
+                if (!IsBasedNC(FormUID)) SetBPWT(FormUID_WT, FormUID, AutoAct);
+                else SetDocWT(FormUID_WT, FormUID, AutoAct);
+            }
         }
-        public static void SetBPWT(string FormUID_WT, string FormUID)
+        public static void SetBPWT(string FormUID_WT, string FormUID, bool autoAct)
         {
             Form objWTForm = null;
             Form objForm = null;
@@ -494,7 +501,7 @@ namespace T1.B1.WithholdingTax
             EditText objEditBase = null;
             int intNum = -1;
             double NetBase = 0, VatBase = 0;
-            
+
             objForm = MainObject.Instance.B1Application.Forms.Item(FormUID);
 
             try
@@ -508,16 +515,13 @@ namespace T1.B1.WithholdingTax
                     intNum = 1;
                     objMatrix = (Matrix)objWTForm.Items.Item("6").Specific;
 
-
-                        while (objMatrix.RowCount > 1)
-                        {
-                            ((EditText)objMatrix.GetCellSpecific("1", 1)).Value = "";
-                            ((EditText)objMatrix.GetCellSpecific("U_HCO_BaseAmnt", 1)).Item.Click(BoCellClickType.ct_Regular);
-                        if (objWTForm.Mode != BoFormMode.fm_OK_MODE) objWTForm.Items.Item("1").Click(SAPbouiCOM.BoCellClickType.ct_Regular);
+                    for (int i = 1; i < objMatrix.RowCount; i++)
+                    {
+                        ((EditText)objMatrix.GetCellSpecific("1", i)).Value = "";
+                        ((EditText)objMatrix.GetCellSpecific("U_HCO_BaseAmnt", i)).Item.Click(BoCellClickType.ct_Regular);
                     }
 
-                        
-        
+                    if (objWTForm.Mode != BoFormMode.fm_OK_MODE) objWTForm.Items.Item("1").Click(SAPbouiCOM.BoCellClickType.ct_Regular);
 
                     foreach (WithholdingTaxDetail oDetail in WTDocInfo)
                     {
@@ -530,21 +534,21 @@ namespace T1.B1.WithholdingTax
                             objMatrix.AddRow(1, -1);
                             objEdit = (EditText)objMatrix.GetCellSpecific("1", intNum);
                             objEditBase = (EditText)objMatrix.GetCellSpecific("U_HCO_BaseAmnt", intNum);
-                            objEdit.Value = oDetail.WTCode;                            
+                            objEdit.Value = oDetail.WTCode;
                             objEditBase.Value = (oDetail.WTType == 1 ? oDetail.VatBase : oDetail.NetBase).ToString(System.Globalization.CultureInfo.InvariantCulture);
                             intNum++;
                             oDetail.assigned = true;
                         }
                         else oDetail.assigned = false;
                     }
-                    
+
                     CacheManager.CacheManager.Instance.addToCache(Settings._WithHoldingTax.WTFormInfoCachePrefix + objForm.UniqueID, WTDocInfo, CacheManager.CacheManager.objCachePriority.Default);
                 }
-                string strFormAutoActivate = CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") != null ? CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") : "";
+
 
                 if (objWTForm.Mode != BoFormMode.fm_OK_MODE) objWTForm.Items.Item("1").Click(SAPbouiCOM.BoCellClickType.ct_Regular);
                 CacheManager.CacheManager.Instance.removeFromCache("Updating_" + FormUID);
-                if (strFormAutoActivate.Trim() == FormUID.Trim()) objWTForm.Close();
+                if (autoAct) objWTForm.Close();
 
             }
             catch (COMException cOMException1)
@@ -556,7 +560,7 @@ namespace T1.B1.WithholdingTax
                 _Logger.Error("", exception2);
             }
         }
-        public static void SetDocWT(string FormUID_WT, string FormUID)
+        public static void SetDocWT(string FormUID_WT, string FormUID, bool AutoAct)
         {
             Form objWTForm = null;
             Form objForm = null;
@@ -568,8 +572,7 @@ namespace T1.B1.WithholdingTax
             double NetBase = 0, VatBase = 0;
 
             objForm = MainObject.Instance.B1Application.Forms.Item(FormUID);
-            string strFormAutoActivate = CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") != null ? CacheManager.CacheManager.Instance.getFromCache("WTAutoActivate") : "";
-
+            
             try
             {
                 objWTForm = MainObject.Instance.B1Application.Forms.Item(FormUID_WT);
@@ -593,17 +596,17 @@ namespace T1.B1.WithholdingTax
                             if (objEdit.Value == oDetail.WTCode)
                             {
                                 objEditBase = (EditText)objMatrix.GetCellSpecific("U_HCO_BaseAmnt", i);
-                                objEditWT = (EditText)objMatrix.GetCellSpecific("14", i);                                
+                                objEditWT = (EditText)objMatrix.GetCellSpecific("14", i);
                                 objEditBase.Value = (oDetail.WTType == 1 ? oDetail.VatBase : oDetail.NetBase).ToString(System.Globalization.CultureInfo.InvariantCulture);
                                 objEditWT.Value = (oDetail.WTType == 1 ? (oDetail.VatBase * (oDetail.Rate / 100)) : (oDetail.NetBase * (oDetail.Rate / 100))).ToString().Replace(decimalSeparator, MainObject.Instance.B1AdminInfo.DecimalSeparator);
                             }
                         }
-                    }                   
+                    }
                 }
 
                 if (objWTForm.Mode != BoFormMode.fm_OK_MODE) objWTForm.Items.Item("1").Click(SAPbouiCOM.BoCellClickType.ct_Regular);
                 CacheManager.CacheManager.Instance.removeFromCache("Updating_" + FormUID);
-                if (strFormAutoActivate.Trim() == FormUID.Trim()) objWTForm.Close();
+                if (AutoAct) objWTForm.Close();
 
             }
             catch (COMException cOMException1)
@@ -659,7 +662,7 @@ namespace T1.B1.WithholdingTax
                 }
             }
 
-            NetBase = NetBase - (NetBase * (double.Parse(sap_table.GetValue("DiscPrcnt",0), System.Globalization.CultureInfo.InvariantCulture)/100));
+            NetBase = NetBase - (NetBase * (double.Parse(sap_table.GetValue("DiscPrcnt", 0), System.Globalization.CultureInfo.InvariantCulture) / 100));
 
         }
         public static void GetMatrixBaseAmount(SAPbouiCOM.DBDataSource sap_table, SAPbouiCOM.Matrix sap_table_lines, ref double NetBase, ref double VatBase, string doctype)
@@ -670,7 +673,7 @@ namespace T1.B1.WithholdingTax
 
             string decimalSeparator = System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 
-            if(doctype == "I")
+            if (doctype == "I")
             {
                 foreach (var Row in Rows)
                 {
@@ -775,7 +778,7 @@ namespace T1.B1.WithholdingTax
                         VatBase += double.Parse(auxValue, System.Globalization.CultureInfo.CurrentCulture);
                     }
                 }
-            }          
+            }
 
             NetBase = NetBase - (NetBase * (double.Parse(sap_table.GetValue("DiscPrcnt", 0), System.Globalization.CultureInfo.InvariantCulture) / 100));
 
@@ -1247,8 +1250,8 @@ namespace T1.B1.WithholdingTax
         }
         static public void CreateMissingOperations(SAPbouiCOM.ItemEvent pVal)
         {
-             List<string> WTDocuments = new List<string>();
-        SAPbobsCOM.CompanyService objCompanyService = null;
+            List<string> WTDocuments = new List<string>();
+            SAPbobsCOM.CompanyService objCompanyService = null;
             SAPbobsCOM.GeneralService objEntryObject = null;
             SAPbobsCOM.GeneralData objEntryInfo = null;
             SAPbobsCOM.GeneralData objEntryLinesInfo = null;

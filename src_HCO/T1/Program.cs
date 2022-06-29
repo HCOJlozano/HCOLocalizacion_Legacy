@@ -75,7 +75,7 @@ namespace T1
                     T1.B1.MetaData.Operations.loadTipDoc();
                     T1.B1.MetaData.Operations.loadActivEcon();
                     T1.B1.MetaData.Operations.loadGenericUDO();
-
+                    T1.B1.RelatedParties.Instance.GetRelPartyConfiguration();
 
 
                     #endregion
