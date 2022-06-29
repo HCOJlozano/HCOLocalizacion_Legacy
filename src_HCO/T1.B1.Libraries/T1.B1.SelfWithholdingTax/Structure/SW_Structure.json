@@ -9,13 +9,18 @@
     },
     {
       "TableCode": "HCO_SW0101",
-      "Description": "Conf. autorretenciones H",
+      "Description": "Conf. autRet. Grupos art.",
       "Type": 2
     },
     {
-      "TableCode": "HCO_SW1100",
-      "Description": "Reg.autorretenciones L",
-      "Type": 3
+      "TableCode": "HCO_SW0102",
+      "Description": "Conf. autRet. articulos",
+      "Type": 2
+    },
+    {
+      "TableCode": "HCO_SW0103",
+      "Description": "Conf. autRet. clientes",
+      "Type": 2
     }
   ],
   "UserFields": [
@@ -28,7 +33,7 @@
       "Length": 1,
       "LinkType": 0,
       "LinkCode": "",
-      "DefaultValue": "N",
+      "DefaultValue": "",
       "ValidValues": [
         {
           "ValidValue": "Y",
@@ -46,6 +51,18 @@
       "FieldName": "Cuenta débito",
       "Type": 0,
       "SubType": 0,
+      "Length": 20,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_SW0100",
+      "FieldCode": "DebitAcctN",
+      "FieldName": "Nombre Cuenta débito",
+      "Type": 0,
+      "SubType": 0,
       "Length": 100,
       "LinkType": 0,
       "LinkCode": "",
@@ -56,6 +73,18 @@
       "TableCode": "HCO_SW0100",
       "FieldCode": "CreditAcct",
       "FieldName": "Cuenta crédito",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 20,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_SW0100",
+      "FieldCode": "CreditAcctN",
+      "FieldName": "Nombre Cuenta crédito",
       "Type": 0,
       "SubType": 0,
       "Length": 100,
@@ -96,66 +125,33 @@
     },
     {
       "TableCode": "HCO_SW0100",
-      "FieldCode": "IsGlobal",
-      "FieldName": "Global",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 1,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "N",
-      "ValidValues": [
-        {
-          "ValidValue": "Y",
-          "Description": "Yes"
-        },
-        {
-          "ValidValue": "N",
-          "Description": "No"
-        }
-
-      ]
-    },
-    {
-      "TableCode": "HCO_SW0100",
       "FieldCode": "WTCode",
       "FieldName": "Ret. Vinculada",
       "Type": 0,
       "SubType": 0,
-      "Length": 1,
+      "Length": 4,
       "LinkType": 0,
       "LinkCode": "",
-      "DefaultValue": "N",
-      "ValidValues": [
-        {
-          "ValidValue": "Y",
-          "Description": "Yes"
-        },
-        {
-          "ValidValue": "N",
-          "Description": "No"
-        }
-
-      ]
+      "DefaultValue": "",
+      "ValidValues": []
     },
     {
       "TableCode": "HCO_SW0100",
-      "FieldCode": "Sales",
-      "FieldName": "Ventas",
+      "FieldCode": "Type",
+      "FieldName": "Tipo",
       "Type": 0,
       "SubType": 0,
       "Length": 1,
       "LinkType": 0,
       "LinkCode": "",
-      "DefaultValue": "N",
       "ValidValues": [
         {
-          "ValidValue": "Y",
-          "Description": "Yes"
+          "ValidValue": "S",
+          "Description": "Especial"
         },
         {
-          "ValidValue": "N",
-          "Description": "No"
+          "ValidValue": "G",
+          "Description": "General"
         }
 
       ]
@@ -171,9 +167,64 @@
       "ValidValues": []
     },
     {
+      "TableCode": "HCO_SW0100",
+      "FieldCode": "ItemAction",
+      "FieldName": "Acción",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "LinkType": 0,
+      "LinkCode": "",
+      "ValidValues": [
+        {
+          "ValidValue": "I",
+          "Description": "Incluir"
+        },
+        {
+          "ValidValue": "E",
+          "Description": "Excluir"
+        }
+
+      ]
+    },
+    {
+      "TableCode": "HCO_SW0100",
+      "FieldCode": "TaxCardType",
+      "FieldName": "Tipo de contribuyente",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 100,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_SW0100",
+      "FieldCode": "TaxCardTypeID",
+      "FieldName": "Código tipo de contribuyente",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "LinkType": 0,
+      "LinkCode": "",
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
       "TableCode": "HCO_SW0101",
-      "FieldCode": "CardCode",
-      "FieldName": "Código socio de negocio",
+      "FieldCode": "ItmsGrpCod",
+      "FieldName": "Código de grupo de árticulo",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 11,
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_SW0101",
+      "FieldCode": "ItmsGrpNam",
+      "FieldName": "Nombre de grupo de árticulo",
       "Type": 0,
       "SubType": 0,
       "Length": 100,
@@ -182,6 +233,56 @@
     },
     {
       "TableCode": "HCO_SW0101",
+      "FieldCode": "Exclude",
+      "FieldName": "Excluir",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 1,
+      "DefaultValue": "",
+      "ValidValues": [
+        {
+          "ValidValue": "Y",
+          "Description": "Yes"
+        },
+        {
+          "ValidValue": "N",
+          "Description": "No"
+        }
+
+      ]
+    },
+    {
+      "TableCode": "HCO_SW0102",
+      "FieldCode": "ItemCode",
+      "FieldName": "Código de árticulo",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 50,
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_SW0102",
+      "FieldCode": "ItemName",
+      "FieldName": "Nombre de árticulo",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 200,
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_SW0103",
+      "FieldCode": "CardCode",
+      "FieldName": "Código socio de negocio",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 15,
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_SW0103",
       "FieldCode": "CardName",
       "FieldName": "Nombre socio de negocio",
       "Type": 0,
@@ -191,154 +292,12 @@
       "ValidValues": []
     },
     {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "TransId",
-      "FieldName": "Asiento en el diario",
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "AccountAW",
+      "FieldName": "Cuenta de Autorretencion",
       "Type": 0,
       "SubType": 0,
-      "Length": 10,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "BaseAmnt",
-      "FieldName": "Base de retención",
-      "Type": 4,
-      "SubType": 80,
-      "Length": 0,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "DocType",
-      "FieldName": "Tipo de documento",
-      "Type": 2,
-      "SubType": 0,
-      "Length": 11,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "DocEntry",
-      "FieldName": "Número int de documento",
-      "Type": 2,
-      "SubType": 0,
-      "Length": 11,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "DocNum",
-      "FieldName": "Número de documento",
-      "Type": 2,
-      "SubType": 0,
-      "Length": 11,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "CardCode",
-      "FieldName": "Código socio de negocio",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 50,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "SWTCode",
-      "FieldName": "Código de retención",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 10,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "Total",
-      "FieldName": "Total",
-      "Type": 4,
-      "SubType": 80,
-      "Length": 0,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "DocSeries",
-      "FieldName": "Serie",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 10,
-      "LinkType": 0,
-      "LinkCode": "",
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "DocDate",
-      "FieldName": "Fecha de contabilización",
-      "Type": 3,
-      "SubType": 0,
-      "Length": 0,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "LicTradnum",
-      "FieldName": "NIT",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 15,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "TaxDate",
-      "FieldName": "Fecha de documento",
-      "Type": 3,
-      "SubType": 80,
-      "Length": 0,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "DocId",
-      "FieldName": "DocId",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 30,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "RelParty",
-      "FieldName": "Tercero relacionado",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 50,
-      "DefaultValue": "",
-      "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_SW1100",
-      "FieldCode": "RelPartyName",
-      "FieldName": "Nombre tercero relacionado",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 100,
+      "Length": 40,
       "DefaultValue": "",
       "ValidValues": []
     }
@@ -353,16 +312,14 @@
       "ChildTables": [
         {
           "ChildTableCode": "HCO_SW0101"
+        },
+        {
+          "ChildTableCode": "HCO_SW0102"
+        },
+        {
+          "ChildTableCode": "HCO_SW0103"
         }
       ]
-    },
-    {
-      "Code": "HCO_FSW1100",
-      "Description": "Registro de autorretenciones",
-      "TableCode": "HCO_SW1100",
-      "Type": 3,
-      "DefaultForm": 0,
-      "ChildTables": []
     }
   ]
 }
