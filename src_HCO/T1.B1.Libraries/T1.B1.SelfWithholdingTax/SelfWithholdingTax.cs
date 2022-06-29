@@ -5,6 +5,9 @@ using System.Runtime.InteropServices;
 using System.Xml;
 using SAPbobsCOM;
 using SAPbouiCOM;
+using System.Linq;
+using System.ComponentModel;
+using Newtonsoft.Json;
 
 namespace T1.B1.SelfWithholdingTax
 {
@@ -36,14 +39,26 @@ namespace T1.B1.SelfWithholdingTax
                 objParams = (GeneralDataParams)objService.GetDataInterface(SAPbobsCOM.GeneralServiceDataInterfaces.gsGeneralDataParams);
                 objParams.SetProperty("DocEntry", DocEntry);
                 objGeneralData = objService.GetByParams(objParams);
-
-
             }
-            catch(Exception er)
+            catch (Exception er)
             {
                 _Logger.Error("", er);
             }
             return objResult;
+        }
+
+        public static string GetXmlUDO(Settings.SelfWithHoldingTaxTypes type)
+        {
+            XmlDocument oXML = new XmlDocument();
+            switch (type)
+            {
+                case Settings.SelfWithHoldingTaxTypes.SELFWHITHHOLDINGTAX_CONFIGURAION:
+                    oXML.Load(AppDomain.CurrentDomain.BaseDirectory + "\\Forms\\Autorretenciones.srf");
+                    break;
+                default:
+                    return string.Empty;
+            }
+            return oXML.InnerXml;
         }
 
         #region Add SWT normal operation
@@ -53,67 +68,60 @@ namespace T1.B1.SelfWithholdingTax
             try
             {
                 SAPbobsCOM.Documents objDoc = null;
-                if(BusinessObjectInfo.Type == "13")
+                if (BusinessObjectInfo.Type == "13")
                 {
                     objDoc = (Documents)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oInvoices);
                 }
-                else if(BusinessObjectInfo.Type == "14")
+                else if (BusinessObjectInfo.Type == "14")
                 {
                     objDoc = (Documents)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oCreditNotes);
                 }
 
                 if (objDoc == null) return;
-                if(objDoc.Browser.GetByKeys(BusinessObjectInfo.ObjectKey))
+                if (objDoc.Browser.GetByKeys(BusinessObjectInfo.ObjectKey))
                 {
-                    calcSelfWTax(objDoc,BusinessObjectInfo.Type);
+                    calcSelfWTax(objDoc, BusinessObjectInfo.Type);
                 }
                 else
                 {
                     _Logger.Error("Could not retrive Document with key " + BusinessObjectInfo.ObjectKey);
                     MainObject.Instance.B1Application.SetStatusBarMessage("T1: Could not retrive Document. Self WithHolding was not calculated");
                 }
-                
             }
-            catch(Exception er)
+            catch (Exception er)
             {
                 _Logger.Error("", er);
             }
         }
         private static SelfWothholdingTaxResult calcSelfWTax(SAPbobsCOM.Documents objDoc, string DocType)
         {
-            SelfWothholdingTaxResult objResult= new SelfWothholdingTaxResult();
+            SelfWothholdingTaxResult objResult = new SelfWothholdingTaxResult();
             try
             {
-
-                List<SelfWithholdingTaxInfo> lSelfWithHolding = getSelfWithholdingTax(objDoc.CardCode, DocType);
-                List<SelfWithholdingTaxInfo> lCalcSWTax = new List<SelfWithholdingTaxInfo>();
+                List<SelfWithholdingTaxInfo> lSelfWithHolding = getSelfWithholdingTax(objDoc, DocType);
                 bool blCancelation = false;
                 string strThirdParty = "";
 
-                if(DocType == "14")
+                if (DocType == "14")
                 {
                     blCancelation = true;
 
                     #region Check if Based
-                    for(int i=0; i < objDoc.Lines.Count; i++)
+                    for (int i = 0; i < objDoc.Lines.Count; i++)
                     {
                         objDoc.Lines.SetCurrentLine(0);
-                        if(objDoc.Lines.BaseType != 13)
+                        if (objDoc.Lines.BaseType != 13)
                         {
                             lSelfWithHolding = new List<SelfWithholdingTaxInfo>();
                             break;
                         }
                     }
                     #endregion
-
-
                 }
 
                 if (lSelfWithHolding.Count > 0)
                 {
-                    double dbBaseAmount = getBaseAmount(objDoc);
-                    strThirdParty = B1.RelatedParties.Instance.GetValueThird(objDoc.CardCode); 
-
+                    strThirdParty = B1.RelatedParties.Instance.GetValueThird(objDoc.CardCode);
 
                     SAPbobsCOM.JournalEntries objJournal = (JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oJournalEntries);
                     objJournal.Memo = string.Concat(new object[] { "Autoretención para el documento ", objDoc.DocNum });
@@ -124,106 +132,79 @@ namespace T1.B1.SelfWithholdingTax
                     objJournal.TaxDate = objDoc.TaxDate;
 
                     if (Settings._SelfWithHoldingTax.WTaxTransCode.Length > 0)
-                    {
-                        objJournal.TransactionCode = Settings._SelfWithHoldingTax.WTaxTransCode;
-                    }
+                        objJournal.TransactionCode = Settings.WTaxTransCode;
 
-                    bool blFirst = true;
-                    bool blLines = false;
                     foreach (SelfWithholdingTaxInfo sInfo in lSelfWithHolding)
                     {
-                        if (sInfo.MinMount < dbBaseAmount)
+                        if (DocType.Equals("13"))
                         {
-                            blLines = true;
-                            double dbWTax = dbBaseAmount * (sInfo.Percentage / 100);
-                            if (!blFirst)
-                            {
-                                objJournal.Lines.Add();
-                            }
-                            objJournal.Lines.Credit = dbWTax;
+                            objJournal.Lines.Credit = sInfo.dbWtAmount;
                             objJournal.Lines.AccountCode = !blCancelation ? sInfo.Credit : sInfo.Debit;
                             objJournal.Lines.Reference1 = objDoc.DocNum.ToString();
                             objJournal.Lines.Reference2 = objDoc.DocEntry.ToString();
                             objJournal.Lines.LineMemo = string.Concat(new object[] { "Autoretención de ", sInfo.Code, " para el documento ", objDoc.DocNum });
                             objJournal.Lines.UserFields.Fields.Item(Settings._SelfWithHoldingTax.relatedpartyFieldInLines).Value = strThirdParty;
                             objJournal.Lines.Add();
-                            objJournal.Lines.Debit = dbWTax;
+
+                            objJournal.Lines.Debit = sInfo.dbWtAmount;
                             objJournal.Lines.AccountCode = !blCancelation ? sInfo.Debit : sInfo.Credit;
                             objJournal.Lines.Reference1 = objDoc.DocNum.ToString();
                             objJournal.Lines.Reference2 = objDoc.DocEntry.ToString();
                             objJournal.Lines.LineMemo = string.Concat(new object[] { "Autoretención de ", sInfo.Code, " para el documento ", objDoc.DocNum });
                             objJournal.Lines.UserFields.Fields.Item(Settings._SelfWithHoldingTax.relatedpartyFieldInLines).Value = strThirdParty;
-                            blFirst = false;
-
-                            sInfo.DocEntry = objDoc.DocEntry;
-                            sInfo.DocNum = objDoc.DocNum;
-                            sInfo.CardCode = objDoc.CardCode;
-                            sInfo.dbBaseAmount = dbBaseAmount;
-                            sInfo.dbWtAmount = dbWTax;
-                            sInfo.DocType = DocType;
-                            lCalcSWTax.Add(sInfo);
-                        }
-
-                    }
-                    if (blLines)
-                    {
-                        if (objJournal.Add() == 0)
-                        {
-                            SAPbobsCOM.CompanyService companyService = null;
-                            SAPbobsCOM.GeneralService generalService = null;
-                            SAPbobsCOM.GeneralData generalData = null;
-                            SAPbobsCOM.GeneralDataParams generalDataParams = null;
-                            string newObjectKey = MainObject.Instance.B1Company.GetNewObjectKey();
-                            companyService = MainObject.Instance.B1Company.GetCompanyService();
-                            generalService = companyService.GetGeneralService(Settings._SelfWithHoldingTax.SWtaxUDOTransaction);
-
-                            Dictionary<string, int> objAdded = new Dictionary<string, int>();
-                            foreach (SelfWithholdingTaxInfo sInfo in lCalcSWTax)
-                            {
-                                generalData = (GeneralData)generalService.GetDataInterface(SAPbobsCOM.GeneralServiceDataInterfaces.gsGeneralData);
-                                generalData.SetProperty("U_TransId", newObjectKey);
-                                generalData.SetProperty("U_BaseAmnt", sInfo.dbBaseAmount);
-                                generalData.SetProperty("U_DocType", sInfo.DocType);
-                                generalData.SetProperty("U_DocEntry", sInfo.DocEntry);
-                                generalData.SetProperty("U_CardCode", sInfo.CardCode);
-                                generalData.SetProperty("U_SWTCode", sInfo.Code);
-                                generalData.SetProperty("U_Total", sInfo.dbWtAmount);
-                                generalData.SetProperty("U_DocNum", sInfo.DocNum);
-                                generalData.SetProperty("U_DocDate", objDoc.DocDate);
-                                generalData.SetProperty("U_TaxDate", objDoc.TaxDate);
-                                generalData.SetProperty("U_RelParty", strThirdParty);
-                                generalData.SetProperty("U_DocSeries", Convert.ToString(objDoc.Series));
-                                generalData.SetProperty("U_LicTradnum", objDoc.FederalTaxID);
-                                generalDataParams = generalService.Add(generalData);
-                                int property = (int)((dynamic)generalDataParams.GetProperty("DocEntry"));
-                                objAdded.Add(sInfo.Code, property);
-                            }
-                            if (objAdded.Count == lCalcSWTax.Count)
-                            {
-                                MainObject.Instance.B1Application.SetStatusBarMessage("T1: Las autoretenciones se causaron con éxito.", SAPbouiCOM.BoMessageTime.bmt_Short, false);
-                                objResult.Message = "T1: Las autoretenciones se causaron con éxito.";
-                                objResult.MessageCode = "";
-                            }
-                            else
-                            {
-                                MainObject.Instance.B1Application.SetStatusBarMessage("T1: Ocurrio un error durante la asociacion de la autoretención. Las autoretenciones se causaron con éxito.", SAPbouiCOM.BoMessageTime.bmt_Short, true);
-                                objResult.Message = "T1: Ocurrio un error durante la asociacion de la autoretención. Las autoretenciones se causaron con éxito.";
-                                objResult.MessageCode = "-2";
-                            }
-
+                            objJournal.Lines.Add();
                         }
                         else
                         {
-                            string strMessage = MainObject.Instance.B1Company.GetLastErrorDescription();
-                            _Logger.Error("Could not create SelfWithHolding Tax. " + strMessage);
-                            MainObject.Instance.B1Application.SetStatusBarMessage("T1: Could not create SelfWithHolding Tax. Self WithHolding was not calculated." + strMessage);
-                            objResult.Message = "T1: Could not create SelfWithHolding Tax. Self WithHolding was not calculated." + strMessage;
-                            objResult.MessageCode = MainObject.Instance.B1Company.GetLastErrorCode().ToString();
+                            objJournal.Lines.Debit = sInfo.dbWtAmount;
+                            objJournal.Lines.AccountCode = !blCancelation ? sInfo.Credit : sInfo.Debit;
+                            objJournal.Lines.Reference1 = objDoc.DocNum.ToString();
+                            objJournal.Lines.Reference2 = objDoc.DocEntry.ToString();
+                            objJournal.Lines.LineMemo = string.Concat(new object[] { "Autoretención de ", sInfo.Code, " para el documento ", objDoc.DocNum });
+                            objJournal.Lines.UserFields.Fields.Item(Settings._SelfWithHoldingTax.relatedpartyFieldInLines).Value = strThirdParty;
+                            objJournal.Lines.Add();
+
+                            objJournal.Lines.Credit = sInfo.dbWtAmount;
+                            objJournal.Lines.AccountCode = !blCancelation ? sInfo.Debit : sInfo.Credit;
+                            objJournal.Lines.Reference1 = objDoc.DocNum.ToString();
+                            objJournal.Lines.Reference2 = objDoc.DocEntry.ToString();
+                            objJournal.Lines.LineMemo = string.Concat(new object[] { "Autoretención de ", sInfo.Code, " para el documento ", objDoc.DocNum });
+                            objJournal.Lines.UserFields.Fields.Item(Settings._SelfWithHoldingTax.relatedpartyFieldInLines).Value = strThirdParty;
+                            objJournal.Lines.Add();
                         }
+
+                        lSelfWithHolding[lSelfWithHolding.IndexOf(sInfo)].DocEntry = objDoc.DocEntry;
+                        lSelfWithHolding[lSelfWithHolding.IndexOf(sInfo)].DocNum = objDoc.DocNum;
+                        lSelfWithHolding[lSelfWithHolding.IndexOf(sInfo)].CardCode = objDoc.CardCode;
+                        lSelfWithHolding[lSelfWithHolding.IndexOf(sInfo)].DocType = objDoc.DocType.ToString();
+                    }
+
+                    if (objJournal.Add() == 0)
+                    {
+                        var journalCreated = MainObject.Instance.B1Company.GetNewObjectKey();
+                        AddRegisterAutoWitholdingTax(objDoc, journalCreated, int.Parse(DocType));
+
+                        BackgroundWorker addDocumentInfoWorker = new BackgroundWorker();
+                        addDocumentInfoWorker.WorkerSupportsCancellation = false;
+                        addDocumentInfoWorker.WorkerReportsProgress = false;
+                        addDocumentInfoWorker.DoWork += AddDocumentInfoWorker_DoWork;
+                        addDocumentInfoWorker.RunWorkerCompleted += AddDocumentInfoWorker_RunWorkerCompleted;
+                        addDocumentInfoWorker.RunWorkerAsync(lSelfWithHolding);
+
+
+                        MainObject.Instance.B1Application.SetStatusBarMessage("T1: Las autoretenciones se causaron con éxito.", SAPbouiCOM.BoMessageTime.bmt_Short, false);
+                        objResult.Message = "T1: Las autoretenciones se causaron con éxito.";
+                        objResult.MessageCode = "";
+                    }
+                    else
+                    {
+                        string strMessage = MainObject.Instance.B1Company.GetLastErrorDescription();
+                        _Logger.Error("Could not create SelfWithHolding Tax. " + strMessage);
+                        MainObject.Instance.B1Application.SetStatusBarMessage("T1: Could not create SelfWithHolding Tax. Self WithHolding was not calculated." + strMessage);
+                        objResult.Message = "T1: Could not create SelfWithHolding Tax. Self WithHolding was not calculated." + strMessage;
+                        objResult.MessageCode = MainObject.Instance.B1Company.GetLastErrorCode().ToString();
                     }
                 }
-
-
             }
             catch (Exception er)
             {
@@ -232,77 +213,211 @@ namespace T1.B1.SelfWithholdingTax
                 objResult.Message = "T1: Could not create SelfWithHolding Tax. Self WithHolding was not calculated." + er.Message;
                 objResult.MessageCode = "-1";
             }
-            
-                return objResult;
-            
+
+            return objResult;
         }
+
+        static public void AddRegisterAutoWitholdingTax(SAPbobsCOM.Documents objDoc, string journal, int typoDoc)
+        {
+            var strSQL = string.Format(Queries.Instance.Queries().Get("GetThridRelated"), objDoc.CardCode);
+            var objRS = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+            objRS.DoQuery(strSQL);
+
+            var objJournal = (JournalEntries)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oJournalEntries);
+            objJournal.GetByKey(int.Parse(journal));
+
+            var objCardCode = (BusinessPartners)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
+            objCardCode.GetByKey(objDoc.CardCode);
+
+            var lSelfWithHolding = getSelfWithholdingTax(objDoc, objDoc.DocObjectCodeEx);
+
+            var cs = MainObject.Instance.B1Company.GetCompanyService();
+            var gs = cs.GetGeneralService("HCO_FWT1100");
+            var gd = (GeneralData)gs.GetDataInterface(GeneralServiceDataInterfaces.gsGeneralData);
+                gd.SetProperty("U_DocType", typoDoc);
+                gd.SetProperty("U_RlPyCode", objRS.Fields.Item("Code").Value.ToString());
+                gd.SetProperty("U_DocDate", DateTime.Now);
+                gd.SetProperty("U_RlPyName", objRS.Fields.Item("Name").Value.ToString());
+                gd.SetProperty("U_CardCode", objDoc.CardCode);
+                gd.SetProperty("U_DocEntry", objDoc.DocEntry);
+                gd.SetProperty("U_DocNum", objDoc.DocNum);
+                gd.SetProperty("U_TransId", int.Parse(journal));
+                gd.SetProperty("U_DocTotal", objDoc.DocTotal);
+                gd.SetProperty("U_Comments", "Autoretencion generada automaticamente");
+                gd.SetProperty("U_OpType", 1);
+                gd.SetProperty("U_TipReg", "2");
+
+            var gdc = gd.Child("HCO_WT1101");
+
+            for (int i = 0; i < lSelfWithHolding.Count; i++)
+            {
+                var gchc = gdc.Add();
+                gchc.SetProperty("U_WTType", lSelfWithHolding[i].TypeLine);
+                gchc.SetProperty("U_WTCode", lSelfWithHolding[i].Code);
+                gchc.SetProperty("U_WTRate", lSelfWithHolding[i].Percentage);
+                gchc.SetProperty("U_WTBase", lSelfWithHolding[i].dbBaseAmount);
+                gchc.SetProperty("U_WTAmnt", lSelfWithHolding[i].dbWtAmount);
+                gchc.SetProperty("U_OpType", 1);
+                gchc.SetProperty("U_BaseLine", "");
+                gchc.SetProperty("U_AccountAW", lSelfWithHolding[i].Credit); 
+                gchc.SetProperty("U_Account", lSelfWithHolding[i].Debit);
+                gchc.SetProperty("U_WTDocAmnt", "0");
+            }
+
+            gs.Add(gd);
+        }
+
+        static private void AddDocumentInfoWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            List<SelfWithholdingTaxInfo> oInfo = null;
+            SAPbobsCOM.Documents objDoc = null;
+            SAPbobsCOM.CompanyService objCompanyService = null;
+            SAPbobsCOM.GeneralService objEntryObject = null;
+            SAPbobsCOM.GeneralData objEntryInfo = null;
+            SAPbobsCOM.GeneralData objEntryLinesInfo = null;
+            SAPbobsCOM.GeneralDataCollection objEntryLinesObject = null;
+            SAPbobsCOM.BusinessPartners oBP = null;
+
+
+            string strCardName = String.Empty;
+            string strRelatedParty = "";
+            string munCode = string.Empty;
+            //string dbBaseAmnt = "";
+
+            try
+            {
+                oInfo = (List<SelfWithholdingTaxInfo>)e.Argument;
+
+                objDoc = (SAPbobsCOM.Documents)MainObject.Instance.B1Company.GetBusinessObject((SAPbobsCOM.BoObjectTypes)Enum.Parse(typeof(SAPbobsCOM.BoObjectTypes), oInfo[0].DocType));
+                objDoc.GetByKey(oInfo[0].DocEntry);
+
+                int DocEntryUDO = getDocEntryWHUDO(objDoc.DocEntry, oInfo[0].DocType);
+
+                //objCompanyService = MainObject.Instance.B1Company.GetCompanyService();
+                //oBP = (BusinessPartners)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
+                //oBP.GetByKey(objDoc.CardCode);
+                //string add_inv = string.Empty;
+                //for (int i = 0; i < oBP.Addresses.Count; i++)
+                //{
+                //    oBP.Addresses.SetCurrentLine(i);
+                //    add_inv = objDoc.PayToCode;
+                //    if (add_inv.Equals(oBP.Addresses.AddressName) && oBP.Addresses.AddressType == BoAddressType.bo_BillTo) munCode = oBP.Addresses.UserFields.Fields.Item("U_HCO_MUNI").Value.ToString();                        
+                //}
+
+                //dbBaseAmnt = objDoc.WithholdingTaxData.UserFields.Fields.Item("U_HCO_BaseAmnt").Value.ToString();                    
+
+                objEntryObject = objCompanyService.GetGeneralService("HCO_FWT1100");
+                objEntryInfo = (GeneralData)objEntryObject.GetDataInterface(GeneralServiceDataInterfaces.gsGeneralData);
+
+                objEntryLinesObject = objEntryInfo.Child("HCO_WT1101");
+                SAPbobsCOM.WithholdingTaxData oWHTData = objDoc.WithholdingTaxData;
+
+                for (int i = 0; i < oWHTData.Count; i++)
+                {
+                    oWHTData.SetCurrentLine(i);
+                    SAPbobsCOM.WithholdingTaxCodes oWT = (WithholdingTaxCodes)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oWithholdingTaxCodes);
+                    if (oWT.GetByKey(oWHTData.WTCode))
+                    {
+                        objEntryLinesInfo = objEntryLinesObject.Add();
+                        objEntryLinesInfo.SetProperty("U_WTType", oWT.UserFields.Fields.Item("U_HCO_WTType").Value);
+                        objEntryLinesInfo.SetProperty("U_WTCode", oWHTData.WTCode);
+                        objEntryLinesInfo.SetProperty("U_WTRate", oWT.BaseAmount);
+                        objEntryLinesInfo.SetProperty("U_WTBase", objDoc.WithholdingTaxData.UserFields.Fields.Item("U_HCO_BaseAmnt").Value.ToString());
+                        objEntryLinesInfo.SetProperty("U_WTAmnt", oWHTData.WTAmount);
+                        objEntryLinesInfo.SetProperty("U_BaseLine", oWHTData.LineNum);
+                        objEntryLinesInfo.SetProperty("U_Account", oWT.Account);
+                        //if (oWT.UserFields.Fields.Item("U_HCO_WTType").Value.ToString().Equals("3"))
+                        //{
+                        //    objEntryLinesInfo.SetProperty("U_MunCode", munCode);
+                        //    objEntryLinesInfo.SetProperty("U_MunName", GetCountyName(munCode));
+                        //}
+                        //if (oWT.BaseType == WithholdingTaxCodeBaseTypeEnum.wtcbt_VAT) objEntryLinesInfo.SetProperty("U_WTDocAmnt", GetWTDocBaseAmount(objDoc));
+                        //else objEntryLinesInfo.SetProperty("U_WTBase", dbBaseAmnt);
+                    }
+                }
+                objEntryObject.Add(objEntryInfo);
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+            }
+            finally
+            {
+
+            }
+        }
+
+        static private void AddDocumentInfoWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (!(e.Error == null)) _Logger.Error(e.Error.Message);
+        }
+
+        static private int getDocEntryWHUDO(int docEntry, string objType)
+        {
+            int UDODocEntry = 0;
+
+            return UDODocEntry;
+        }
+
         #endregion
 
-        private static List<SelfWithholdingTaxInfo> getSelfWithholdingTax(string strCardCode, string DocType)
+        private static List<SelfWithholdingTaxInfo> getSelfWithholdingTax(SAPbobsCOM.Documents objDoc, string DocType)
         {
             List<SelfWithholdingTaxInfo> lSWTH = new List<SelfWithholdingTaxInfo>();
-            string isSales = "N";
-            string isPurchase = "N";
             string strSQL = "";
             try
             {
+                RelatedParties.Instance.GetRelPartyConfiguration();
+                string typeFilter = "'S'";
+                var strSQLApply = Queries.Instance.Queries().Get("ApplyAutoWitholdingTax");
+                var objRSApplt = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
+                    objRSApplt.DoQuery(strSQLApply);
 
-                if(DocType == "13" || DocType == "14") isSales = "Y";
-                if (DocType == "18" || DocType == "19") isPurchase = "Y";
+                if (objRSApplt.RecordCount > 0)
+                {
+                    if (objRSApplt.Fields.Item("U_SWTLiable").Value.ToString().Equals("Y"))
+                        typeFilter += ", 'G'";
+                }
 
-                if (isSales == "Y") strSQL = string.Format(Settings._SelfWithHoldingTax.getSelfWithHoldingTaxQuery, strCardCode, isSales);
-                if (isPurchase == "Y") strSQL = string.Format(Settings._SelfWithHoldingTax.getSelfWithHoldingTaxQueryPurchase, strCardCode, isPurchase);
+                strSQL = string.Format(Queries.Instance.Queries().Get(DocType.Equals("13") ? "GetSelfWithHoldingTax" : "GetSelfWithHoldingTaxNC"), objDoc.DocEntry, typeFilter);
 
                 SAPbobsCOM.Recordset objRS = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
                 objRS.DoQuery(strSQL);
-                while(!objRS.EoF)
+                while (!objRS.EoF)
                 {
-                    SelfWithholdingTaxInfo objSWI= new SelfWithholdingTaxInfo();
-                    objSWI.Code = objRS.Fields.Item("Code").Value.ToString();
-                    objSWI.Credit = objRS.Fields.Item("U_CreditAcct").Value.ToString();
-                    objSWI.Debit = objRS.Fields.Item("U_DebitAcct").Value.ToString();
-                    objSWI.Percentage = double.Parse(objRS.Fields.Item("U_Rate").Value.ToString());
-                    objSWI.MinMount = double.Parse(objRS.Fields.Item("U_MinAmnt").Value.ToString());
-                    lSWTH.Add(objSWI);
+                    if (double.Parse(objRS.Fields.Item("U_Rate").Value.ToString()) > 0)
+                    {
+                        SelfWithholdingTaxInfo objSWI = new SelfWithholdingTaxInfo();
+                        objSWI.Code = objRS.Fields.Item("Code").Value.ToString();
+
+                        if (DocType.Equals("13"))
+                        {
+                            objSWI.Credit = objRS.Fields.Item("U_CreditAcct").Value.ToString();
+                            objSWI.Debit = objRS.Fields.Item("U_DebitAcct").Value.ToString();
+                        }
+                        else
+                        {
+                            objSWI.Debit = objRS.Fields.Item("U_CreditAcct").Value.ToString();
+                            objSWI.Credit = objRS.Fields.Item("U_DebitAcct").Value.ToString();
+                        }
+
+                        objSWI.TypeLine = objRS.Fields.Item("U_Type").Value.ToString().Equals("G") ? "4" : "5";
+                        objSWI.Percentage = double.Parse(objRS.Fields.Item("U_Rate").Value.ToString());
+                        objSWI.dbBaseAmount = double.Parse(objRS.Fields.Item("Base").Value.ToString());
+                        objSWI.dbWtAmount = double.Parse(objRS.Fields.Item("Retencion").Value.ToString());
+                        lSWTH.Add(objSWI);
+                    }
                     objRS.MoveNext();
                 }
-
             }
-            catch(Exception er)
+            catch (Exception er)
             {
                 _Logger.Error("", er);
                 lSWTH = null;
             }
+
             return lSWTH;
         }
-
-        private static double getBaseAmount(SAPbobsCOM.Documents objDoc)
-        {
-            double dbBase = 0;
-            try
-            {
-                //dbBase = objDoc.BaseAmount;
-                if(dbBase == 0)
-                {
-                    //double dbExpenses = 0;
-                    //SAPbobsCOM.DocumentsAdditionalExpenses objExp = objDoc.Expenses;
-                    //for(int i=0; i < objExp.Count; i++)
-                    //{
-                      //  objExp.SetCurrentLine(i);
-                        //dbExpenses += objExp.LineTotal;
-                    //}
-                    dbBase = objDoc.DocTotal - objDoc.VatSum + objDoc.WTAmount + objDoc.RoundingDiffAmount;
-                }
-            }
-            catch(Exception er)
-            {
-                _Logger.Error("", er);
-                dbBase = -1;
-            }
-            return dbBase;
-        }
-
-
 
 
         #region add Missing Self Withholding Tax
@@ -331,7 +446,7 @@ namespace T1.B1.SelfWithholdingTax
             SAPbouiCOM.UserDataSource purchWtax = null;
             string strCHKPurch = "N";
             string strCHKSales = "N";
-            
+
             string str = "";
             string str1 = "";
             string str2 = "";
@@ -360,9 +475,9 @@ namespace T1.B1.SelfWithholdingTax
                         strCHKSales = salesWtax.ValueEx.Trim() == "" ? "N" : salesWtax.ValueEx.Trim();
                         purchWtax = objForm.DataSources.UserDataSources.Item("udsPurch");
                         strCHKPurch = purchWtax.ValueEx.Trim() == "" ? "N" : purchWtax.ValueEx.Trim();
-                        
 
-                        
+
+
                         if (strCHKSales == "N" && strCHKPurch == "N")
                         {
                             MainObject.Instance.B1Application.MessageBox("Por favor seleccione el tipo de autoretención que desea buscar.", 1, "Ok", "", "");
@@ -370,7 +485,7 @@ namespace T1.B1.SelfWithholdingTax
                         else
                         {
                             string str3 = Settings._SelfWithHoldingTax.getMissingSWT;
-                            
+
                             str3 = str3.Replace("[--StartDate--]", str1);
                             str3 = str3.Replace("[--EndDate--]", str2);
                             objDTDocuments = objForm.DataSources.DataTables.Item("dtSelfWT");
@@ -453,7 +568,7 @@ namespace T1.B1.SelfWithholdingTax
                 xmlNodeLists = xmlDocument.SelectNodes("/DataTable/Rows/Row[./Cells/Cell[1]/Value/text() = 'Y']");
 
                 Dictionary<int, List<string>> objResult = new Dictionary<int, List<string>>();
-                
+
 
                 int countJE = xmlNodeLists.Count;
                 int intProgress = 1;
@@ -464,9 +579,9 @@ namespace T1.B1.SelfWithholdingTax
                     string innerText = xmlNodes.SelectSingleNode("Cells/Cell[2]/Value").InnerText;
 
                     objDoc = (Documents)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oInvoices);
-                    
+
                     List<string> ListMessage = new List<string>();
-                    
+
                     if (objDoc.GetByKey(Convert.ToInt32(innerText)))
                     {
                         Base.UIOperations.Operations.setProgressBarMessage("Calculando el documento " + innerText, intProgress);
@@ -479,7 +594,7 @@ namespace T1.B1.SelfWithholdingTax
                         _Logger.Error("No se pudo recuperar el documento " + innerText);
                     }
                     objResult.Add(Convert.ToInt32(innerText), ListMessage);
-                    
+
                     intProgress++;
                 }
 
@@ -502,7 +617,7 @@ namespace T1.B1.SelfWithholdingTax
                     }
                 }
 
-                
+
                 //SAPbouiCOM.Grid specific = oForm.Items.Item("grdSWT").Specific;
                 //SAPbouiCOM.GridColumn objGridDocuments = specific.Columns.Item(0);
                 //objGridDocuments.Type = SAPbouiCOM.BoGridColumnType.gct_CheckBox;
@@ -550,11 +665,11 @@ namespace T1.B1.SelfWithholdingTax
             try
             {
                 objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                if(objForm != null)
+                if (objForm != null)
                 {
                     oCFLE = (SAPbouiCOM.ChooseFromListEvent)pVal;
                     objDT = oCFLE.SelectedObjects;
-                    if(!objDT.IsEmpty)
+                    if (!objDT.IsEmpty)
                     {
                         oUDS = objForm.DataSources.UserDataSources.Item("UD_SWTC");
                         oUDS.ValueEx = objDT.GetValue("Code", 0).ToString();
@@ -562,7 +677,7 @@ namespace T1.B1.SelfWithholdingTax
 
                 }
             }
-            catch(Exception er)
+            catch (Exception er)
             {
                 _Logger.Error("", er);
             }
@@ -601,12 +716,12 @@ namespace T1.B1.SelfWithholdingTax
             Result = "";
             try
             {
-                    SAPbobsCOM.CompanyService companyService = null;
-                    SAPbobsCOM.GeneralService generalService = null;
-                    SAPbobsCOM.GeneralData generalData = null;
-                    SAPbobsCOM.GeneralDataParams generalDataParams = null;
-                    companyService = MainObject.Instance.B1Company.GetCompanyService();
-                    generalService = companyService.GetGeneralService(Settings._SelfWithHoldingTax.SWtaxUDOTransaction);
+                SAPbobsCOM.CompanyService companyService = null;
+                SAPbobsCOM.GeneralService generalService = null;
+                SAPbobsCOM.GeneralData generalData = null;
+                SAPbobsCOM.GeneralDataParams generalDataParams = null;
+                companyService = MainObject.Instance.B1Company.GetCompanyService();
+                generalService = companyService.GetGeneralService(Settings._SelfWithHoldingTax.SWtaxUDOTransaction);
 
                 SAPbobsCOM.Recordset objRs = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
                 objRs.DoQuery(Settings._SelfWithHoldingTax.getRegistrationFromJEQuery.Replace("[--JE--]", JournalEntry.ToString()));
@@ -630,24 +745,24 @@ namespace T1.B1.SelfWithholdingTax
                         string strResult = generalData.GetProperty("Canceled").ToString();
                         Result += "Internal registration " + DocEntry.ToString() + " canceled";
                     }
-                    catch(Exception er)
+                    catch (Exception er)
                     {
-                        _Logger.Error("Could not cancel internal registration " + DocEntry.ToString() + "."+ er.Message);
+                        _Logger.Error("Could not cancel internal registration " + DocEntry.ToString() + "." + er.Message);
                         Result += "Could not cancel internal registration " + DocEntry.ToString() + "." + er.Message;
                     }
-                    
+
                     objRs.MoveNext();
                 }
 
-                if(Result.Length == 0)
+                if (Result.Length == 0)
                 {
                     Result = "No Internal registration found";
                 }
 
-                    
-                    
+
+
             }
-            catch(Exception er)
+            catch (Exception er)
             {
                 _Logger.Error("", er);
             }
@@ -673,7 +788,7 @@ namespace T1.B1.SelfWithholdingTax
                 //    objForm.VisibleEx = true;
                 //}
             }
-            catch(Exception er)
+            catch (Exception er)
             {
                 _Logger.Error("", er);
             }
@@ -717,7 +832,7 @@ namespace T1.B1.SelfWithholdingTax
                             str = "All";
                         }
 
-                        
+
                         if (str.Trim().Length == 0)
                         {
                             MainObject.Instance.B1Application.MessageBox("Por favor seleccione el codigo de autoretención.", 1, "Ok", "", "");
@@ -784,7 +899,7 @@ namespace T1.B1.SelfWithholdingTax
             {
                 Exception exception1 = exception2;
                 _Logger.Error("", exception1);
-                
+
             }
         }
 
@@ -792,10 +907,10 @@ namespace T1.B1.SelfWithholdingTax
         {
             SAPbouiCOM.DataTable variable = null;
             SAPbouiCOM.Form oForm = null;
-            
+
             XmlDocument xmlDocument = new XmlDocument();
             XmlNodeList xmlNodeLists = null;
-            
+
             try
             {
                 oForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
@@ -807,45 +922,45 @@ namespace T1.B1.SelfWithholdingTax
 
                 Dictionary<int, List<string>> objResult = new Dictionary<int, List<string>>();
                 SAPbouiCOM.DBDataSource variable4 = oForm.DataSources.DBDataSources.Item("@HCO_SW0100");
-                
-                        int countJE = xmlNodeLists.Count;
+
+                int countJE = xmlNodeLists.Count;
                 int intProgress = 1;
                 T1.B1.Base.UIOperations.Operations.startProgressBar("Iniciando reversión", countJE * 2);
-                        foreach (XmlNode xmlNodes in xmlNodeLists)
-                        {
-                    
+                foreach (XmlNode xmlNodes in xmlNodeLists)
+                {
+
                     string innerText = xmlNodes.SelectSingleNode("Cells/Cell[2]/Value").InnerText;
                     Base.UIOperations.Operations.setProgressBarMessage("Reversando JE " + innerText, intProgress);
-                            string strResultJe = "";
-                            string strResultInternal = "";
-                            List<string> ListMessage = new List<string>();
+                    string strResultJe = "";
+                    string strResultInternal = "";
+                    List<string> ListMessage = new List<string>();
 
-                            cancelSWtaxPosting(Convert.ToInt32(innerText), out strResultJe);
-                            ListMessage.Add(strResultJe);
-                            cancelSWTaxRegistration(Convert.ToInt32(innerText), out strResultInternal);
-                            ListMessage.Add(strResultInternal);
-                            objResult.Add(Convert.ToInt32(innerText), ListMessage);
+                    cancelSWtaxPosting(Convert.ToInt32(innerText), out strResultJe);
+                    ListMessage.Add(strResultJe);
+                    cancelSWTaxRegistration(Convert.ToInt32(innerText), out strResultInternal);
+                    ListMessage.Add(strResultInternal);
+                    objResult.Add(Convert.ToInt32(innerText), ListMessage);
                     intProgress++;
-                        }
+                }
 
                 int intLastLine = -1;
-                    for(int i=0; i < variable.Rows.Count; i++)
-                    {
+                for (int i = 0; i < variable.Rows.Count; i++)
+                {
                     Base.UIOperations.Operations.setProgressBarMessage("Actualizando resultados", intProgress);
                     int strJournalEntry = int.Parse(variable.GetValue(1, i).ToString());
-                        if (objResult.ContainsKey(strJournalEntry))
+                    if (objResult.ContainsKey(strJournalEntry))
+                    {
+                        List<string> objListMsg = objResult[strJournalEntry];
+                        string strMsg = "";
+                        for (int k = 0; k < objListMsg.Count; k++)
                         {
-                            List<string> objListMsg = objResult[strJournalEntry];
-                            string strMsg = "";
-                            for (int k=0; k < objListMsg.Count; k++)
-                            {
-                                strMsg += objListMsg[k] + ".";
-                            }
-                            variable.SetValue(5, i, strMsg);
+                            strMsg += objListMsg[k] + ".";
+                        }
+                        variable.SetValue(5, i, strMsg);
                         intLastLine = i;
                         intProgress++;
-                        }
                     }
+                }
 
                 oForm.Items.Item("Item_7").Click(SAPbouiCOM.BoCellClickType.ct_Regular);
                 SAPbouiCOM.Grid specific = (Grid)oForm.Items.Item("grdSWT").Specific;
@@ -855,8 +970,8 @@ namespace T1.B1.SelfWithholdingTax
                 Base.UIOperations.Operations.stopProgressBar();
 
                 MainObject.Instance.B1Application.MessageBox("La operación finalizó con éxito. Por favor revise los resultados en el listado", 1, "Ok", "", "");
-                                
-                
+
+
             }
             catch (COMException cOMException1)
             {
@@ -873,7 +988,7 @@ namespace T1.B1.SelfWithholdingTax
             }
             finally
             {
-                if(oForm != null)
+                if (oForm != null)
                 {
                     oForm.Freeze(false);
                 }
@@ -892,16 +1007,186 @@ namespace T1.B1.SelfWithholdingTax
             try
             {
                 objParams = (FormCreationParams)MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_FormCreationParams);
-                objParams.XmlData =  SWTaxResources.SWTaxConfigForm;
+                objParams.XmlData = GetXmlUDO(Settings.SelfWithHoldingTaxTypes.SELFWHITHHOLDINGTAX_CONFIGURAION);
                 objParams.FormType = "HCO_FSW0100";
                 objParams.UniqueID = Guid.NewGuid().ToString().Substring(1, 20);
                 objForm = MainObject.Instance.B1Application.Forms.AddEx(objParams);
 
+                InitConfiguration(objForm);
+
+                objForm.VisibleEx = true;
+
             }
-            catch(Exception er)
+            catch (Exception er)
             {
                 _Logger.Error("", er);
             }
+        }
+
+        public static void InitConfiguration(Form form)
+        {
+            SAPbouiCOM.ChooseFromList objChooseFromList = form.ChooseFromLists.Item("cflWtCode");
+
+            try
+            {
+                Conditions conditions = objChooseFromList.GetConditions();
+                Condition condition = conditions.Add();
+                condition.BracketOpenNum = 1;
+                condition.Alias = "U_HCO_WTType";
+                condition.Operation = BoConditionOperation.co_EQUAL;
+                condition.CondVal = "2";
+                condition.Relationship = BoConditionRelationship.cr_AND;
+                condition = conditions.Add();
+                condition.Alias = "U_HCO_Area";
+                condition.Operation = BoConditionOperation.co_EQUAL;
+                condition.CondVal = "V";
+                condition.BracketCloseNum = 1;
+                objChooseFromList.SetConditions(conditions);
+
+                objChooseFromList = form.ChooseFromLists.Item("cflAcctDebit");
+                conditions = objChooseFromList.GetConditions();
+                condition = conditions.Add();
+                condition.BracketOpenNum = 1;
+                condition.Alias = "Postable";
+                condition.Operation = BoConditionOperation.co_EQUAL;
+                condition.CondVal = "Y";
+                condition.Relationship = BoConditionRelationship.cr_AND;
+                condition = conditions.Add();
+                condition.Alias = "LocManTran";
+                condition.Operation = BoConditionOperation.co_EQUAL;
+                condition.CondVal = "N";
+                condition.BracketCloseNum = 1;
+                objChooseFromList.SetConditions(conditions);
+
+                objChooseFromList = form.ChooseFromLists.Item("cflAcctCredit");
+                conditions = objChooseFromList.GetConditions();
+                condition = conditions.Add();
+                condition.BracketOpenNum = 1;
+                condition.Alias = "Postable";
+                condition.Operation = BoConditionOperation.co_EQUAL;
+                condition.CondVal = "Y";
+                condition.Relationship = BoConditionRelationship.cr_AND;
+                condition = conditions.Add();
+                condition.Alias = "LocManTran";
+                condition.Operation = BoConditionOperation.co_EQUAL;
+                condition.CondVal = "N";
+                condition.BracketCloseNum = 1;
+                objChooseFromList.SetConditions(conditions);
+
+                objChooseFromList = form.ChooseFromLists.Item("cflCardCode");
+                conditions = objChooseFromList.GetConditions();
+                condition = conditions.Add();
+                condition.Alias = "CardType";
+                condition.Operation = BoConditionOperation.co_EQUAL;
+                condition.CondVal = "C";
+                objChooseFromList.SetConditions(conditions);
+
+                AddGroupsToMatrix(form);
+            }
+            catch (COMException comEx)
+            {
+                Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
+                _Logger.Error("", comEx);
+
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+            }
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(objChooseFromList);
+                objChooseFromList = null;
+                GC.Collect();
+            }
+        }
+
+        public static void AddGroupsToMatrix(Form form)
+        {
+            var recordSet = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+
+            try
+            {
+                var queryGroup = Queries.Instance.Queries().Get("GetGroupItems");
+                Matrix matrix = (Matrix)form.Items.Item("Item_19").Specific;
+                recordSet.DoQuery(queryGroup);
+                matrix.Clear();
+                matrix.AddRow(recordSet.RecordCount);
+                matrix.FlushToDataSource();
+                for (int i = 0; i < recordSet.RecordCount; i++)
+                {
+                    form.DataSources.DBDataSources.Item("@HCO_SW0101").SetValue("LineId", i, (i + 1).ToString());
+                    form.DataSources.DBDataSources.Item("@HCO_SW0101").SetValue("U_ItmsGrpCod", i, recordSet.Fields.Item("ItmsGrpCod").Value.ToString());
+                    form.DataSources.DBDataSources.Item("@HCO_SW0101").SetValue("U_ItmsGrpNam", i, recordSet.Fields.Item("ItmsGrpNam").Value.ToString());
+                    form.DataSources.DBDataSources.Item("@HCO_SW0101").SetValue("U_Exclude", i, "N");
+                    recordSet.MoveNext();
+                }
+
+                matrix.LoadFromDataSourceEx();
+            }
+            catch (COMException comEx)
+            {
+                Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
+                _Logger.Error("", comEx);
+
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+            }
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(recordSet);
+                recordSet = null;
+                GC.Collect();
+            }
+
+        }
+
+        public static void CheckGroups(Form form)
+        {
+            var recordSet = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+
+            try
+            {
+                var queryGroup = Queries.Instance.Queries().Get("GetMissingGroupsFromAutorret");
+                recordSet.DoQuery(string.Format(queryGroup, form.DataSources.DBDataSources.Item("@HCO_SW0100").GetValue("Code", 0).ToString()));
+                if (recordSet.RecordCount > 0)
+                {
+                    Matrix matrix = (Matrix)form.Items.Item("Item_19").Specific;
+                    int row = matrix.RowCount;
+                    matrix.AddRow(recordSet.RecordCount);
+                    matrix.FlushToDataSource();
+                    while (!recordSet.EoF)
+                    {
+                        form.DataSources.DBDataSources.Item("@HCO_SW0101").SetValue("LineId", row, (row + 1).ToString());
+                        form.DataSources.DBDataSources.Item("@HCO_SW0101").SetValue("U_ItmsGrpCod", row, recordSet.Fields.Item("ItmsGrpCod").Value.ToString());
+                        form.DataSources.DBDataSources.Item("@HCO_SW0101").SetValue("U_ItmsGrpNam", row, recordSet.Fields.Item("ItmsGrpNam").Value.ToString());
+                        form.DataSources.DBDataSources.Item("@HCO_SW0101").SetValue("U_Exclude", row, "N");
+                        recordSet.MoveNext();
+                        row++;
+                    }
+
+                    matrix.LoadFromDataSourceEx();
+                }
+            }
+            catch (COMException comEx)
+            {
+                Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
+                _Logger.Error("", comEx);
+
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+            }
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(recordSet);
+                recordSet = null;
+                GC.Collect();
+            }
+
         }
 
         static public void addInsertRowRelationMenuUDO(SAPbouiCOM.Form objForm, SAPbouiCOM.ContextMenuInfo eventInfo)
@@ -922,9 +1207,6 @@ namespace T1.B1.SelfWithholdingTax
                 objEvent.ItemUID = eventInfo.ItemUID;
                 objEvent.Row = eventInfo.Row;
                 CacheManager.CacheManager.Instance.addToCache(Settings._Main.lastRightClickEventInfo, objEvent, CacheManager.CacheManager.objCachePriority.Default);
-
-
-
             }
             catch (COMException comEx)
             {
@@ -1008,8 +1290,6 @@ namespace T1.B1.SelfWithholdingTax
                     MainObject.Instance.B1Application.Menus.RemoveEx("HCO_MWTDRU");
                 }
                 CacheManager.CacheManager.Instance.removeFromCache(Settings._Main.lastRightClickEventInfo);
-
-
             }
             catch (COMException comEx)
             {
@@ -1023,7 +1303,7 @@ namespace T1.B1.SelfWithholdingTax
             }
         }
 
-        static public void relatedPartiedMatrixOperationUDO(EventInfoClass eventInfo, string Action)
+        static public void MatrixOperationUDO(EventInfoClass eventInfo, string Action)
         {
             SAPbouiCOM.Form objForm = null;
             SAPbouiCOM.Matrix objMatrix = null;
@@ -1032,7 +1312,7 @@ namespace T1.B1.SelfWithholdingTax
             {
                 objForm = MainObject.Instance.B1Application.Forms.Item(eventInfo.FormUID);
 
-                objMatrix = (Matrix)objForm.Items.Item("0_U_G").Specific;
+                objMatrix = (Matrix)objForm.Items.Item(eventInfo.ItemUID).Specific;
 
                 int intRow = objMatrix.RowCount;
                 switch (Action)
@@ -1041,9 +1321,9 @@ namespace T1.B1.SelfWithholdingTax
                         objMatrix.AddRow(1, 1);
 
                         objMatrix.FlushToDataSource();
-                        objForm.DataSources.DBDataSources.Item(1).SetValue("LineId", intRow, (intRow + 1).ToString());
-                        objForm.DataSources.DBDataSources.Item(1).SetValue("U_CardCode", intRow, "");
-                        objForm.DataSources.DBDataSources.Item(1).SetValue("U_CardName", intRow, "");
+                        objForm.DataSources.DBDataSources.Item(eventInfo.ItemUID == "Item_31" ? "@HCO_SW0102" : "@HCO_SW0103").SetValue("LineId", intRow, (intRow + 1).ToString());
+                        objForm.DataSources.DBDataSources.Item(eventInfo.ItemUID == "Item_31" ? "@HCO_SW0102" : "@HCO_SW0103").SetValue(eventInfo.ItemUID == "Item_31" ? "U_ItemCode" : "U_CardCode", intRow, "");
+                        objForm.DataSources.DBDataSources.Item(eventInfo.ItemUID == "Item_31" ? "@HCO_SW0102" : "@HCO_SW0103").SetValue(eventInfo.ItemUID == "Item_31" ? "U_ItemName" : "U_CardName", intRow, "");
 
                         objMatrix.LoadFromDataSourceEx();
 
@@ -1057,8 +1337,8 @@ namespace T1.B1.SelfWithholdingTax
                         break;
 
                 }
-
-
+                if (objForm.Mode == BoFormMode.fm_OK_MODE)
+                    objForm.Mode = BoFormMode.fm_UPDATE_MODE;
             }
             catch (COMException comEx)
             {
@@ -1086,7 +1366,7 @@ namespace T1.B1.SelfWithholdingTax
             try
             {
                 objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                
+
                 objDS = objForm.DataSources.DBDataSources.Item("@HCO_SW0100");
                 strIsSales = objDS.GetValue("U_Sales", objDS.Offset);
                 strIsPurchase = objDS.GetValue("U_Purchase", objDS.Offset);
@@ -1101,9 +1381,9 @@ namespace T1.B1.SelfWithholdingTax
                 T1.B1.Base.UIOperations.Operations.startProgressBar("Agregando socios de negocio...", 2);
                 if (strIsSales == "Y")
                 {
-                    
+
                     objRS = objBridge.GetBPList(SAPbobsCOM.BoCardTypes.cCustomer);
-                    while(!objRS.EoF)
+                    while (!objRS.EoF)
                     {
                         string strCardCode = objRS.Fields.Item("CardCode").Value.ToString();
                         string strCardName = objRS.Fields.Item("CardName").Value.ToString();
@@ -1119,7 +1399,7 @@ namespace T1.B1.SelfWithholdingTax
                 }
                 if (strIsPurchase == "Y")
                 {
-                   
+
                     objRS = objBridge.GetBPList(SAPbobsCOM.BoCardTypes.cSupplier);
                     while (!objRS.EoF)
                     {
@@ -1136,19 +1416,14 @@ namespace T1.B1.SelfWithholdingTax
                     }
                 }
                 objForm.Freeze(false);
-               
-
-
-
-
             }
-            catch(Exception er)
+            catch (Exception er)
             {
                 _Logger.Error("", er);
             }
             finally
             {
-                if(objForm != null)
+                if (objForm != null)
                 {
                     objForm.Freeze(false);
                 }
@@ -1160,17 +1435,17 @@ namespace T1.B1.SelfWithholdingTax
         static public void clearAllPBS(SAPbouiCOM.ItemEvent pVal)
         {
             SAPbouiCOM.Form objForm = null;
-            
+
             SAPbouiCOM.Matrix objMatrix = null;
-            
+
 
             try
             {
                 objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                
+
                 objMatrix = (Matrix)objForm.Items.Item("0_U_G").Specific;
                 objMatrix.Clear();
-                
+
             }
             catch (Exception er)
             {
@@ -1185,153 +1460,146 @@ namespace T1.B1.SelfWithholdingTax
             }
         }
 
-        static public void filterAccounts(SAPbouiCOM.ItemEvent pVal, string CFLId)
+        static public void SelectFieldCFL(SAPbouiCOM.ItemEvent pVal)
         {
-            SAPbouiCOM.Form objForm = null;
-            SAPbouiCOM.Conditions objCOnditions = null;
-            SAPbouiCOM.Condition objCOnd = null;
-            SAPbouiCOM.ChooseFromList objCFL = null;
-
             try
             {
-                objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                objCFL = objForm.ChooseFromLists.Item(CFLId);
-                objCOnditions = (Conditions)MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_Conditions);
-                objCOnd = objCOnditions.Add();
-                objCOnd.Alias = "Postable";
-                objCOnd.CondVal = "Y";
-                objCOnd.Operation = SAPbouiCOM.BoConditionOperation.co_EQUAL;
-                objCFL.SetConditions(objCOnditions);
-            }
-            catch(Exception er)
-            {
-                _Logger.Error("", er);
-            }
-        }
-
-        static public void clearfilterAccounts(SAPbouiCOM.ItemEvent pVal, string CFLId)
-        {
-            SAPbouiCOM.Form objForm = null;
-            SAPbouiCOM.ChooseFromList objCFL = null;
-
-            try
-            {
-                objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                objCFL = objForm.ChooseFromLists.Item(CFLId);
-                objCFL.SetConditions(null);
-                
-            }
-            catch (Exception er)
-            {
-                _Logger.Error("", er);
-            }
-        }
-
-        static public void filterBPs(SAPbouiCOM.ItemEvent pVal)
-        {
-            SAPbouiCOM.Form objForm = null;
-            SAPbouiCOM.Conditions objCOnditions = null;
-            SAPbouiCOM.Condition objCOnd = null;
-            SAPbouiCOM.ChooseFromList objCFL = null;
-            string strIsSales = "";
-            string strIsPurchase = "";
-            SAPbouiCOM.DBDataSource objDS = null;
-
-            try
-            {
-                objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                objDS = objForm.DataSources.DBDataSources.Item("@HCO_SW0100");
-                strIsSales = objDS.GetValue("U_Sales", objDS.Offset);
-                strIsPurchase = objDS.GetValue("U_Purchase", objDS.Offset);
-
-                objCFL = objForm.ChooseFromLists.Item("CFL_BP");
-                if (strIsSales == "Y" || strIsPurchase == "Y")
+                var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                var field = "";
+                string code = "";
+                string name = "";
+                string nameFieldDataSource = "";
+                string datasource = "";
+                bool loadFromDataSource = false;
+                if (new string[] { "Item_31", "Item_12" }.Contains(pVal.ItemUID))
                 {
-                    objCOnditions = (Conditions)MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_Conditions);
-                    if (strIsSales == "Y")
-                    {
-                        objCOnd = objCOnditions.Add();
-                        objCOnd.Alias = "CardType";
-                        objCOnd.CondVal = "C";
-                        objCOnd.Operation = SAPbouiCOM.BoConditionOperation.co_EQUAL;
-                    }
-                    if(strIsSales == "Y" && strIsPurchase == "Y")
-                    {
-                        objCOnd.Relationship = SAPbouiCOM.BoConditionRelationship.cr_OR;
-                    }
-                    if (strIsPurchase == "Y")
-                    {
-                        objCOnd = objCOnditions.Add();
-                        objCOnd.Alias = "CardType";
-                        objCOnd.CondVal = "S";
-                        objCOnd.Operation = SAPbouiCOM.BoConditionOperation.co_EQUAL;
-                    }
-
-                    objCFL.SetConditions(objCOnditions);
+                    datasource = ((Matrix)form.Items.Item(pVal.ItemUID).Specific).Columns.Item(pVal.ColUID).DataBind.TableName;
+                    field = ((Matrix)form.Items.Item(pVal.ItemUID).Specific).Columns.Item(pVal.ColUID).DataBind.Alias;
+                    loadFromDataSource = true;
                 }
                 else
                 {
-                    objCOnditions = (Conditions) MainObject.Instance.B1Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_Conditions);
-                    
-                        objCOnd = objCOnditions.Add();
-                        objCOnd.Alias = "CardType";
-                        objCOnd.CondVal = "X";
-                        objCOnd.Operation = SAPbouiCOM.BoConditionOperation.co_EQUAL;
-                    objCFL.SetConditions(objCOnditions);
-
+                    datasource = ((EditText)form.Items.Item(pVal.ItemUID).Specific).DataBind.TableName;
+                    field = ((EditText)form.Items.Item(pVal.ItemUID).Specific).DataBind.Alias;
                 }
-            }
-            catch (Exception er)
-            {
-                _Logger.Error("", er);
-            }
-        }
-
-        static public void clearfilterBPs(SAPbouiCOM.ItemEvent pVal)
-        {
-            SAPbouiCOM.Form objForm = null;
-            SAPbouiCOM.ChooseFromList objCFL = null;
-
-            try
-            {
-                objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                objCFL = objForm.ChooseFromLists.Item("CFL_BP");
-                objCFL.SetConditions(null);
-
-            }
-            catch (Exception er)
-            {
-                _Logger.Error("", er);
-            }
-        }
-
-        static public void setBPNameColumn(SAPbouiCOM.ItemEvent pVal)
-        {
-            SAPbouiCOM.Form objForm = null;
-            SAPbouiCOM.Matrix objMatrix = null;
-            SAPbouiCOM.ChooseFromListEvent objCFLEvent = (SAPbouiCOM.ChooseFromListEvent)pVal;
-            SAPbouiCOM.DataTable objDT = null;
-            try
-            {
-                objForm = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
-                objMatrix = (Matrix)objForm.Items.Item("0_U_G").Specific;
-                SAPbouiCOM.CellPosition objPos = objMatrix.GetCellFocus();
-                objDT = objCFLEvent.SelectedObjects;
-                if (objDT != null)
+                switch (pVal.ItemUID)
                 {
-                    string strValue = objDT.GetValue("CardName", 0).ToString();
-                    int intRowNum = objPos.rowIndex;
-                    objMatrix.SetCellWithoutValidation(intRowNum, "C_0_2", strValue);
-                    objMatrix.FlushToDataSource();
+                    case "Item_3":
+                        code = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "AcctCode")[0].ToString();
+                        name = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "AcctName")[0].ToString();
+                        nameFieldDataSource = "U_DebitAcctN";
+                        break;
+                    case "Item_9":
+                        code = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "AcctCode")[0].ToString();
+                        name = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "AcctName")[0].ToString();
+                        nameFieldDataSource = "U_CreditAcctN";
+                        break;
+                    case "Item_16":
+                        code = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "WTCode")[0].ToString();
+                        break;
+                    case "Item_31":
+                        code = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "ItemCode")[0].ToString();
+                        name = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "ItemName")[0].ToString();
+                        nameFieldDataSource = "U_ItemName";
+                        break;
+                    case "Item_12":
+                        code = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "CardCode")[0].ToString();
+                        name = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "CardName")[0].ToString();
+                        nameFieldDataSource = "U_CardName";
+                        break;
+                    case "Item_34":
+                        code = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Name")[0].ToString();
+                        name = B1.Base.UIOperations.FormsOperations.ListChoiceListener(pVal, "Code")[0].ToString();
+                        nameFieldDataSource = "U_TaxCardTypeID";
+                        break;
                 }
+                if (string.IsNullOrEmpty(code))
+                    return;
+
+                form.DataSources.DBDataSources.Item(datasource).SetValue(field, pVal.Row > 0 ? pVal.Row - 1 : 0, code);
+                if (!string.IsNullOrEmpty(nameFieldDataSource))
+                    form.DataSources.DBDataSources.Item(datasource).SetValue(nameFieldDataSource, pVal.Row > 0 ? pVal.Row - 1 : 0, name);
+                if (loadFromDataSource)
+                    ((Matrix)form.Items.Item(pVal.ItemUID).Specific).LoadFromDataSourceEx();
+
+                if (form.Mode == BoFormMode.fm_OK_MODE)
+                    form.Mode = BoFormMode.fm_UPDATE_MODE;
+
             }
-            catch(Exception er)
+            catch (Exception er)
             {
-                _Logger.Error("",er);
+                _Logger.Error("", er);
             }
         }
 
+        static public void EnableItems(bool enable, Form objForm)
+        {
+            try
+            {
+                objForm.Items.Item("Item_8").Enabled = enable;
+                objForm.Items.Item("Item_30").Enabled = enable;
+                objForm.Items.Item("Item_30").Enabled = enable;
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+            }
+        }
 
+        static public bool ValidateFields(ItemEvent pVal)
+        {
+            bool BubbelEvent = true;
+            try
+            {
+                var form = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                if (form.Mode == BoFormMode.fm_ADD_MODE)
+                {
+                    if (string.IsNullOrEmpty(form.DataSources.DBDataSources.Item("@HCO_SW0100").GetValue("U_DebitAcct", 0)))
+                    {
+                        MainObject.Instance.B1Application.StatusBar.SetText("Debe seleccionar una cuenta débito", BoMessageTime.bmt_Short, BoStatusBarMessageType.smt_Error);
+                        form.Items.Item("Item_3").Click(BoCellClickType.ct_Regular);
+                        BubbelEvent = false;
+                    }
+                    else if (string.IsNullOrEmpty(form.DataSources.DBDataSources.Item("@HCO_SW0100").GetValue("U_CreditAcct", 0)))
+                    {
+                        MainObject.Instance.B1Application.StatusBar.SetText("Debe seleccionar una cuenta crédito", BoMessageTime.bmt_Short, BoStatusBarMessageType.smt_Error);
+                        form.Items.Item("Item_9").Click(BoCellClickType.ct_Regular);
+                        BubbelEvent = false;
+                    }
+                    else if (string.IsNullOrEmpty(form.DataSources.DBDataSources.Item("@HCO_SW0100").GetValue("U_Type", 0)))
+                    {
+                        MainObject.Instance.B1Application.StatusBar.SetText("Debe seleccionar un tipo", BoMessageTime.bmt_Short, BoStatusBarMessageType.smt_Error);
+                        form.Items.Item("Item_30").Click(BoCellClickType.ct_Regular);
+                        BubbelEvent = false;
+                    }
+                    else if (string.IsNullOrEmpty(form.DataSources.DBDataSources.Item("@HCO_SW0100").GetValue("U_WTCode", 0))
+                        && form.DataSources.DBDataSources.Item("@HCO_SW0100").GetValue("U_Type", 0) == "G")
+                    {
+                        MainObject.Instance.B1Application.StatusBar.SetText("Debe seleccionar una retención vinculada para el tipo general", BoMessageTime.bmt_Short, BoStatusBarMessageType.smt_Error);
+                        form.Items.Item("Item_16").Click(BoCellClickType.ct_Regular);
+                        BubbelEvent = false;
+                    }
+                    else if (!string.IsNullOrEmpty(form.DataSources.DBDataSources.Item("@HCO_SW0102").GetValue("U_ItemCode", 0))
+                        && string.IsNullOrEmpty(form.DataSources.DBDataSources.Item("@HCO_SW0100").GetValue("U_ItemAction", 0)))
+                    {
+                        MainObject.Instance.B1Application.StatusBar.SetText("Debe seleccionar una acción en la pestaña de articulos", BoMessageTime.bmt_Short, BoStatusBarMessageType.smt_Error);
+                        form.Items.Item("Item_24").Click(BoCellClickType.ct_Regular);
+                        BubbelEvent = false;
+                    }
+                }
+                else if (form.Mode == BoFormMode.fm_ADD_MODE || form.Mode == BoFormMode.fm_UPDATE_MODE)
+                {
+                    if (string.IsNullOrEmpty(form.DataSources.DBDataSources.Item("@HCO_SW0100").GetValue("U_TaxCardType", 0)))
+                        form.DataSources.DBDataSources.Item("@HCO_SW0100").SetValue("U_TaxCardTypeID", 0, "");
+                }
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+            }
+
+            return BubbelEvent;
+        }
 
         #endregion
 
@@ -1346,7 +1614,7 @@ namespace T1.B1.SelfWithholdingTax
             SAPbouiCOM.Item objItemBase = null;
             SAPbouiCOM.Item objItem = null;
             //SAPbouiCOM.Matrix objMatrix = null;
-            
+
             SAPbouiCOM.Folder objFolder = null;
             XmlDocument xmlResult = null;
             SAPbouiCOM.BoFormMode objMode = SAPbouiCOM.BoFormMode.fm_OK_MODE;
@@ -1418,7 +1686,7 @@ namespace T1.B1.SelfWithholdingTax
                     }
                     #endregion Folder;
 
-                    
+
 
                     objForm.Mode = objMode;
                     objForm.Freeze(false);
@@ -1444,7 +1712,35 @@ namespace T1.B1.SelfWithholdingTax
                 _Logger.Error("", er);
             }
 
-            if (objForm != null)objForm.Freeze(false);
+            if (objForm != null) objForm.Freeze(false);
+        }
+
+        static public void OpenSelfWitholdingRecord(SAPbouiCOM.ItemEvent pVal)
+        {
+            try
+            {
+                var formDoc = MainObject.Instance.B1Application.Forms.Item(pVal.FormUID);
+                var grid = (Grid)formDoc.Items.Item("HCO_GR01").Specific;
+
+                MainObject.Instance.B1Application.Menus.Item("HCO_MWT0003").Activate();
+                var formAuto = MainObject.Instance.B1Application.Forms.ActiveForm;
+                formAuto.Freeze(true);
+
+                try
+                {
+                    MainObject.Instance.B1Application.Menus.Item("1281").Activate();
+                    ((EditText)formAuto.Items.Item("1_U_E").Specific).Value = grid.DataTable.GetValue(pVal.ColUID, pVal.Row).ToString();
+                    formAuto.Items.Item("1").Click();
+                }
+                finally
+                {
+                    formAuto.Freeze(false);
+                }
+            }
+            finally
+            {
+
+            }
         }
 
         static public void getSWTaxInfoForDocument(SAPbouiCOM.BusinessObjectInfo BusinessObjectInfo)
@@ -1461,7 +1757,7 @@ namespace T1.B1.SelfWithholdingTax
             {
                 strDocType = BusinessObjectInfo.Type;
                 objDoc = (Documents)MainObject.Instance.B1Company.GetBusinessObject((SAPbobsCOM.BoObjectTypes)Enum.Parse(typeof(SAPbobsCOM.BoObjectTypes), strDocType));
-                if(objDoc.Browser.GetByKeys(BusinessObjectInfo.ObjectKey))
+                if (objDoc.Browser.GetByKeys(BusinessObjectInfo.ObjectKey))
                 {
                     objForm = MainObject.Instance.B1Application.Forms.Item(BusinessObjectInfo.FormUID);
                     objForm.Freeze(true);
@@ -1471,13 +1767,13 @@ namespace T1.B1.SelfWithholdingTax
                     }
                     catch
                     {
-                        HCOSelfWithHoldingFolderAdd(BusinessObjectInfo.FormUID);
+                        //HCOSelfWithHoldingFolderAdd(BusinessObjectInfo.FormUID);
                         objDT = objForm.DataSources.DataTables.Item("HCO_DSWT");
                     }
                     if (objDT != null)
                     {
-                    strSQL = string.Format(Settings._SelfWithHoldingTax.getAppliedSWTinDOc, strDocType, objDoc.DocEntry.ToString());
-   
+                        strSQL = string.Format(Queries.Instance.Queries().Get("GetWitholdingRegistered"), strDocType, objDoc.DocEntry.ToString());
+
                         objDT.ExecuteQuery(strSQL);
 
                         objGrid = (Grid)objForm.Items.Item("HCO_GR01").Specific;
@@ -1485,42 +1781,44 @@ namespace T1.B1.SelfWithholdingTax
                         objGridColumn = objGrid.Columns.Item(0);
                         objGridColumn.Editable = false;
                         objGridColumn.Type = SAPbouiCOM.BoGridColumnType.gct_EditText;
+                        oEditTExt = (SAPbouiCOM.EditTextColumn)objGridColumn;
+                        oEditTExt.LinkedObjectType = "HCO_FWT1100";
 
                         objGridColumn = objGrid.Columns.Item(1);
                         objGridColumn.Editable = false;
+                        objGridColumn.Visible = false;
                         objGridColumn.Type = SAPbouiCOM.BoGridColumnType.gct_EditText;
-                        oEditTExt = (SAPbouiCOM.EditTextColumn)objGridColumn;
-                        oEditTExt.RightJustified = true;
 
                         objGridColumn = objGrid.Columns.Item(2);
                         objGridColumn.Editable = false;
                         objGridColumn.Type = SAPbouiCOM.BoGridColumnType.gct_EditText;
                         oEditTExt = (SAPbouiCOM.EditTextColumn)objGridColumn;
-                        oEditTExt.RightJustified = true;
 
                         objGridColumn = objGrid.Columns.Item(3);
                         objGridColumn.Editable = false;
                         objGridColumn.Type = SAPbouiCOM.BoGridColumnType.gct_EditText;
                         oEditTExt = (SAPbouiCOM.EditTextColumn)objGridColumn;
-                        oEditTExt.LinkedObjectType = "30";
-                        oEditTExt.RightJustified = true;
 
                         objGridColumn = objGrid.Columns.Item(4);
                         objGridColumn.Editable = false;
                         objGridColumn.Type = SAPbouiCOM.BoGridColumnType.gct_EditText;
-                        oEditTExt = (SAPbouiCOM.EditTextColumn)objGridColumn;
 
-                        oEditTExt.RightJustified = false;
+                        objGridColumn = objGrid.Columns.Item(5);
+                        objGridColumn.Editable = false;
+                        objGridColumn.Type = SAPbouiCOM.BoGridColumnType.gct_EditText;
+                        oEditTExt = (SAPbouiCOM.EditTextColumn)objGridColumn;
+                        oEditTExt.LinkedObjectType = "30";
+                        oEditTExt.RightJustified = true;
                     }
                 }
             }
-            catch(Exception er)
+            catch (Exception er)
             {
                 _Logger.Error("", er);
             }
             finally
             {
-                if(objForm != null)
+                if (objForm != null)
                 {
                     objForm.Freeze(false);
                 }

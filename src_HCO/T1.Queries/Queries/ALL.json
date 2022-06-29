@@ -1,6 +1,14 @@
 ﻿{
   "Queries": [
     {
+      "QueryName": "ApplyAutoWitholdingTax",
+      "Query": "SELECT TOP 1 \"U_SWTLiable\" FROM \"@HCO_RP0001\""
+    },
+    {
+      "QueryName": "GetThridRelated",
+      "Query": "SELECT X0.\"Code\", X1.\"Name\", X1.\"U_CountyCode\", X1.\"U_CountyName\"  FROM \"@HCO_RP1101\" X0 INNER JOIN \"@HCO_RP1100\" X1 ON X0.\"Code\" = X1.\"Code\" WHERE X0.\"U_CardCode\" = '{0}'"
+    },
+    {
       "QueryName": "GetThirdContabTmpl",
       "Query": "SELECT \"U_HCO_RELPAR\" FROM OTRT X0 INNER JOIN \"@HCO_RP1100\" X1 ON X0.\"U_HCO_RELPAR\"=X1.\"Code\" WHERE \"TrtCode\" = '{0}'"
     },
@@ -207,6 +215,10 @@
     {
       "QueryName": "GetCountyName",
       "Query": "SELECT \"Name\" FROM \"@HCO_RP0005\" WHERE \"Code\" = '{0}'"
+    },
+    {
+      "QueryName": "GetGroupItems",
+      "Query": "SELECT \"ItmsGrpCod\", \"ItmsGrpNam\" FROM OITB"
     }
   ]
 }

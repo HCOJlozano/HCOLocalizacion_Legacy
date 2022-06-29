@@ -14,17 +14,16 @@ namespace T1.B1.SelfWithholdingTax
         private static Operations objSelfWithHoldingTax;
         private static readonly ILog _Logger = Log.Instance.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, Settings._Main.logLevel);
         private static bool runResizelogic = true;
-        private static List<string> WHPurchaseDocuments = new List<string>();
-        private static List<string> WHSalesDocuments = new List<string>();
+        private static List<string> SWTDocuments = new List<string>();
+        private static Form objForm;
+
         private Operations()
         {
-            WHPurchaseDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._SelfWithHoldingTax.WTPurchaseObjects);
-            WHSalesDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._SelfWithHoldingTax.WTSalesObjects);
+            SWTDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._SelfWithHoldingTax.SWTDocuments);
         }
         public static void formDataEvent(ref SAPbouiCOM.BusinessObjectInfo BusinessObjectInfo, ref bool blBubbleEvent)
         {
-            WHPurchaseDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._SelfWithHoldingTax.WTPurchaseObjects);
-            WHSalesDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._SelfWithHoldingTax.WTSalesObjects);
+            SWTDocuments = JsonConvert.DeserializeObject<List<string>>(Settings._SelfWithHoldingTax.SWTDocuments);
 
             if (objSelfWithHoldingTax == null) objSelfWithHoldingTax = new Operations();
 
@@ -36,15 +35,22 @@ namespace T1.B1.SelfWithholdingTax
                     switch (BusinessObjectInfo.EventType)
                     {
                         case SAPbouiCOM.BoEventTypes.et_FORM_DATA_ADD:
-                            if (WHPurchaseDocuments.Contains(BusinessObjectInfo.FormTypeEx) || WHSalesDocuments.Contains(BusinessObjectInfo.FormTypeEx))
+                            if (SWTDocuments.Contains(BusinessObjectInfo.FormTypeEx))
                             {
                                 SelfWithholdingTax.addSelfWithHoldingTax(BusinessObjectInfo);
                             }
                             break;
                         case SAPbouiCOM.BoEventTypes.et_FORM_DATA_LOAD:
-                            if (WHPurchaseDocuments.Contains(BusinessObjectInfo.FormTypeEx) || WHSalesDocuments.Contains(BusinessObjectInfo.FormTypeEx))
+                            if (SWTDocuments.Contains(BusinessObjectInfo.FormTypeEx))
                             {
                                 SelfWithholdingTax.getSWTaxInfoForDocument(BusinessObjectInfo);
+                            }
+                            else if (BusinessObjectInfo.FormTypeEx == "HCO_FSW0100")
+                            {
+                                objForm = MainObject.Instance.B1Application.Forms.ActiveForm;
+                                SelfWithholdingTax.EnableItems(false, objForm);
+                                SelfWithholdingTax.CheckGroups(objForm);
+                                System.Runtime.InteropServices.Marshal.ReleaseComObject(objForm);
                             }
                             break;
                     }
@@ -82,13 +88,18 @@ namespace T1.B1.SelfWithholdingTax
                             break;
                         case "HCO_MWTRU":
                             eventInfo = CacheManager.CacheManager.Instance.getFromCache(Settings._Main.lastRightClickEventInfo);
-                            SelfWithholdingTax.relatedPartiedMatrixOperationUDO(eventInfo, "Add");
+                            SelfWithholdingTax.MatrixOperationUDO(eventInfo, "Add");
                             break;
                         case "HCO_MWTDRU":
                             eventInfo = CacheManager.CacheManager.Instance.getFromCache(Settings._Main.lastRightClickEventInfo);
-                            SelfWithholdingTax.relatedPartiedMatrixOperationUDO(eventInfo, "Delete");
+                            SelfWithholdingTax.MatrixOperationUDO(eventInfo, "Delete");
                             break;
-
+                        case "1282":
+                            objForm = MainObject.Instance.B1Application.Forms.ActiveForm;
+                            SelfWithholdingTax.EnableItems(true, objForm);
+                            SelfWithholdingTax.AddGroupsToMatrix(objForm);
+                            System.Runtime.InteropServices.Marshal.ReleaseComObject(objForm);
+                            break;
                     }
                 }
             }
@@ -117,15 +128,7 @@ namespace T1.B1.SelfWithholdingTax
                         {
                             case BoEventTypes.et_CHOOSE_FROM_LIST:
                                 if (pVal.FormTypeEx == "HCO_FSW0100")
-                                {
-                                    if (pVal.ItemUID == "13_U_E") SelfWithholdingTax.clearfilterAccounts(pVal, "CFL_DB");
-                                    if (pVal.ItemUID == "14_U_E") SelfWithholdingTax.clearfilterAccounts(pVal, "CFL_CR");
-                                    if (pVal.ItemUID == "0_U_G")
-                                    {
-                                        SelfWithholdingTax.setBPNameColumn(pVal);
-                                        SelfWithholdingTax.clearfilterBPs(pVal);
-                                    }
-                                }
+                                    SelfWithholdingTax.SelectFieldCFL(pVal);
                                 break;
                             case BoEventTypes.et_FORM_RESIZE:
                                 if (runResizelogic)
@@ -149,6 +152,25 @@ namespace T1.B1.SelfWithholdingTax
                                 runResizelogic = true;
                                 break;
                             case BoEventTypes.et_COMBO_SELECT:
+                                if (pVal.FormTypeEx == "HCO_FSW0100")
+                                {
+                                    if (pVal.ItemUID == "Item_30")
+                                    {
+                                        objForm = MainObject.Instance.B1Application.Forms.ActiveForm;
+                                        var tipo = ((ComboBox)objForm.Items.Item(pVal.ItemUID).Specific).Value;
+                                        switch (tipo)
+                                        {
+                                            case "S":
+                                                ((EditText)objForm.Items.Item("Item_16").Specific).Value = "";
+                                                objForm.Items.Item("Item_8").Click(BoCellClickType.ct_Regular);
+                                                objForm.Items.Item("Item_16").Enabled = false;
+                                                break;
+                                            case "G":
+                                                objForm.Items.Item("Item_16").Enabled = true;
+                                                break;
+                                        }
+                                    }
+                                }
                                 break;
                             case BoEventTypes.et_ITEM_PRESSED:
                                 if (pVal.FormTypeEx == Settings._SelfWithHoldingTax.CancelFormUID)
@@ -167,9 +189,9 @@ namespace T1.B1.SelfWithholdingTax
                                             SelfWithholdingTax.clearAllPBS(pVal);
                                         }
                                     }
-                                    if(pVal.FormTypeEx == Settings._SelfWithHoldingTax.MissingSWTFormUID)
+                                    if (pVal.FormTypeEx == Settings._SelfWithHoldingTax.MissingSWTFormUID)
                                     {
-                                        if (pVal.ItemUID == "btnCalc") SelfWithholdingTax.addMisingSWTDocuments(FormUID, pVal); 
+                                        if (pVal.ItemUID == "btnCalc") SelfWithholdingTax.addMisingSWTDocuments(FormUID, pVal);
                                     }
                                 }
                                 if (pVal.ItemUID == Settings._SelfWithHoldingTax.SelfWithHoldingFolderId)
@@ -188,9 +210,9 @@ namespace T1.B1.SelfWithholdingTax
                                         MainObject.Instance.B1Application.Forms.Item(pVal.FormUID).PaneLevel = Settings._SelfWithHoldingTax.SelfWithHoldingFolderPane;
                                     }
                                 }
-                                if(pVal.FormTypeEx == Settings._SelfWithHoldingTax.MissingSWTFormUID)
+                                if (pVal.FormTypeEx == Settings._SelfWithHoldingTax.MissingSWTFormUID)
                                 {
-                                    if(pVal.ItemUID == "btnGet") SelfWithholdingTax.getMissingSWTaxDocuments(FormUID, pVal);
+                                    if (pVal.ItemUID == "btnGet") SelfWithholdingTax.getMissingSWTaxDocuments(FormUID, pVal);
 
                                 }
                                 break;
@@ -233,42 +255,23 @@ namespace T1.B1.SelfWithholdingTax
                             {
                                 if (pVal.ItemUID == "1")
                                 {
-                                    Form oform = MainObject.Instance.B1Application.Forms.ActiveForm;
-                                    Matrix oMatriz = (Matrix)oform.Items.Item("0_U_G").Specific;
-                                    oMatriz.FlushToDataSource();
-                                    if(oform.Mode != BoFormMode.fm_FIND_MODE)
-                                    {
-                                        var lines = oform.DataSources.DBDataSources.Item(1).Size;
-                                        for (int i = 0; i < lines; i++)
-                                        {
-                                            if (oform.DataSources.DBDataSources.Item(1).GetValue("U_CardCode", i).Equals(string.Empty)) oform.DataSources.DBDataSources.Item(1).RemoveRecord(i);
-                                        }
-                                    }
+                                    BubbleEvent = SelfWithholdingTax.ValidateFields(pVal);
+                                }
+                            }
 
-                                }
-                            }
-                                break;
-                        case BoEventTypes.et_CHOOSE_FROM_LIST:
-                            if (pVal.FormTypeEx == "HCO_FSW0100")
+                            break;
+
+                        case BoEventTypes.et_MATRIX_LINK_PRESSED:
+
+                            if (SWTDocuments.Contains(pVal.FormTypeEx))
                             {
-                                if (pVal.ItemUID == "13_U_E")
-                                {
-                                    SelfWithholdingTax.filterAccounts(pVal, "CFL_DB");
-                                }
-                                if (pVal.ItemUID == "14_U_E")
-                                {
-                                    SelfWithholdingTax.filterAccounts(pVal, "CFL_CR");
-                                }
-                                if (pVal.ItemUID == "0_U_G")
-                                {
-                                    SelfWithholdingTax.filterBPs(pVal);
-                                }
+                                if (pVal.ColUID == "Nro Reg. Retencion")
+                                    SelfWithholdingTax.OpenSelfWitholdingRecord(pVal);
                             }
+
                             break;
                     }
-
                 }
-
             }
             catch (COMException comEx)
             {
@@ -292,7 +295,7 @@ namespace T1.B1.SelfWithholdingTax
                     switch (objForm.TypeEx)
                     {
                         case "HCO_FSW0100":
-                            if (eventInfo.ItemUID == "0_U_G")
+                            if (eventInfo.ItemUID == "Item_31" || eventInfo.ItemUID == "Item_12")
                             {
                                 SelfWithholdingTax.addInsertRowRelationMenuUDO(objForm, eventInfo);
                                 SelfWithholdingTax.addDeleteRowRelationMenuUDO(objForm, eventInfo);
@@ -308,7 +311,7 @@ namespace T1.B1.SelfWithholdingTax
                     switch (objForm.TypeEx)
                     {
                         case "HCO_FSW0100":
-                            if (eventInfo.ItemUID == "0_U_G")
+                            if (eventInfo.ItemUID == "Item_31" || eventInfo.ItemUID == "Item_12")
                             {
                                 SelfWithholdingTax.removeDeleteRowRelationMenuUDO();
                                 SelfWithholdingTax.removeInsertRowRelationMenuUDO();
@@ -329,6 +332,12 @@ namespace T1.B1.SelfWithholdingTax
             catch (Exception er)
             {
                 _Logger.Error("", er);
+            }
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(objForm);
+                objForm = null;
+                GC.Collect();
             }
         }
     }
