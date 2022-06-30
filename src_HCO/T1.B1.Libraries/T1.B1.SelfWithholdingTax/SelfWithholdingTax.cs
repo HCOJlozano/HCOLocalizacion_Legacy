@@ -1681,19 +1681,19 @@ namespace T1.B1.SelfWithholdingTax
                             objItem.ToPane = 0;
                             objFolder = (Folder)objItem.Specific;
                             objFolder.GroupWith(strUID);
+                            objFolder.Item.TextStyle = 1;
                             objItem.Visible = true;
                         }
                     }
                     #endregion Folder;
 
-
-
-                    objForm.Mode = objMode;
+                    objForm.Items.Item("HCO_IT01").TextStyle = 1;
+                    //objForm.Mode = objMode;
                     objForm.Freeze(false);
                 }
                 else
                 {
-                    objForm.Mode = objMode;
+                    //objForm.Mode = objMode;
                 }
 
                 //}
