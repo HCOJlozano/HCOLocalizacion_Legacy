@@ -219,6 +219,10 @@
     {
       "QueryName": "GetGroupItems",
       "Query": "SELECT \"ItmsGrpCod\", \"ItmsGrpNam\" FROM OITB"
+    },
+    {
+      "QueryName": "GetSelWTbyWTCode",
+      "Query": "SELECT \"Code\" FROM {0}.\"@HCO_SW0100\" WHERE \"U_Type\" = 'G' AND \"U_Enabled\" = 'Y' AND \"U_WTCode\" = '{1}'"
     }
   ]
 }

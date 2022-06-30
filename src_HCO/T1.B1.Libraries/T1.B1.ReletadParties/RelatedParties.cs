@@ -59,7 +59,6 @@ namespace T1.B1.RelatedParties
             {
                 Exception er = new Exception(Convert.ToString("COM Error::" + comEx.ErrorCode + "::" + comEx.Message + "::" + comEx.StackTrace));
                 _Logger.Error("", comEx);
-
             }
             catch (Exception er)
             {
@@ -70,10 +69,7 @@ namespace T1.B1.RelatedParties
         private static void GetRelPartyName()
         {
             SAPbobsCOM.Recordset oRS = (SAPbobsCOM.Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-
-
             oRS.DoQuery(string.Format(Queries.Instance.Queries().Get("CheckBPCant"), CacheManager.CacheManager.Instance.getFromCache("DefaultSN")));
-
         }
 
         public static void LoadChooseFromListPayment(ItemEvent pVal)

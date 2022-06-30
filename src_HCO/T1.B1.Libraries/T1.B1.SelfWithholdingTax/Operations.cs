@@ -214,7 +214,7 @@ namespace T1.B1.SelfWithholdingTax
                                 {
                                     if (pVal.ItemUID == "btnGet") SelfWithholdingTax.getMissingSWTaxDocuments(FormUID, pVal);
 
-                                //}
+                                }
                                 break;
                             case BoEventTypes.et_DOUBLE_CLICK:
                                 if (pVal.FormTypeEx == Settings._SelfWithHoldingTax.CancelFormUID)

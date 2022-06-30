@@ -386,7 +386,7 @@ namespace T1.B1.WithholdingTax
                         objBP.BPWithholdingTax.SetCurrentLine(i);
                         if (objWTInfo.GetByKey(objBP.BPWithholdingTax.WTCode))
                         {
-                            if (objWTInfo.Inactive == BoYesNoEnum.tNO)
+                            if (objWTInfo.Inactive == BoYesNoEnum.tNO && !isSelfWT(objWTInfo.WTCode))
                             {
                                 WithholdingTaxDetail objDet = new WithholdingTaxDetail();
                                 objDet.WTCode = objBP.BPWithholdingTax.WTCode;
@@ -1094,6 +1094,64 @@ namespace T1.B1.WithholdingTax
 
             return false;
         }
+
+        internal static bool isSelfWT(string WTCode)
+        {
+            if (!isSWTLiable()) return false;
+            objRS = (SAPbobsCOM.Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+            strSQL = string.Format(Queries.Instance.Queries().Get("GetSelWTbyWTCode"), MainObject.Instance.B1Company.CompanyDB , WTCode);
+
+            try
+            {
+                objRS.DoQuery(strSQL);
+                return objRS.RecordCount > 0;
+            }
+            catch (COMException comEx)
+            {
+                Exception exception = new Exception(Convert.ToString(string.Concat(new object[] { "COM Error::", comEx.ErrorCode, "::", comEx.Message, "::", comEx.StackTrace })));
+                _Logger.Error("", exception);
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+            }
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(objRS);
+                strSQL = string.Empty;
+                GC.Collect();
+            }
+
+
+            return false;
+        }
+
+
+        internal static bool isSWTLiable()
+        {
+            string SWTliable = "";
+
+            try
+            {
+                SWTliable = CacheManager.CacheManager.Instance.getFromCache("SWTLiable") == null ? "N" : CacheManager.CacheManager.Instance.getFromCache("SWTLiable");
+            }
+            catch (COMException comEx)
+            {
+                Exception exception = new Exception(Convert.ToString(string.Concat(new object[] { "COM Error::", comEx.ErrorCode, "::", comEx.Message, "::", comEx.StackTrace })));
+                _Logger.Error("", exception);
+            }
+            catch (Exception er)
+            {
+                _Logger.Error("", er);
+            }
+            finally
+            {
+                GC.Collect();
+            }
+
+            return SWTliable.Equals("Y");
+        }
+        
 
         static public void AddDocumentInfo(BusinessObjectInfo BusinessObjectInfo)
         {
