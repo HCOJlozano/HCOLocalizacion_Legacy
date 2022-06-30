@@ -401,7 +401,7 @@ namespace T1.B1.SelfWithholdingTax
                             objSWI.Credit = objRS.Fields.Item("U_DebitAcct").Value.ToString();
                         }
 
-                        objSWI.TypeLine = objRS.Fields.Item("U_Type").Value.ToString().Equals("G") ? "4" : "5";
+                        objSWI.TypeLine = objRS.Fields.Item("U_Type").Value.ToString().Equals("G") ? "7" : "8";
                         objSWI.Percentage = double.Parse(objRS.Fields.Item("U_Rate").Value.ToString());
                         objSWI.dbBaseAmount = double.Parse(objRS.Fields.Item("Base").Value.ToString());
                         objSWI.dbWtAmount = double.Parse(objRS.Fields.Item("Retencion").Value.ToString());
