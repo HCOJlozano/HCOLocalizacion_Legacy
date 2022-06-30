@@ -280,6 +280,26 @@
       "ValidValues": []
     },
     {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "OpType",
+      "FieldName": "Tipo de operación",
+      "Type": 2,
+      "SubType": 0,
+      "Length": 11,
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_WT1100",
+      "FieldCode": "TipReg",
+      "FieldName": "Tipo de Registro",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 10,
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
       "TableCode": "HCO_WT1101",
       "FieldCode": "WTType",
       "FieldName": "Tipo de retención",
@@ -313,6 +333,14 @@
         {
           "ValidValue": 6,
           "Description": "ESTAMPILLAS"
+        },
+        {
+          "ValidValue": 7,
+          "Description": "GENERAL"
+        },
+        {
+          "ValidValue": 8,
+          "Description": "ESPECIAL"
         }
       ]
     },
@@ -426,6 +454,16 @@
       "Type": 0,
       "SubType": 0,
       "Length": 50,
+      "DefaultValue": "",
+      "ValidValues": []
+    },
+    {
+      "TableCode": "HCO_WT1101",
+      "FieldCode": "AccountAW",
+      "FieldName": "Cuenta de Autorretencion",
+      "Type": 0,
+      "SubType": 0,
+      "Length": 40,
       "DefaultValue": "",
       "ValidValues": []
     }
