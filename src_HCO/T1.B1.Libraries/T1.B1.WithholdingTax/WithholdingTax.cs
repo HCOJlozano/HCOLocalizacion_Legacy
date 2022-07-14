@@ -386,7 +386,7 @@ namespace T1.B1.WithholdingTax
                         objBP.BPWithholdingTax.SetCurrentLine(i);
                         if (objWTInfo.GetByKey(objBP.BPWithholdingTax.WTCode))
                         {
-                            if (objWTInfo.Inactive == BoYesNoEnum.tNO && !isSelfWT(objWTInfo.WTCode))
+                            if (objWTInfo.Inactive == BoYesNoEnum.tNO && !(objWTInfo.UserFields.Fields.Item("U_HCO_Area").Value.ToString().Equals("V") && isSWTLiable() && objWTInfo.UserFields.Fields.Item("U_HCO_WTType").Value.ToString().Equals("2")))
                             {
                                 WithholdingTaxDetail objDet = new WithholdingTaxDetail();
                                 objDet.WTCode = objBP.BPWithholdingTax.WTCode;
@@ -1176,26 +1176,27 @@ namespace T1.B1.WithholdingTax
         {
             if (!(e.Error == null)) _Logger.Error(e.Error.Message);
         }
-        private static double GetWTDocBaseAmount(SAPbobsCOM.Documents objDoc)
+        private static void GetWTDocBaseAmount(SAPbobsCOM.Documents objDoc, ref double taxBase, ref double netBase)
         {
-            double dbBase = 0;
+            
             try
             {
                 for (int i = 0; i < objDoc.Lines.Count; i++)
                 {
                     objDoc.Lines.SetCurrentLine(i);
-                    if (objDoc.Lines.WTLiable == BoYesNoEnum.tYES && objDoc.Lines.TaxTotal > 0)
+                    if (objDoc.Lines.WTLiable == BoYesNoEnum.tYES)
                     {
-                        dbBase += objDoc.Lines.LineTotal;
+                        taxBase += objDoc.Lines.TaxTotal;
+                        netBase += objDoc.Lines.LineTotal;
                     }
                 }
             }
             catch (Exception er)
             {
                 _Logger.Error("", er);
-                dbBase = -1;
+               
             }
-            return dbBase;
+            
         }
         static private void AddDocumentInfoWorker_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -1216,7 +1217,8 @@ namespace T1.B1.WithholdingTax
             string strCardName = String.Empty;
             string strRelatedParty = "";
             string munCode = string.Empty;
-            //string dbBaseAmnt = "";
+            double netBase = 0;
+            double taxBase = 0;
 
             try
             {
@@ -1267,10 +1269,11 @@ namespace T1.B1.WithholdingTax
                     objEntryInfo.SetProperty("U_TransId", objDoc.TransNum);
                     objEntryInfo.SetProperty("U_DocDate", objDoc.DocDate);
                     objEntryInfo.SetProperty("U_OpType", "1");
+                    objEntryInfo.SetProperty("U_TipReg", "1");
 
                     objEntryLinesObject = objEntryInfo.Child("HCO_WT1101");
                     SAPbobsCOM.WithholdingTaxData oWHTData = objDoc.WithholdingTaxData;
-
+                    GetWTDocBaseAmount(objDoc, ref taxBase, ref netBase);
                     for (int i = 0; i < oWHTData.Count; i++)
                     {
                         oWHTData.SetCurrentLine(i);
@@ -1290,7 +1293,7 @@ namespace T1.B1.WithholdingTax
                                 objEntryLinesInfo.SetProperty("U_MunCode", munCode);
                                 objEntryLinesInfo.SetProperty("U_MunName", GetCountyName(munCode));
                             }
-                            if (oWT.BaseType == WithholdingTaxCodeBaseTypeEnum.wtcbt_VAT) objEntryLinesInfo.SetProperty("U_WTDocAmnt", GetWTDocBaseAmount(objDoc));
+                            if (oWT.BaseType == WithholdingTaxCodeBaseTypeEnum.wtcbt_VAT) objEntryLinesInfo.SetProperty("U_WTDocAmnt", netBase);
                             //else objEntryLinesInfo.SetProperty("U_WTBase", dbBaseAmnt);
                         }
                     }
@@ -1365,6 +1368,9 @@ namespace T1.B1.WithholdingTax
                     objRelatedPartyObject = objCompanyService.GetGeneralService("HCO_FRP1100");
                     objResult = (GeneralDataParams)objRelatedPartyObject.GetDataInterface(GeneralServiceDataInterfaces.gsGeneralDataParams);
                     RelPartyCode = GetRelPartyCodeFromCardCode(oDoc.CardCode);
+                    double netBase = 0;
+                    double taxbase = 0;
+                    GetWTDocBaseAmount(oDoc, ref taxbase, ref netBase);
 
                     string add_inv = string.Empty;
                     for (int i = 0; i < oBP.Addresses.Count; i++)
@@ -1398,7 +1404,7 @@ namespace T1.B1.WithholdingTax
                         objEntryInfo.SetProperty("U_TransId", oDoc.TransNum);
                         objEntryInfo.SetProperty("U_DocDate", oDoc.DocDate);
                         objEntryInfo.SetProperty("U_OpType", "1");
-
+                        objEntryInfo.SetProperty("U_TipReg", "1");
                         objEntryLinesObject = objEntryInfo.Child("HCO_WT1101");
 
                         SAPbobsCOM.WithholdingTaxData oWHTData = oDoc.WithholdingTaxData;
@@ -1408,13 +1414,13 @@ namespace T1.B1.WithholdingTax
                             SAPbobsCOM.WithholdingTaxCodes oWT = (WithholdingTaxCodes)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oWithholdingTaxCodes);
                             if (oWT.GetByKey(oWHTData.WTCode))
                             {
-
+                               
                                 objEntryLinesInfo = objEntryLinesObject.Add();
 
                                 objEntryLinesInfo.SetProperty("U_WTType", oWT.UserFields.Fields.Item("U_HCO_WTType").Value);
                                 objEntryLinesInfo.SetProperty("U_WTCode", oWHTData.WTCode);
                                 objEntryLinesInfo.SetProperty("U_WTRate", oWT.BaseAmount);
-                                objEntryLinesInfo.SetProperty("U_WTBase", GetWTDocBaseAmount(oDoc));
+                                objEntryLinesInfo.SetProperty("U_WTBase", oWT.UserFields.Fields.Item("U_HCO_WTType").Value.ToString().Equals("1") ? taxbase : netBase );
                                 objEntryLinesInfo.SetProperty("U_WTAmnt", oWHTData.WTAmount);
                                 objEntryLinesInfo.SetProperty("U_BaseLine", oWHTData.LineNum);
                                 objEntryLinesInfo.SetProperty("U_Account", oWT.Account);
@@ -1423,12 +1429,8 @@ namespace T1.B1.WithholdingTax
                                     objEntryLinesInfo.SetProperty("U_MunCode", munCode);
                                     objEntryLinesInfo.SetProperty("U_MunName", GetCountyName(munCode));
                                 }
-                                if (oWT.BaseType == WithholdingTaxCodeBaseTypeEnum.wtcbt_VAT) objEntryLinesInfo.SetProperty("U_WTDocAmnt", GetWTDocBaseAmount(oDoc));
-                                //}
-                                ////else
-                                ////{
-                                ////    objEntryLinesInfo.SetProperty("U_WTBase", dbBaseAmnt);
-                                ////}
+                                if (oWT.BaseType == WithholdingTaxCodeBaseTypeEnum.wtcbt_VAT) objEntryLinesInfo.SetProperty("U_WTDocAmnt", netBase);
+
                             }
                         }
 

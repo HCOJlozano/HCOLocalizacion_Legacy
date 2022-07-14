@@ -14,12 +14,12 @@
     },
     {
       "TableCode": "HCO_WT1100",
-      "Description": "HCO Registro de operaciones H",
+      "Description": "HCO Registro de operacionesH",
       "Type": 3
     },
     {
       "TableCode": "HCO_WT1101",
-      "Description": "HCO Registro de operaciones L",
+      "Description": "HCO Registro de operacionesL",
       "Type": 4
     }
   ],
@@ -295,9 +295,18 @@
       "FieldName": "Tipo de Registro",
       "Type": 0,
       "SubType": 0,
-      "Length": 10,
+      "Length": 1,
       "DefaultValue": "",
-      "ValidValues": []
+      "ValidValues": [
+        {
+          "ValidValue": "1",
+          "Description": "Retención"
+        },
+        {
+          "ValidValue": "2",
+          "Description": "Autorretención"
+        }
+      ]
     },
     {
       "TableCode": "HCO_WT1101",

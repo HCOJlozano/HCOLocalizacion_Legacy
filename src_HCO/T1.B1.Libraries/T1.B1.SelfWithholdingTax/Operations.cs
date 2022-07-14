@@ -227,21 +227,21 @@ namespace T1.B1.SelfWithholdingTax
                                 }
                                 break;
                             case BoEventTypes.et_FORM_LOAD:
-                                //showInFolderList = Settings._SelfWithHoldingTax.showFolderInDocumentsList.Split(',');
-                                //for (int i = 0; i < showInFolderList.Length; i++)
-                                //{
-                                //    if (showInFolderList[i] == pVal.FormTypeEx)
-                                //    {
-                                //        blInList = true;
-                                //        break;
-                                //    }
-                                //}
-                                //if (blInList)
-                                //{
+                                showInFolderList = Settings._SelfWithHoldingTax.showFolderInDocumentsList.Split(',');
+                                for (int i = 0; i < showInFolderList.Length; i++)
+                                {
+                                    if (showInFolderList[i] == pVal.FormTypeEx)
+                                    {
+                                        blInList = true;
+                                        break;
+                                    }
+                                }
+                                if (blInList)
+                                {
 
-                                //    SelfWithholdingTax.HCOSelfWithHoldingFolderAdd(pVal.FormUID);
-                                //    runResizelogic = false;
-                                //}
+                                    SelfWithholdingTax.HCOSelfWithHoldingFolderAdd(pVal.FormUID);
+                                    runResizelogic = false;
+                                }
                                 break;
                         }
                     }
