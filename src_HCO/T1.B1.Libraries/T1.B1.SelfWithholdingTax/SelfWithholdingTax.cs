@@ -104,18 +104,6 @@ namespace T1.B1.SelfWithholdingTax
                 if (DocType == "14")
                 {
                     blCancelation = true;
-
-                    #region Check if Based
-                    for (int i = 0; i < objDoc.Lines.Count; i++)
-                    {
-                        objDoc.Lines.SetCurrentLine(0);
-                        if (objDoc.Lines.BaseType != 13)
-                        {
-                            lSelfWithHolding = new List<SelfWithholdingTaxInfo>();
-                            break;
-                        }
-                    }
-                    #endregion
                 }
 
                 if (lSelfWithHolding.Count > 0)
