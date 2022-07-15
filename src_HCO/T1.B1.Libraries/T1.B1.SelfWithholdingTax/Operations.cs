@@ -4,8 +4,6 @@ using log4net;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using SAPbouiCOM;
-using System.Resources;
-using System.Reflection;
 
 namespace T1.B1.SelfWithholdingTax
 {
@@ -49,7 +47,6 @@ namespace T1.B1.SelfWithholdingTax
                             {
                                 objForm = MainObject.Instance.B1Application.Forms.ActiveForm;
                                 SelfWithholdingTax.EnableItems(false, objForm);
-                                SelfWithholdingTax.CheckGroups(objForm);
                                 System.Runtime.InteropServices.Marshal.ReleaseComObject(objForm);
                             }
                             break;

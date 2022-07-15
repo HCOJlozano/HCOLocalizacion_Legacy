@@ -70,7 +70,7 @@ namespace T1.B1.EventManager
                 Expenses.Operations.ItemEvent(FormUID, ref pVal, ref BubbleEvent);
 
             if (BubbleEvent)
-                IvaCosto.Operations.ItemEvent(FormUID, ref pVal, ref BubbleEvent);
+               IvaCosto.Operations.ItemEvent(FormUID, ref pVal, ref BubbleEvent);
         }
 
 

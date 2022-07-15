@@ -290,16 +290,6 @@
       "Length": 100,
       "DefaultValue": "",
       "ValidValues": []
-    },
-    {
-      "TableCode": "HCO_WT1101",
-      "FieldCode": "AccountAW",
-      "FieldName": "Cuenta de Autorretencion",
-      "Type": 0,
-      "SubType": 0,
-      "Length": 40,
-      "DefaultValue": "",
-      "ValidValues": []
     }
   ],
   "UDO": [

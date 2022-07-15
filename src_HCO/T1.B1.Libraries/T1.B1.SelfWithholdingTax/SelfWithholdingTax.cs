@@ -6,8 +6,6 @@ using System.Xml;
 using SAPbobsCOM;
 using SAPbouiCOM;
 using System.Linq;
-using System.ComponentModel;
-using Newtonsoft.Json;
 
 namespace T1.B1.SelfWithholdingTax
 {
@@ -23,6 +21,8 @@ namespace T1.B1.SelfWithholdingTax
                 objWithHoldingTax = new SelfWithholdingTax();
             }
         }
+
+        #region Add SWT normal operation
 
         public List<SelfWithholdingTaxTransaction> getWTTransaction(int DocEntry)
         {
@@ -61,8 +61,6 @@ namespace T1.B1.SelfWithholdingTax
             return oXML.InnerXml;
         }
 
-        #region Add SWT normal operation
-
         public static void addSelfWithHoldingTax(SAPbouiCOM.BusinessObjectInfo BusinessObjectInfo)
         {
             try
@@ -93,6 +91,7 @@ namespace T1.B1.SelfWithholdingTax
                 _Logger.Error("", er);
             }
         }
+
         private static SelfWothholdingTaxResult calcSelfWTax(SAPbobsCOM.Documents objDoc, string DocType)
         {
             SelfWothholdingTaxResult objResult = new SelfWothholdingTaxResult();
@@ -184,14 +183,6 @@ namespace T1.B1.SelfWithholdingTax
                         var journalCreated = MainObject.Instance.B1Company.GetNewObjectKey();
                         AddRegisterAutoWitholdingTax(objDoc, journalCreated, int.Parse(DocType));
 
-                        BackgroundWorker addDocumentInfoWorker = new BackgroundWorker();
-                        addDocumentInfoWorker.WorkerSupportsCancellation = false;
-                        addDocumentInfoWorker.WorkerReportsProgress = false;
-                        addDocumentInfoWorker.DoWork += AddDocumentInfoWorker_DoWork;
-                        addDocumentInfoWorker.RunWorkerCompleted += AddDocumentInfoWorker_RunWorkerCompleted;
-                        addDocumentInfoWorker.RunWorkerAsync(lSelfWithHolding);
-
-
                         MainObject.Instance.B1Application.SetStatusBarMessage("T1: Las autoretenciones se causaron con éxito.", SAPbouiCOM.BoMessageTime.bmt_Short, false);
                         objResult.Message = "T1: Las autoretenciones se causaron con éxito.";
                         objResult.MessageCode = "";
@@ -267,100 +258,6 @@ namespace T1.B1.SelfWithholdingTax
             gs.Add(gd);
         }
 
-        static private void AddDocumentInfoWorker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            List<SelfWithholdingTaxInfo> oInfo = null;
-            SAPbobsCOM.Documents objDoc = null;
-            SAPbobsCOM.CompanyService objCompanyService = null;
-            SAPbobsCOM.GeneralService objEntryObject = null;
-            SAPbobsCOM.GeneralData objEntryInfo = null;
-            SAPbobsCOM.GeneralData objEntryLinesInfo = null;
-            SAPbobsCOM.GeneralDataCollection objEntryLinesObject = null;
-            SAPbobsCOM.BusinessPartners oBP = null;
-
-
-            string strCardName = String.Empty;
-            string strRelatedParty = "";
-            string munCode = string.Empty;
-            //string dbBaseAmnt = "";
-
-            try
-            {
-                oInfo = (List<SelfWithholdingTaxInfo>)e.Argument;
-
-                objDoc = (SAPbobsCOM.Documents)MainObject.Instance.B1Company.GetBusinessObject((SAPbobsCOM.BoObjectTypes)Enum.Parse(typeof(SAPbobsCOM.BoObjectTypes), oInfo[0].DocType));
-                objDoc.GetByKey(oInfo[0].DocEntry);
-
-                int DocEntryUDO = getDocEntryWHUDO(objDoc.DocEntry, oInfo[0].DocType);
-
-                //objCompanyService = MainObject.Instance.B1Company.GetCompanyService();
-                //oBP = (BusinessPartners)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
-                //oBP.GetByKey(objDoc.CardCode);
-                //string add_inv = string.Empty;
-                //for (int i = 0; i < oBP.Addresses.Count; i++)
-                //{
-                //    oBP.Addresses.SetCurrentLine(i);
-                //    add_inv = objDoc.PayToCode;
-                //    if (add_inv.Equals(oBP.Addresses.AddressName) && oBP.Addresses.AddressType == BoAddressType.bo_BillTo) munCode = oBP.Addresses.UserFields.Fields.Item("U_HCO_MUNI").Value.ToString();                        
-                //}
-
-                //dbBaseAmnt = objDoc.WithholdingTaxData.UserFields.Fields.Item("U_HCO_BaseAmnt").Value.ToString();                    
-
-                objEntryObject = objCompanyService.GetGeneralService("HCO_FWT1100");
-                objEntryInfo = (GeneralData)objEntryObject.GetDataInterface(GeneralServiceDataInterfaces.gsGeneralData);
-
-                objEntryLinesObject = objEntryInfo.Child("HCO_WT1101");
-                SAPbobsCOM.WithholdingTaxData oWHTData = objDoc.WithholdingTaxData;
-
-                for (int i = 0; i < oWHTData.Count; i++)
-                {
-                    oWHTData.SetCurrentLine(i);
-                    SAPbobsCOM.WithholdingTaxCodes oWT = (WithholdingTaxCodes)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.oWithholdingTaxCodes);
-                    if (oWT.GetByKey(oWHTData.WTCode))
-                    {
-                        objEntryLinesInfo = objEntryLinesObject.Add();
-                        objEntryLinesInfo.SetProperty("U_WTType", oWT.UserFields.Fields.Item("U_HCO_WTType").Value);
-                        objEntryLinesInfo.SetProperty("U_WTCode", oWHTData.WTCode);
-                        objEntryLinesInfo.SetProperty("U_WTRate", oWT.BaseAmount);
-                        objEntryLinesInfo.SetProperty("U_WTBase", objDoc.WithholdingTaxData.UserFields.Fields.Item("U_HCO_BaseAmnt").Value.ToString());
-                        objEntryLinesInfo.SetProperty("U_WTAmnt", oWHTData.WTAmount);
-                        objEntryLinesInfo.SetProperty("U_BaseLine", oWHTData.LineNum);
-                        objEntryLinesInfo.SetProperty("U_Account", oWT.Account);
-                        //if (oWT.UserFields.Fields.Item("U_HCO_WTType").Value.ToString().Equals("3"))
-                        //{
-                        //    objEntryLinesInfo.SetProperty("U_MunCode", munCode);
-                        //    objEntryLinesInfo.SetProperty("U_MunName", GetCountyName(munCode));
-                        //}
-                        //if (oWT.BaseType == WithholdingTaxCodeBaseTypeEnum.wtcbt_VAT) objEntryLinesInfo.SetProperty("U_WTDocAmnt", GetWTDocBaseAmount(objDoc));
-                        //else objEntryLinesInfo.SetProperty("U_WTBase", dbBaseAmnt);
-                    }
-                }
-                objEntryObject.Add(objEntryInfo);
-            }
-            catch (Exception er)
-            {
-                _Logger.Error("", er);
-            }
-            finally
-            {
-
-            }
-        }
-
-        static private void AddDocumentInfoWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            if (!(e.Error == null)) _Logger.Error(e.Error.Message);
-        }
-
-        static private int getDocEntryWHUDO(int docEntry, string objType)
-        {
-            int UDODocEntry = 0;
-
-            return UDODocEntry;
-        }
-
-        #endregion
-
         private static List<SelfWithholdingTaxInfo> getSelfWithholdingTax(SAPbobsCOM.Documents objDoc, string DocType)
         {
             List<SelfWithholdingTaxInfo> lSWTH = new List<SelfWithholdingTaxInfo>();
@@ -371,7 +268,7 @@ namespace T1.B1.SelfWithholdingTax
                 string typeFilter = "'S'";
                 var strSQLApply = Queries.Instance.Queries().Get("ApplyAutoWitholdingTax");
                 var objRSApplt = (Recordset)MainObject.Instance.B1Company.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset);
-                    objRSApplt.DoQuery(strSQLApply);
+                objRSApplt.DoQuery(strSQLApply);
 
                 if (objRSApplt.RecordCount > 0)
                 {
@@ -419,6 +316,7 @@ namespace T1.B1.SelfWithholdingTax
             return lSWTH;
         }
 
+        #endregion
 
         #region add Missing Self Withholding Tax
 
