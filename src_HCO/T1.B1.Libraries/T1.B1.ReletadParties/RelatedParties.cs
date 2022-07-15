@@ -31,7 +31,7 @@ namespace T1.B1.RelatedParties
             GetRelPartyConfiguration();
         }
 
-        private static void GetRelPartyConfiguration()
+        public static void GetRelPartyConfiguration()
         {
             Recordset oRS = (SAPbobsCOM.Recordset)MainObject.Instance.B1Company.GetBusinessObject(BoObjectTypes.BoRecordset);
 
