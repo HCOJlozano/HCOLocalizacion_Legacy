@@ -125,7 +125,11 @@ namespace T1.B1.SelfWithholdingTax
                     {
                         if (DocType.Equals("13"))
                         {
-                            objJournal.Lines.Credit = sInfo.dbWtAmount;
+                            if(objDoc.Cancelled == BoYesNoEnum.tNO)
+                                objJournal.Lines.Credit = sInfo.dbWtAmount;
+                            else
+                                objJournal.Lines.Debit = sInfo.dbWtAmount;
+
                             objJournal.Lines.AccountCode = !blCancelation ? sInfo.Credit : sInfo.Debit;
                             objJournal.Lines.Reference1 = objDoc.DocNum.ToString();
                             objJournal.Lines.Reference2 = objDoc.DocEntry.ToString();
@@ -133,7 +137,11 @@ namespace T1.B1.SelfWithholdingTax
                             objJournal.Lines.UserFields.Fields.Item(Settings._SelfWithHoldingTax.relatedpartyFieldInLines).Value = strThirdParty;
                             objJournal.Lines.Add();
 
-                            objJournal.Lines.Debit = sInfo.dbWtAmount;
+                            if (objDoc.Cancelled == BoYesNoEnum.tNO)
+                                objJournal.Lines.Debit = sInfo.dbWtAmount;
+                            else
+                                objJournal.Lines.Credit = sInfo.dbWtAmount;
+
                             objJournal.Lines.AccountCode = !blCancelation ? sInfo.Debit : sInfo.Credit;
                             objJournal.Lines.Reference1 = objDoc.DocNum.ToString();
                             objJournal.Lines.Reference2 = objDoc.DocEntry.ToString();
@@ -143,7 +151,11 @@ namespace T1.B1.SelfWithholdingTax
                         }
                         else
                         {
-                            objJournal.Lines.Debit = sInfo.dbWtAmount;
+                            if (objDoc.Cancelled == BoYesNoEnum.tNO)
+                                objJournal.Lines.Debit = sInfo.dbWtAmount;
+                            else
+                                objJournal.Lines.Credit = sInfo.dbWtAmount;
+
                             objJournal.Lines.AccountCode = !blCancelation ? sInfo.Credit : sInfo.Debit;
                             objJournal.Lines.Reference1 = objDoc.DocNum.ToString();
                             objJournal.Lines.Reference2 = objDoc.DocEntry.ToString();
@@ -151,7 +163,11 @@ namespace T1.B1.SelfWithholdingTax
                             objJournal.Lines.UserFields.Fields.Item(Settings._SelfWithHoldingTax.relatedpartyFieldInLines).Value = strThirdParty;
                             objJournal.Lines.Add();
 
-                            objJournal.Lines.Credit = sInfo.dbWtAmount;
+                            if (objDoc.Cancelled == BoYesNoEnum.tNO)
+                                objJournal.Lines.Credit = sInfo.dbWtAmount;
+                            else
+                                objJournal.Lines.Debit = sInfo.dbWtAmount;
+
                             objJournal.Lines.AccountCode = !blCancelation ? sInfo.Debit : sInfo.Credit;
                             objJournal.Lines.Reference1 = objDoc.DocNum.ToString();
                             objJournal.Lines.Reference2 = objDoc.DocEntry.ToString();
